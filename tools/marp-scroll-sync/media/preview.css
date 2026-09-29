@@ -1,0 +1,226 @@
+/* Marp Scroll Sync：プレビュー専用 UI の CSS。
+   デックの CSS（.badge / .toast / .card など）と衝突させないよう、クラスも id もすべて ss- 接頭辞にする。
+   デックの DOM（section の中）に一時的に付けるクラスは .ss-hover / .ss-editing / .ss-svg-hidden の3つだけ。 */
+html, body { margin:0; padding:0; background:#4a4a4f; }
+/* スライドの間隔を 30px 取り、現在のスライドのすぐ上（右寄せ）に操作ボタンを置く。
+   スライドの上に重ねると、右上のロゴや page-title が隠れて「被り」の確認ができなくなるため。 */
+#wrap { padding:34px 16px 60vh; }
+div.marpit > svg[data-marpit-svg] {
+  display:block; width:100%; height:auto; max-width:1120px;
+  margin:0 auto 30px; box-shadow:0 1px 8px rgba(0,0,0,.45);
+  cursor:default; scroll-margin-top:34px; border:3px solid transparent;
+}
+div.marpit > svg.current-slide { border-color:#4aa3ff; }
+
+/* 右上はスライド操作ボタンが来るので、バッジは右下へ（幅 700px で重なるのを実測） */
+.ss-badge { position:fixed; bottom:18px; right:14px; z-index:9;
+  background:#222a; color:#fff; font:600 12px/1.4 sans-serif;
+  padding:3px 9px; border-radius:9px; pointer-events:none; }
+
+/* ---- 直接編集 ---- */
+/* 「ここは直接直せる」の合図。outline はレイアウトを動かさない（border だと文字が1px動く） */
+.ss-hover { outline:2px dashed rgba(74,163,255,.75) !important; outline-offset:2px; cursor:text !important; }
+.ss-editing { outline:3px solid #2f8bff !important; outline-offset:2px; cursor:text !important;
+  caret-color:#2f8bff; background-image:linear-gradient(rgba(74,163,255,.10), rgba(74,163,255,.10)); }
+/* インライン SVG の文字は、編集中だけ隠して同じ位置に入力欄を重ねる */
+.ss-svg-hidden { visibility:hidden !important; }
+svg text.ss-hover, svg tspan.ss-hover { outline:none !important; text-decoration:underline dashed rgba(74,163,255,.9); cursor:text !important; }
+
+/* スライドに重ねる UI を置く層。文書座標で絶対配置する（スクロールしても付いてくる） */
+#ss-layer { position:absolute; left:0; top:0; width:0; height:0; z-index:15; pointer-events:none; }
+#ss-layer > * { pointer-events:auto; }
+.ss-svg-input { position:absolute; box-sizing:content-box; margin:0; padding:1px 4px;
+  border:2px solid #2f8bff; border-radius:3px; background:#fff; outline:none;
+  box-shadow:0 2px 10px rgba(0,0,0,.35); }
+
+/* ---- スライド操作ボタン（現在のスライドのすぐ上・右寄せ） ---- */
+.ss-ops { position:absolute; display:flex; gap:3px; transform:translateX(-100%); white-space:nowrap;
+  font:600 12px/1 -apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif; user-select:none; }
+.ss-ops button { font:inherit; color:#eee; background:#2c2c33; border:1px solid #5a5a63;
+  border-radius:5px; height:22px; min-width:24px; padding:0 6px; cursor:pointer; }
+.ss-ops button:hover { background:#4a4a55; }
+.ss-ops button:active { background:#5a5a66; }
+.ss-ops button.ss-on { color:#ffd54a; border-color:#c9a227; }
+.ss-ops .ss-gap { width:6px; }
+/* 印（完成スライド）のあるスライドの左上に常時出す ★ */
+.ss-mark { position:absolute; pointer-events:none !important; color:#ffd54a;
+  font:700 15px/22px sans-serif; text-shadow:0 1px 2px rgba(0,0,0,.6); }
+
+/* はみ出しバッジ（★ の右）。title に量を出すので、ここだけポインタを受ける */
+.ss-over { position:absolute; color:#1a1a1a; background:#ffb547; border-radius:4px; padding:0 7px; cursor:help;
+  font:700 11.5px/20px -apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif; white-space:nowrap;
+  box-shadow:0 1px 3px rgba(0,0,0,.5); user-select:none; }
+
+/* ---- スライドの間の ＋（既存スライドを探して、ここに入れる） ----
+   スライドの間の余白（30px）の中央に 22px。右寄せの操作ボタン列・左寄せの ★ / ⚠ とは横位置が違うので重ならない。
+   ふだんは見せない（DESIGN.md 8.1）。スライドの間にマウスが乗ったとき（.ss-near）、キーボードで当たったとき、
+   ポップアップを開いている間（.ss-active）だけ出す。出るまで 100ms 以内（opacity の遷移は 60ms）。 */
+.ss-insert { position:absolute; transform:translate(-50%, -50%); width:22px; height:22px; padding:0; border-radius:50%;
+  font:700 14px/20px -apple-system,BlinkMacSystemFont,sans-serif; text-align:center; color:#e8e8ee;
+  background:#2f6fd0; border:1px solid #8fc0ff; cursor:pointer; opacity:0; transition:opacity .06s; }
+#ss-layer > .ss-insert { pointer-events:none; }
+#ss-layer > .ss-insert.ss-near, #ss-layer > .ss-insert.ss-active, #ss-layer > .ss-insert:focus-visible { opacity:1; pointer-events:auto; color:#fff; outline:none; }
+#ss-layer > .ss-insert.ss-near:hover { background:#3b80e6; }
+#ss-layer.ss-editing-on > .ss-insert.ss-near { opacity:.35; cursor:not-allowed; }
+
+/* ---- サイズ/色 微調整ツールバー（下部中央・常駐） ---- */
+#ss-tuner { position:fixed; left:50%; bottom:14px; transform:translateX(-50%); z-index:20;
+  display:flex; align-items:center; gap:6px; padding:6px 10px; border-radius:24px;
+  background:#1f1f24f0; box-shadow:0 2px 12px rgba(0,0,0,.55); color:#eee;
+  font:600 12px/1 -apple-system,BlinkMacSystemFont,sans-serif; user-select:none; }
+#ss-tuner button { font:inherit; color:#eee; background:#3a3a42; border:1px solid #555;
+  border-radius:6px; padding:5px 9px; cursor:pointer; }
+#ss-tuner button:hover { background:#4a4a55; }
+#ss-tuner button:active { background:#5a5a66; }
+#ss-tuner .ss-sz { min-width:48px; text-align:center; font-variant-numeric:tabular-nums; }
+#ss-tuner .ss-sep { width:1px; height:18px; background:#555; margin:0 2px; }
+#ss-tuner input[type=color] { width:26px; height:24px; padding:0; border:1px solid #555;
+  border-radius:6px; background:none; cursor:pointer; }
+#ss-tuner .ss-sw { width:18px; height:18px; padding:0; border-radius:50%; border:1px solid #0006; }
+#ss-tuner[data-active="0"] { opacity:.45; }
+#ss-tuner[data-active="0"] button, #ss-tuner[data-active="0"] input { pointer-events:none; }
+
+/* ---- トースト ---- */
+.ss-toast { position:fixed; left:50%; bottom:64px; transform:translateX(-50%); z-index:40;
+  max-width:min(80vw, 560px); padding:9px 16px; border-radius:8px;
+  background:#1f1f24f5; color:#fff; border-left:5px solid #4aa3ff;
+  font:500 13px/1.5 -apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif;
+  box-shadow:0 3px 14px rgba(0,0,0,.55); opacity:0; pointer-events:none; transition:opacity .18s; }
+.ss-toast.ss-show { opacity:1; }
+.ss-toast.ss-err { border-left-color:#ff6b5e; }
+
+/* ---- ライブラリのギャラリー（全面オーバーレイ） ---- */
+.ss-gallery { position:fixed; inset:0; z-index:30; display:none; background:rgba(20,20,24,.86);
+  font:500 13px/1.45 -apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif; color:#eee; }
+.ss-gallery.ss-open { display:block; }
+.ss-gal-panel { position:absolute; inset:24px; display:flex; flex-direction:column; max-width:1180px; margin:0 auto;
+  background:#26262c; border:1px solid #55555e; border-radius:10px; box-shadow:0 8px 40px rgba(0,0,0,.6); overflow:hidden; }
+.ss-gal-head { display:flex; align-items:center; flex-wrap:wrap; gap:8px 10px; padding:10px 14px; border-bottom:1px solid #44444c; }
+.ss-gal-title { font-weight:700; white-space:nowrap; }
+.ss-gal-filter { flex:1 1 200px; min-width:0; font:inherit; color:#eee; background:#1b1b20; border:1px solid #5a5a63;
+  border-radius:6px; padding:6px 10px; outline:none; }
+.ss-gal-filter:focus { border-color:#4aa3ff; }
+.ss-gal-count { color:#aaa; white-space:nowrap; font-variant-numeric:tabular-nums; }
+.ss-gal-close { font:inherit; color:#eee; background:#3a3a42; border:1px solid #555; border-radius:6px; padding:5px 10px; cursor:pointer; }
+.ss-gal-grid { flex:1; overflow:auto; padding:14px; display:grid; gap:14px;
+  grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); grid-auto-rows:max-content; align-content:start; align-items:start; }
+/* overflow:hidden の格子項目は min-height が 0 になり、行が潰れて題名が切れる（実測）。行の高さは中身で決める */
+.ss-gal-card { display:block; min-height:max-content; text-align:left; padding:0; font:inherit; color:inherit; cursor:pointer;
+  background:#1b1b20; border:2px solid #44444c; border-radius:8px; overflow:hidden; }
+.ss-gal-card:hover, .ss-gal-card:focus-visible { border-color:#4aa3ff; outline:none; }
+.ss-gal-thumb { display:block; width:100%; aspect-ratio:16 / 9; object-fit:cover; background:#fff; }
+/* サムネイルが無いときは題名のカードで代える */
+.ss-gal-nothumb { display:flex; align-items:center; justify-content:center; width:100%; aspect-ratio:16 / 9;
+  box-sizing:border-box; padding:12px; text-align:center; background:#f4f1ea; color:#333; font-weight:700; font-size:15px; line-height:1.4; }
+.ss-gal-meta { padding:8px 10px 10px; }
+.ss-gal-name { font-weight:700; margin-bottom:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.ss-gal-sub { color:#aaa; font-size:11.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.ss-gal-pattern { display:inline-block; font-size:11px; font-weight:700; color:#cfe6ff; background:#2b4a68; border-radius:9px; padding:1px 8px; margin-right:6px; }
+.ss-gal-tags { margin-top:5px; display:flex; flex-wrap:wrap; gap:4px; }
+.ss-gal-tag { font-size:11px; color:#ddd; background:#3a3a42; border-radius:9px; padding:1px 8px; }
+.ss-gal-empty { grid-column:1 / -1; color:#aaa; text-align:center; padding:40px 0; }
+
+/* ---- 検索ギャラリー（.ss-corpus のときだけ出す部品は .ss-gal-corpus） ---- */
+.ss-gal-corpus { display:none !important; }
+.ss-gallery.ss-corpus .ss-gal-corpus { display:flex !important; }
+.ss-gallery.ss-corpus select.ss-gal-corpus { display:inline-block !important; }
+.ss-gal-check { display:flex; align-items:center; gap:5px; white-space:nowrap; cursor:pointer; user-select:none; }
+.ss-gal-check input { margin:0; accent-color:#4aa3ff; }
+.ss-gal-sort { font:inherit; color:#eee; background:#1b1b20; border:1px solid #5a5a63; border-radius:6px; padding:5px 6px; }
+/* カード：サムネイルは Shadow DOM（.ss-gal-shadow が host）。16:9 の箱で切り、読み込み前も高さを保つ */
+.ss-gal-pick { position:relative; }
+.ss-gal-pick.ss-sel { border-color:#ffd54a; box-shadow:0 0 0 2px rgba(255,213,74,.35); }
+.ss-gal-pick.ss-sel:hover, .ss-gal-pick.ss-sel:focus-visible { border-color:#ffe48a; }
+.ss-gal-pick:focus-visible { box-shadow:0 0 0 3px rgba(74,163,255,.5); }
+.ss-gal-thumbbox { position:relative; width:100%; aspect-ratio:16 / 9; overflow:hidden; background:#fff; }
+.ss-gal-shadow { display:block; width:100%; height:100%; }
+.ss-gal-shadow.ss-gal-nothumb { height:100%; aspect-ratio:auto; }
+/* 選んだ順の番号（選んでいないときは出さない） */
+.ss-gal-order { position:absolute; left:6px; top:6px; min-width:22px; height:22px; box-sizing:border-box; padding:0 6px; border-radius:11px;
+  background:#ffd54a; color:#1a1a1a; font:700 13px/22px sans-serif; text-align:center; box-shadow:0 1px 4px rgba(0,0,0,.5); pointer-events:none; }
+.ss-gal-order:empty { display:none; }
+.ss-gal-snippet { margin-top:4px; color:#c4c4cc; font-size:11.5px; line-height:1.45; overflow:hidden;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+.ss-gal-row { margin-top:6px; display:flex; align-items:flex-end; gap:6px; }
+.ss-gal-row .ss-gal-tags { margin-top:0; flex:1; min-width:0; }
+.ss-gal-badge { font-size:11px; font-weight:700; color:#ddd; background:#3a3a42; border-radius:9px; padding:1px 8px; white-space:nowrap; }
+.ss-gal-badge.ss-b-mark { color:#1a1a1a; background:#ffd54a; }
+.ss-gal-badge.ss-b-touch { color:#d6f5dd; background:#25573a; }
+.ss-gal-badge.ss-b-theme { color:#ffe0c2; background:#6b4218; }
+.ss-gal-open { flex:none; font:inherit; font-size:11px; color:#9fcbff; background:none; border:1px solid #4b5f78; border-radius:5px; padding:1px 7px; cursor:pointer; white-space:nowrap; }
+.ss-gal-open:hover, .ss-gal-open:focus-visible { background:#2b4a68; color:#fff; outline:none; }
+.ss-gal-more { grid-column:1 / -1; justify-self:center; font:inherit; color:#eee; background:#3a3a42; border:1px solid #666; border-radius:6px; padding:7px 22px; cursor:pointer; }
+.ss-gal-more:hover { background:#4a4a55; }
+.ss-gal-more:disabled { opacity:.5; cursor:default; }
+/* 下部バー */
+.ss-gal-foot { align-items:center; flex-wrap:wrap; gap:8px 14px; padding:10px 14px; border-top:1px solid #44444c; background:#202026; }
+.ss-gal-selcount { font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.ss-gal-spacer { flex:1; }
+.ss-gal-clear { font:inherit; color:#ccc; background:none; border:1px solid #555; border-radius:6px; padding:4px 9px; cursor:pointer; }
+.ss-gal-clear:disabled { visibility:hidden; }
+.ss-gal-insert { font:inherit; font-weight:700; color:#fff; background:#2f6fd0; border:1px solid #6aa5ff; border-radius:6px; padding:7px 18px; cursor:pointer; }
+.ss-gal-insert:hover { background:#3b80e6; }
+.ss-gal-insert:disabled { color:#999; background:#3a3a42; border-color:#555; cursor:default; }
+
+/* ---- 挿入ポップアップ（＋ の近くに出す小さな窓。DESIGN.md 8.1） ----
+   文書座標で絶対配置（スクロールに付いてくる）。下に入りきらないときは .ss-up で ＋ の上へ出す。 */
+.ss-pop { position:absolute; z-index:28; display:none; flex-direction:column; box-sizing:border-box; overflow:hidden;
+  font:500 12.5px/1.45 -apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif; color:#eee;
+  background:#26262c; border:1px solid #6a6a74; border-radius:10px; box-shadow:0 8px 32px rgba(0,0,0,.65); }
+.ss-pop.ss-open { display:flex; }
+.ss-pop.ss-up { transform:translateY(-100%); }
+.ss-pop-head { display:flex; gap:8px; padding:9px 10px; border-bottom:1px solid #44444c; }
+.ss-pop-filter { flex:1; min-width:0; font:inherit; color:#eee; background:#1b1b20; border:1px solid #5a5a63; border-radius:6px; padding:5px 9px; outline:none; }
+.ss-pop-filter:focus { border-color:#4aa3ff; }
+.ss-pop-more { flex:none; font:inherit; color:#9fcbff; background:none; border:1px solid #4b5f78; border-radius:6px; padding:4px 10px; cursor:pointer; white-space:nowrap; }
+.ss-pop-more:hover, .ss-pop-more:focus-visible { background:#2b4a68; color:#fff; outline:none; }
+.ss-pop-body { flex:1; min-height:0; overflow:auto; padding:8px 10px 10px; }
+.ss-pop-h { display:flex; align-items:center; gap:8px; margin:6px 0 6px; color:#b9b9c2; font-size:11.5px; font-weight:700; }
+.ss-pop-note { grid-column:1 / -1; color:#a4a4ae; font-size:11.5px; padding:4px 0 6px; }
+.ss-pop-foot { display:flex; align-items:center; flex-wrap:wrap; gap:6px 12px; padding:8px 10px; border-top:1px solid #44444c; background:#202026; font-size:11.5px; }
+.ss-pop-hint { color:#9a9aa4; white-space:nowrap; }
+.ss-pop-selcount { font-weight:700; white-space:nowrap; }
+.ss-pop-insert { font:inherit; font-weight:700; color:#fff; background:#2f6fd0; border:1px solid #6aa5ff; border-radius:6px; padding:4px 12px; cursor:pointer; }
+.ss-pop-insert:hover { background:#3b80e6; }
+.ss-pop-check { display:flex; align-items:center; gap:5px; white-space:nowrap; cursor:pointer; user-select:none; }
+.ss-pop-check input { margin:0; accent-color:#4aa3ff; }
+/* 小さなカード（3 列）。ポップアップと、全面ギャラリーの棚で同じ物を使う */
+.ss-pc-grid { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:8px; align-items:start; }
+.ss-shelf { grid-column:1 / -1; margin-bottom:6px; }
+.ss-gal-grid > .ss-shelf { padding-bottom:12px; border-bottom:1px solid #44444c; }
+.ss-gal-grid > .ss-shelf .ss-pc-grid { grid-template-columns:repeat(auto-fill, minmax(170px, 1fr)); gap:12px; }
+.ss-pc { border-width:1px; border-radius:6px; user-select:none; -webkit-user-select:none; }
+.ss-pc.ss-drop { border-color:#ffd54a; border-style:dashed; }
+.ss-pc-meta { display:flex; align-items:center; gap:4px; padding:3px 4px 4px 6px; min-height:22px; }
+.ss-pc-name { flex:1; min-width:0; font-size:11.5px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.ss-pc-shelf .ss-pc-name { cursor:text; }
+/* 「名前を付ける…」「×」はサムネイルの右上に重ねる（呼び名の幅を削らない）。カードに乗ったとき・キーボードで当たったときだけ出す */
+.ss-pc { position:relative; }
+.ss-pc-act { position:absolute; top:4px; right:4px; font:inherit; font-size:10.5px; font-weight:700; color:#fff; background:rgba(28,28,34,.88); border:1px solid #6a6a74; border-radius:4px; padding:1px 6px; cursor:pointer; white-space:nowrap; opacity:0; pointer-events:none; }
+/* 見えていない間はクリックを受けない（サムネイルの上部を押したのに名前付けが開く、を防ぐ） */
+.ss-pc:hover .ss-pc-act, .ss-pc:focus-within .ss-pc-act { opacity:1; pointer-events:auto; }
+.ss-pc-act:hover, .ss-pc-act:focus-visible { border-color:#8fc0ff; background:#2f6fd0; color:#fff; outline:none; }
+.ss-pc-x { font-size:13px; line-height:1.2; padding:0 6px; }
+.ss-pc .ss-gal-order { left:4px; top:4px; min-width:18px; height:18px; line-height:18px; font-size:11px; padding:0 5px; }
+.ss-pc-lost { color:#8a6d3b !important; background:#efe6d2 !important; font-size:12px !important; }
+/* サムネイルが埋まるまでの骨組み：題名だけを出す */
+.ss-gal-shadow.ss-wait { display:flex; align-items:center; justify-content:center; box-sizing:border-box; padding:6px; overflow:hidden;
+  text-align:center; background:#f4f1ea; color:#444; font-weight:700; font-size:12px; line-height:1.35; }
+.ss-pc .ss-gal-nothumb { font-size:12px; padding:6px; }
+/* 棚名のタブ */
+.ss-shelf-tabs { display:flex; flex-wrap:wrap; gap:4px; min-width:0; }
+.ss-shelf-tab { font:inherit; font-size:11.5px; font-weight:700; color:#ccc; background:#1b1b20; border:1px solid #4a4a54; border-radius:11px; padding:1px 10px; cursor:pointer; }
+.ss-shelf-tab.ss-on { color:#1a1a1a; background:#ffd54a; border-color:#ffd54a; }
+.ss-shelf-tab:focus-visible { outline:2px solid #4aa3ff; outline-offset:1px; }
+/* その場の入力（呼び名の改名・棚名の改名・「名前を付ける…」） */
+.ss-inline { flex:1; min-width:0; box-sizing:border-box; font:inherit; font-size:11.5px; color:#eee; background:#1b1b20; border:1px solid #4aa3ff; border-radius:4px; padding:1px 5px; outline:none; }
+.ss-nameform { grid-column:1 / -1; display:flex; flex-wrap:wrap; align-items:center; gap:6px; padding:7px 8px; background:#1b1b20; border:1px solid #4aa3ff; border-radius:6px; }
+.ss-nameform input, .ss-nameform select { font:inherit; font-size:12px; color:#eee; background:#26262c; border:1px solid #5a5a63; border-radius:5px; padding:3px 7px; outline:none; min-width:0; }
+.ss-nameform input:focus, .ss-nameform select:focus { border-color:#4aa3ff; }
+.ss-nf-label { flex:2 1 150px; }
+.ss-nf-new { flex:1 1 110px; }
+.ss-nameform button { font:inherit; font-size:12px; border-radius:5px; padding:3px 10px; cursor:pointer; }
+.ss-nf-ok { color:#fff; background:#2f6fd0; border:1px solid #6aa5ff; font-weight:700; }
+.ss-nf-cancel { color:#ccc; background:none; border:1px solid #555; }
+.ss-gal-naming { flex:none; font:inherit; font-size:11px; color:#ffe9a3; background:none; border:1px solid #6b5a1e; border-radius:5px; padding:1px 7px; cursor:pointer; white-space:nowrap; }
+.ss-gal-naming:hover, .ss-gal-naming:focus-visible { background:#5a4a12; color:#fff; outline:none; }

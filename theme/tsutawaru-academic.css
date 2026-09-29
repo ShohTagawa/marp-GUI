@@ -1,0 +1,1192 @@
+/* @theme tsutawaru-academic */
+/* ============================================================================
+   tsutawaru-academic — 『伝わるデザインの基本 増補改訂3版』準拠テーマ
+   （高橋佑磨・片山なつ 著／技術評論社）
+
+   academic.css を @import して、**本文（メイン領域）だけ**を本のルールで組み直す。
+   ヘッダー帯・ロゴ・page-title・ページ番号・フォントは academic.css のまま触らない。
+
+   ビルド時は3枚とも渡す：
+     --theme-set theme/academic.css theme/tsutawaru-academic.css
+   （部品テーマ（非同梱） とは併用しない。tsutawaru は 部品テーマ（非同梱） の代わりに使う）
+
+   このテーマが解こうとしている課題：
+     (A) 囲み枠が多すぎる → p.212「囲みすぎは絶対にNGです。」
+     (B) 1枚の文字数が多すぎる → p.202「ルール通りにいかないのは、多くの場合、
+         情報が多すぎたり、内容が洗練されていないことが原因」
+
+   コメントの「p.NNN」は書籍のノンブル。設計判断はすべて紙面で確認済み。
+   ============================================================================ */
+@import "academic";
+
+/* ============================================================================
+   1. 配色 — 合計4色まで。既定は3色運用。
+      p.190「合計4色まで」＝ 背景色／文字の基本色／メインの色／強調の色
+      p.192「さらにシンプルに」＝ 4色のうち2色を同じにして3色
+      p.196「強調の色を複数使わない」＝ 強調色は1色
+      p.184「彩度の高すぎる標準色は使わない」／p.205「原色（彩度の高すぎる赤や緑、
+            黄色）を使わない」→ 赤は朱ではなく“えんじ”寄り #A6192E
+      p.193/p.198 文字は真っ黒ではなく明度を数〜10%上げた灰
+      灰色は色数に数えない（p.185「灰色を使って色数を減らす」）
+   ============================================================================ */
+:root {
+  /* ① 背景色 */
+  --bg: #ffffff;
+  /* ② 文字の基本色（黒ではない） */
+  --ink: #262626;
+  --text: #262626;              /* academic.css の変数名にも合わせる */
+  --ink-weak: #6E6E6E;          /* 重要度の低い情報（p.202「重要度の低い情報は小さく」） */
+  --muted: #6E6E6E;
+  /* ③ メインの色 — えんじ寄りの赤（原色を避ける） */
+  --accent: #A6192E;
+  --accent-dark: #7D1322;
+  --accent-soft: #F6E9EC;
+  /* ④ 強調の色 — 既定はメインと同じ（＝3色運用）。
+        4色目が要るデックだけ frontmatter で --em を上書きする。
+        p.195「赤や緑を避け、オレンジや青を使う」→ 4色目はオレンジ #B45309 か青 #2166AC */
+  --em: var(--accent);
+  /* 無彩色（色数に数えない） */
+  --rule: #D6D6D6;              /* 罫線 */
+  --rule-strong: #262626;       /* 表の主罫線 */
+  --fill: #F1F1F1;              /* 塗りだけの囲み */
+  --fill-2: #FAFAFA;            /* ゼブラ表の薄い行 */
+
+  /* 行長の上限（p.80「スライドは1行20文字前後」／
+     p.179「16:9では本文幅はスライド幅の約1/2〜2/3」）
+     28em ≒ 644px ≒ 本文領域の55% → 本の 1/2〜2/3 に収まる */
+  --measure: 28em;
+  /* 段落後の間隔 = 0.5行（p.78）。1.7行送りの半分 */
+  --gap-para: .85em;
+  /* グループ間の間隔（p.78/79「項目内の行間 < 項目同士の間隔」） */
+  --gap-group: 1.5em;
+}
+
+/* 4色目を使うプリセット。frontmatter に `class: em-orange` / `class: em-blue` */
+section.em-orange { --em: #B45309; }
+section.em-blue   { --em: #2166AC; }
+
+/* ============================================================================
+   1b. ヘッダー題字・page-title は「文字量に合わせて自動幅」
+       academic.css は幅が固定%（--hdr-left-w / --pt-left / --pt-width）で、
+       デックの題名の長さごとに3つの値を手調整する必要があった。
+       tsutawaru では既定を fit-content にして調整を不要にする。
+
+       デック側で固定したい時だけ frontmatter で上書きする：
+         style: |
+           :root { --hdr-left-w: 30%; --pt-center: 40%; --pt-width: 26%; }
+       ・--hdr-left-w   … 題字帯の幅（既定 fit-content＝文字に追従）
+       ・--hdr-left-max … 題字帯の上限幅（超えたら…で省略）
+       ・--pt-center    … page-title 帯の「中心」の位置（既定 50%＝画面中央）
+       ・--pt-width     … page-title 帯の幅（既定 fit-content）
+   ============================================================================ */
+:root {
+  --hdr-left-w: fit-content;
+  --hdr-left-max: 38%;
+  --pt-center: 50%;
+  --pt-max: 40%;
+}
+section > header .hdr-left {
+  width: var(--hdr-left-w);
+  max-width: var(--hdr-left-max);
+  /* 右端の斜めカットが文字を切らないよう、カット幅ぶんの余白を足す */
+  padding: 0 calc(16px + var(--hdr-slant)) 0 32px;
+}
+/* cover-hero は academic 側が 26% を強制するので、自動幅に戻す */
+section.cover-hero { --hdr-left-w: fit-content; }
+
+section .page-title {
+  /* 「中心位置」で指定する。左端合わせの計算（--pt-left）は不要になる */
+  left: var(--pt-center);
+  transform: translateX(-50%);
+  width: var(--pt-width, fit-content);
+  max-width: var(--pt-max);
+  padding: 0 calc(28px + var(--hdr-slant));
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================================================================
+   2. 本文の組版
+      p.203 五大注意点：余白が足りない／揃っていない／フォントがよくない／
+            行間が狭い／文字に強弱がない
+      p.62  行間 = 文字サイズの 0.5〜1文字分（長文0.9・箇条書き0.7が最適）
+      p.203 行間 = 文字サイズの1.5倍程度
+      p.67  字間 = 文字サイズの 5〜10%
+      p.18-19 / p.212 本文は太らせない（太字は圧迫感・可読性低下）
+   ============================================================================ */
+section {
+  font-size: 23px;
+  line-height: 1.7;             /* = 0.7文字分。p.62 箇条書きの最適値 */
+  letter-spacing: 0.05em;       /* = 5%。p.67 */
+  color: var(--ink);
+  font-weight: 400;             /* p.18-19 本文は細く */
+  font-feature-settings: "palt" 0;
+}
+
+/* 長めの文章ブロックは行間を広げる（p.62 長文の最適 0.9文字分 = 1.9） */
+.longform, .longform p { line-height: 1.9; }
+
+/* 行長を抑える（p.80 / p.179）。表・図・グラフは対象外 */
+section > p, section > ul, section > ol,
+.body > p, .body > ul, .body > ol,
+.blist, .lead, .note { max-width: var(--measure); }
+.wide { max-width: none !important; }   /* 意図的に全幅にしたい時の逃げ道 */
+
+/* 段落間隔 = 0.5行（p.78）。空白行では空けない（p.78「開きすぎ」） */
+section p { margin: 0 0 var(--gap-para); }
+section p:last-child { margin-bottom: 0; }
+
+/* 揃えは左揃え（p.70「使ってよいのは左揃えか両端揃え」・中央揃えは避ける）
+   p.148「上・左は必ず揃える」 */
+section, section.fig h2, section.fig .fig-area, .takeaway { text-align: left; }
+section.fig .fig-area { justify-content: flex-start; }
+
+/* ============================================================================
+   3. 見出しの階層 — サイズは増やさない、強弱は「太さ」で作る
+      p.77「スライドなどの資料では、4種類以上のフォントサイズを使わないほうが無難」
+      p.76「3つ以上の方法（フォント・太さ・サイズ・色）を併用するのは避ける」＝併用は2つまで
+      p.160 ジャンプ率 = 見出しサイズ ÷ 本文サイズ
+      p.205 の作例では【小見出しと本文は同じサイズ。差は“太さ”だけ】
+
+      1枚のスライドで使ってよいサイズは3種類：
+        見出し(h2 34px) / 本文(23px) / 補足(19px)
+      小見出しはサイズを変えず太字にする（＝サイズの種類を増やさない）
+   ============================================================================ */
+/* タイトルは「常に同じ位置・同じサイズ」。
+   ・位置＝ヘッダー直下（section の padding-top が固定なので、h1/h2 を
+     スライドの先頭に書けば毎回同じ高さから始まる。タイトルの前に別の
+     要素を置かない）
+   ・サイズ＝34px に統一。# で書いても ## で書いても同じ見た目になる
+     （cover / divider / message / qa など全画面型だけは各自の大きさ）。
+   ・min-height で1行ぶんの高さを確保し、本文の開始位置も揃える。 */
+section h2,
+section h1 {
+  font-size: 34px;              /* ジャンプ率 34/23 = 1.5 */
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+  line-height: 1.35;
+  min-height: 1.35em;
+  margin: 0 0 .5em;
+}
+
+/* h3／.sh＝節レベルの小見出し。囲まずに「短い縦罫＋メインの色の太字」で示す。
+   p.161 の良い例がこの形（枠で囲わない）。
+   p.76「冒頭に『・』や下線は、あまり目立たず充分な強調にならない」
+   p.78「小見出しには段落間隔を設定せず、本文にのみ設ける」→ margin-bottom は詰める */
+section h3, .sh {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--accent);
+  border-left: 5px solid var(--accent);
+  padding-left: .45em;
+  margin: 0 0 .25em;            /* 小見出しの直後は空けない（p.78） */
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+}
+/* 小見出しの前は空ける（グループの区切り）。
+   直前に兄弟要素がある h3 だけに効かせる。タイトル(h2)直後の h3 は詰める。 */
+section * + h3, section * + .sh { margin-top: var(--gap-group); }
+section h1 + h3, section h2 + h3, section .page-title + h3,
+section h1 + .sh, section h2 + .sh, section .page-title + .sh { margin-top: 0; }
+
+/* スライドの主張1文（p.181「1スライド1メッセージ」） */
+.lead {
+  font-size: 26px; font-weight: 700; color: var(--ink);
+  line-height: 1.5; margin: 0 0 .6em;
+}
+/* 補足・注記（p.202「重要度の低い情報は文字サイズを小さくする」） */
+.note, .cap, section figure figcaption, .cite {
+  font-size: 19px; color: var(--ink-weak); line-height: 1.55; letter-spacing: 0.03em;
+}
+
+/* ============================================================================
+   4. 箇条書き
+      p.74  2行目以降のぶら下げ = 1文字分
+      p.78  項目内の行間 < 項目同士の間隔
+      p.205 単純な箇条書きにナカグロ（・）は不要
+      p.77  入れ子はインデントでなく「太さ・大きさの強弱」で示し、左端は一直線に揃える
+   ============================================================================ */
+section ul { list-style: none; margin: 0 0 var(--gap-para); padding-left: 0; }
+section ul > li {
+  position: relative;
+  padding-left: 1em;            /* ぶら下げ1文字分（p.74） */
+  margin: 0 0 .45em;            /* 項目内(1.7行送り) < 項目間 */
+}
+section ul > li::before {
+  content: "●";
+  position: absolute; left: 0; top: 0;
+  font-size: .42em; line-height: 4.1;
+  color: var(--accent);
+}
+section ol { margin: 0 0 var(--gap-para) 1.4em; padding: 0; }
+section ol > li { margin: 0 0 .45em; padding-left: .1em; }
+section li > ul, section li > ol { margin-top: .35em; margin-bottom: .2em; }
+/* 記号を一切出さない箇条書き（p.205 の After 型） */
+.plain > li::before, ul.plain > li::before { content: none; }
+.plain > li, ul.plain > li { padding-left: 0; }
+
+/* .t／.d＝小見出し（同サイズの太字）と説明（細字）。どこでも使える汎用ペア。
+   サイズは本文と同じ＝サイズの種類を増やさない（p.77） */
+.t { font-weight: 700; color: var(--ink); margin: 0; line-height: 1.6; }
+.d { font-weight: 400; margin: 0; line-height: 1.7; }
+
+/* .blist＝p.205 After の型：.t／.d を余白でグループ化。
+   囲みも記号もインデントも使わない。左端は一直線。 */
+.blist { margin: 0 0 var(--gap-para); }
+.blist .d { margin: 0 0 var(--gap-group); }   /* 項目間はゆったり（p.78） */
+.blist .d:last-child { margin-bottom: 0; }
+
+/* .grid2＝p.205 別解2 の型：項目4つを 2×2 の塗りカードに分ける。
+   カードは .fill（塗りだけ・枠なし）。等幅・等高・間隔均等（p.175）。 */
+.grid2 {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 18px var(--gap-group);
+  margin: .6em 0;
+  align-items: stretch;
+}
+.grid2 > * { min-width: 0; }
+
+/* ============================================================================
+   5. 囲み — 「枠を付けるのは最低限に」（p.174）
+      p.212 囲みたい時の代替は3段階
+        ① 枠線を減らして「塗り」だけで囲む      → .fill
+        ② 線で囲むより「背景色」で枠を作る       → .fill（同上）
+        ③ グループ化・揃え・余白で囲む必要をなくす → .group（囲まない）
+      p.100 色を使うのは「塗り」か「枠」のどちらか一方だけ
+      p.97  1つの資料の中では囲みの形を1種類に統一する
+      p.98  角丸は「丸みを最低限に」かつ「丸みを統一」→ 半径は 3px 固定・全部品共通
+      p.106 囲みの内側は上下左右1文字分以上の余白。短い語句なら0.5文字分（p.107）
+      p.104 影・グラデーション・立体感は消す
+   ============================================================================ */
+:root { --radius: 3px; }        /* 丸みは1つの値に統一（p.98/p.99） */
+
+/* ① 塗りだけ（枠線なし） */
+.fill {
+  background: var(--fill); border: none; border-radius: var(--radius);
+  padding: 1em; box-shadow: none;
+}
+/* ② 白地＋細い枠だけ（塗りに色を付けない） */
+.rule-box {
+  background: #fff; border: 1px solid var(--rule); border-radius: var(--radius);
+  padding: 1em; box-shadow: none;
+}
+/* メインの色を1箇所だけ差したい時。塗りか枠のどちらか一方（p.100） */
+.fill.accent     { background: var(--accent-soft); }
+.rule-box.accent { border-color: var(--accent); background: #fff; }
+/* 1行の短い語句は余白0.5文字分（p.107） */
+.fill.tight, .rule-box.tight { padding: .4em .6em; }
+/* ③ 囲まない。余白と揃えだけでグループを作る（p.220「枠で囲むのではなく、余白を使ったグループ化」） */
+.group { margin: 0 0 var(--gap-group); }
+.group:last-child { margin-bottom: 0; }
+
+/* ---- 既存デックの囲み系クラスを“落ち着いた1形式”に寄せる ------------------
+   theme を tsutawaru-academic に差し替えるだけで、色ベタ・色枠・影・角丸の
+   ばらつきが消える。形は1種類（p.97）、丸みは統一（p.98）、影は無し（p.104）。 */
+.box-accent, .box-info, .box-warn, .why-callout,
+.callout-gray, .callout-green, .callout-pink,
+.callout-orange, .callout-yellow, .callout-blue,
+.stepbox, .goal-box, .exrow, .pcard,
+section.summary .sec-box {
+  background: var(--fill);
+  border: none;
+  border-left: 4px solid var(--rule);
+  border-radius: var(--radius);
+  color: var(--ink);
+  font-weight: 400;
+  font-size: 1em;
+  line-height: 1.7;
+  padding: .8em 1em;
+  box-shadow: none;
+  text-shadow: none;
+}
+/* 最重要の1つだけメインの色を差す（強調色は1色・p.196） */
+.box-accent, .callout-pink, .goal-box, .stepbox { border-left-color: var(--accent); }
+.box-warn { border-left-color: var(--ink-weak); }
+.box-accent b, .box-info b, .box-warn b, .why-callout .em,
+.stepbox .st b, .stepbox .st .em, .pcard li b, .pcard p b, .exrow b, .goal-box b {
+  color: var(--em); font-weight: 700;
+}
+.stepbox .st, .pcard ul, .exrow, .why-callout .wh, .goal-box { font-size: 1em; }
+.pcard .pc-h {
+  background: none; color: var(--accent); font-weight: 700;
+  text-align: left; padding: 0 0 .15em; font-size: 1em; border-radius: 0;
+}
+/* カード列は「等幅・等高・間隔は均等」（p.175「枠は揃えて配置」「間隔が均一になるように」） */
+.cardrow { display: flex; gap: var(--gap-group); align-items: stretch; margin: .6em 0; }
+.cardrow > .pcard { flex: 1 1 0; min-width: 0; }
+
+/* 役割タグ：枠と塗りの両方に色を付けない（p.100）→ 塗りだけの1形式に統一 */
+.tag, .tag-analyze, .tag-design, .tag-ref, .tag-accent, .tag-soft {
+  display: inline-block; border: none; border-radius: var(--radius);
+  background: var(--fill); color: var(--ink);
+  font-weight: 700; font-size: .8em; padding: .1em .55em;
+  box-shadow: none; letter-spacing: 0.02em;
+}
+.tag-accent, .tag-soft { background: var(--accent-soft); color: var(--accent-dark); }
+.subhead { font-size: 26px; font-weight: 700; margin: 0 0 .25em; }
+.subhead .tag { font-size: .72em; }
+
+/* ============================================================================
+   6. 強調 — 手段は3つだけ、併用は2つまで、強調は最低限
+      p.52  許される強調は「太さ」「大きさ」「色」。輪郭・影・立体感・反射は禁止
+      p.55  UD的に許すのは「落ち着いた色」「太字」「下線」の3種
+      p.76  3つ以上の併用は避ける
+      p.161 「強弱を明確にするには、強調する箇所を減らすのが一番」
+            構造の強調（小見出し）と内容の強調（本文中の重要文）は差別化する
+   ============================================================================ */
+/* 内容の強調（本文中）＝ 黒の太字。色は使わない（p.161 の良い例） */
+section strong, section b { font-weight: 700; color: inherit; }
+/* ここぞの1箇所だけ色（強調色は1色・p.196） */
+.hl, .hl-dark, .em, em { color: var(--em); font-weight: 700; font-style: normal; }
+/* 下線マーカー（p.55 で許可、p.208 の作例が使っている手） */
+.mark {
+  font-weight: 700;
+  background: linear-gradient(transparent 62%, rgba(180,83,9,.28) 62%);
+}
+/* 禁止された装飾を潰す（p.52/p.104） */
+section *, section .fill, section .rule-box { text-shadow: none !important; }
+section img, section figure { box-shadow: none; }
+
+/* 数字の強調 — 数字は大きく、単位は小さく（p.46：単位は数字のおよそ半分） */
+.num  { font-size: 1.8em; font-weight: 700; line-height: 1; letter-spacing: 0;
+        font-variant-numeric: tabular-nums; }
+.unit { font-size: .9em;  font-weight: 400; margin-left: .12em; }   /* ≒ .num の半分 */
+
+/* データ行（p.207 After 型：横罫だけで区切り、数値は右、単位は小さく） */
+.datarow {
+  display: grid; grid-template-columns: 1fr auto;
+  align-items: baseline; gap: 1em;
+  border-bottom: 1px solid var(--rule);
+  padding: .4em 0;
+}
+.datarow:first-of-type { border-top: 1px solid var(--rule); }
+.datarow > .v { text-align: right; white-space: nowrap; }
+
+/* ============================================================================
+   7. 表 — 罫線は3本だけ、縦罫はゼロ
+      p.136 必要な罫線＝上端／ヘッダー行とデータ行の間／下端 の3本。縦罫線は0本
+      p.139 セル内の余白は「セル内文字サイズと同程度」
+      p.136 数値は右揃え、単語や文は左揃え
+      p.137 横に長い表は1行おきに薄い背景（罫線の代わり）
+   ============================================================================ */
+section table {
+  display: table;                                  /* 既定テーマの display:block/width:max-content を戻す */
+  border-collapse: collapse;
+  width: 100%; min-width: 0; max-width: none;
+  margin: .6em 0 1em;
+  font-size: 21px;
+  line-height: 1.6;
+  border-top: 1.5px solid var(--rule-strong);     /* ① 上端 */
+}
+/* 既定テーマは tr 自体に border-top を持っており、これが行ごとの横罫になる。
+   罫線は3本だけにするため、行の罫線と背景を消す（p.136）。 */
+section table tr { border-top: none; border-bottom: none; background-color: transparent; }
+section table th, section table td {
+  border: none;
+  padding: .5em .9em;                              /* ≒ 文字サイズと同程度（p.139） */
+  text-align: left; vertical-align: top;
+  letter-spacing: 0.02em;
+}
+section table thead th {
+  font-weight: 700; color: var(--ink); background: transparent;
+  border-bottom: 1.5px solid var(--rule-strong);   /* ② ヘッダー行の下 */
+}
+section table tbody tr:last-child td {
+  border-bottom: 1.5px solid var(--rule-strong);   /* ③ 下端 */
+}
+/* Marp 既定テーマの縞模様を消す。罫線は3本、それ以外の区切りは出さない（p.136）。
+   既定側が :nth-child を使うので、こちらも同じ詳細度以上で打ち消す。 */
+section table:not(.zebra) tbody tr:nth-child(n),
+section table:not(.zebra) tbody tr:nth-child(n) th,
+section table:not(.zebra) tbody tr:nth-child(n) td { background: transparent; }
+/* 数値列（p.136） */
+section table td.n, section table th.n {
+  text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+/* 行数が多い表は、罫線の代わりに1行おきの薄い背景で区切ってもよい（p.137）。
+   使う時だけ <table class="zebra"> と明示する。 */
+section table.zebra tbody tr:nth-child(even),
+section table.zebra tbody tr:nth-child(even) td { background: var(--fill-2); }
+section table.zebra tbody tr td { border-bottom: none; }
+
+/* ============================================================================
+   8. フロー図 — 悪目立ちさせない
+      p.206「囲みの塗りや枠線の色は最小限に」「囲みのサイズを統一する」
+            「囲みの位置は上下左右をきれいに揃える」
+      p.111 枠の幅・形は文字数に依存させず統一（等幅・等高・ベースライン揃え）
+      p.103 矢印の代替は「線＋矢じり」か「三角形」。矢じりの大きさと柄の太さを統一（p.102）
+      p.98  角の尖った四角なら丸みの心配はいらない
+   ============================================================================ */
+.flow { display: flex; align-items: stretch; margin: .8em 0 var(--gap-para); }
+.flow > .fbox {
+  flex: 1 1 0; min-width: 0;
+  background: #fff;
+  border: 1.5px solid var(--ink);
+  border-radius: 0;                    /* 角は直角（p.98） */
+  padding: .7em .6em;
+  text-align: center;
+  font-size: 1em; font-weight: 400; line-height: 1.45;
+  color: var(--ink);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  box-shadow: none;
+}
+.flow > .fbox .big { font-size: 1.45em; font-weight: 700; display: block; line-height: 1.25; }
+/* 矢印＝小さな黒い三角。大きさは全部同じ（p.102） */
+.flow > .arw {
+  flex: 0 0 auto; align-self: center; margin: 0 .55em;
+  width: 0; height: 0;
+  border-left: 13px solid var(--ink);
+  border-top: 9px solid transparent;
+  border-bottom: 9px solid transparent;
+}
+/* 部品テーマ（非同梱） 由来の .flowrow / .farrow も同じ見た目に寄せる */
+.flowrow { display: flex; align-items: center; gap: .55em; margin: .8em 0; flex-wrap: nowrap; }
+.flowrow > .fbox {
+  flex: 1 1 0; min-width: 0; background: #fff; color: var(--ink);
+  border: 1.5px solid var(--ink); border-radius: 0;
+  font-size: 1.1em; font-weight: 700; padding: .55em .6em; text-align: center;
+}
+.flowrow > .fbox.blue, .flowrow > .fbox.red, .flowrow > .fbox.gray {
+  color: var(--ink); border-color: var(--ink);
+}
+.farrow { font-size: 1.1em; color: var(--ink); }
+
+/* ============================================================================
+   9. 図・写真・キャプション
+      p.209「関連する要素同士を近づけて、グループ化を明確にする」
+            「図の輪郭が不明瞭な場合は四角い囲みや背景をつけることが効果的」
+      p.157 図とキャプションの間隔は行間と同程度（＝1行分）
+      p.79  グループ内の間隔 ≦ グループ間の間隔（逆転させない）
+   ============================================================================ */
+/* 並べた枠は「等幅・等高・間隔均等」（p.175「枠は揃えて配置」「間隔が均一になるように」）。
+   列を flex 縦積みにして、中の囲みが列の高さいっぱいまで伸びるようにする。 */
+.figrow { display: flex; gap: var(--gap-group); align-items: stretch; margin: .6em 0; }
+.figrow > * { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; }
+.figrow > * > .fill,
+.figrow > * > .rule-box,
+.figrow > * > .group,
+.figrow > * > p { flex: 1 1 auto; }
+.figrow .cap { flex: 0 0 auto; margin-top: .5em; }  /* グループ内は近く */
+section figure { margin: 0 0 var(--gap-group); }
+section figure figcaption { margin-top: 1em; }     /* 1行分（p.157） */
+/* 輪郭のはっきりしない図の下敷き（p.152「枠・背景の色は薄い灰色」／p.209） */
+.figbg { background: var(--fill-2); padding: .8em; border-radius: var(--radius); }
+/* 写真・図のプレースホルダ（実画像が来るまでの仮置き。中身に何を入れるか書く） */
+.ph {
+  background: var(--fill);
+  min-height: 260px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink-weak); font-size: 19px;
+  border-radius: var(--radius);
+}
+
+/* 2カラム — 16:9 で行長を伸ばさないための基本形（p.208/p.214）
+   図やグラフを左、短い箇条書きを右に置くのが本の After のかたち */
+.tcols { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap-group); align-items: start; }
+.tcols.fig-left  { grid-template-columns: 1.15fr 1fr; }
+.tcols.fig-right { grid-template-columns: 1fr 1.15fr; }
+.tcols > * { min-width: 0; }
+.tcols p, .tcols li, .tcols .blist { max-width: none; }   /* 既に行長が半分になっている */
+.cols { gap: var(--gap-group); }
+
+/* 図の中の文字も同じゴシック体にする（p.20「図の中だけ別書体」を防ぐ） */
+section svg text, section svg tspan { font-family: var(--font-jp); }
+
+/* ============================================================================
+   10. 帯・全面スライドの装飾を落とす
+      p.104 消すべき装飾は「影／グラデーション／枠線／立体感」
+      p.221 文字の背景に写真・複雑な背景は避ける
+      p.174 枠を付けるのは最低限に
+   ============================================================================ */
+section.cover   { background: var(--bg); }          /* グラデーション廃止（p.104） */
+section.message { background: var(--bg); }
+section.message h1 { color: var(--accent); font-size: 56px; }
+
+/* ----- 表紙（cover-hero）の文字サイズ ------------------------------------
+   academic の既定（タイトル72px／前置き40px／メタ26px）は、投影したときに
+   タイトルが小さく・前置きが大きすぎた。p.77 の「ジャンプ率を上げる」に従い、
+   タイトルを大きく・前置きを小さくして主従をはっきりさせる。
+   講師名は .title-name、所属は .title-affil で書く（.title-date は日付用に残す）。 */
+section.cover-hero .title-big   { font-size: 88px; }
+section.cover-hero .title-small { font-size: 33px; }
+section.cover-hero .title-name {
+  font-size: 46px; font-weight: 700; line-height: 1.3; margin-bottom: 14px;
+}
+section.cover-hero .title-affil { font-size: 24px; }
+
+/* ----- 表紙（左揃え・強い階層）＝p.204 After の型 -------------------------
+   小さな前置き → 大きな太いタイトル → 下端にメタ情報、の3段の強弱。
+   変な位置で改行しない・中央揃えと左揃えを混在させない（p.204）。
+   <!-- _class: cover-left --> で使う。cover-hero の代わりの控えめな表紙。 */
+section.cover-left {
+  background: var(--accent);
+  color: #fff;
+  display: flex !important; flex-direction: column !important;
+  justify-content: center !important; align-items: flex-start !important;
+  padding: 0 110px 120px;
+}
+section.cover-left > header,
+section.cover-left .page-title { display: none; }
+section.cover-left::after { display: none !important; }
+section.cover-left .pre {
+  font-size: 24px; font-weight: 400; color: rgba(255,255,255,.85);
+  margin-bottom: 14px; letter-spacing: .04em;
+}
+section.cover-left h1 {
+  font-size: 60px; line-height: 1.3; color: #fff;
+  min-height: 0; margin: 0 0 18px; letter-spacing: .02em;
+}
+section.cover-left .sub { font-size: 26px; color: rgba(255,255,255,.85); }
+section.cover-left .meta {
+  position: absolute; left: 110px; bottom: 60px;
+  font-size: 20px; color: rgba(255,255,255,.92); line-height: 1.7;
+}
+
+/* takeaway：塗りだけ・枠なし・丸みは統一値・左揃え（p.100/p.98/p.70）。
+   サイズ28pxは CLAUDE.md の不変則どおり据え置き。
+
+   位置は「絶対配置」で固定する。academic は in-flow（flexの最下部押し込み）
+   だったため、パターンや前後の要素で帯の位置が微妙に揺れた。tsutawaru では
+   常に 下端から28px・左右 side-pad・高さ min 66px（1行ぶん）に固定し、
+   どのスライドでも帯が完全に同じ場所・同じサイズに出る。
+   2行になっても下端は動かない（上に伸びる）。 */
+.takeaway {
+  position: absolute;
+  left: var(--side-pad);
+  right: var(--side-pad);
+  bottom: var(--takeaway-bottom);
+  margin: 0;
+  min-height: 66px;               /* 28px×1.45行＋上下パディング＝1行時の高さで固定 */
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  background: var(--accent-soft);
+  border: none; border-radius: var(--radius);
+  color: var(--accent-dark);
+  font-size: 28px; font-weight: 700;
+  line-height: 1.45; letter-spacing: 0.02em;
+  padding: .45em .7em;
+  text-align: left;
+  box-shadow: none;
+  z-index: 5;
+}
+/* 塗りすら置きたくない時：上罫線だけで示す（位置・サイズは同じ） */
+.takeaway.rule-only {
+  background: none; border-top: 2px solid var(--accent);
+  border-radius: 0; padding: .45em 0 0; color: var(--accent-dark);
+}
+/* 本文が帯に入り込まないよう、帯があるスライドは下を予約する。
+   academic 側の !important 指定（28px）より後勝ちで上書きする。 */
+section:has(.takeaway),
+section.fig:has(.takeaway) {
+  padding-bottom: var(--takeaway-reserve, 118px) !important;
+}
+
+/* 引用・コード：枠と塗りを両方使わない（p.100） */
+section blockquote {
+  border-left: 3px solid var(--rule); background: none;
+  margin: 0 0 var(--gap-para); padding: .1em 0 .1em 1em; color: var(--ink-weak);
+}
+section pre  { background: var(--fill); border: none; border-radius: var(--radius); font-size: 19px; }
+section code { background: var(--fill); border-radius: 2px; }
+
+/* 参考文献（重要度が低い＝小さく：p.202） */
+section.refs ul, section.refs ol { font-size: 19px; line-height: 1.7; }
+section.refs li::before { content: none; }
+section.refs li { padding-left: 1.5em; text-indent: -1.5em; }
+
+/* ============================================================================
+   11. 縦の配分ヘルパは academic.css の .body / vcenter / vspread をそのまま使う。
+       スライドに収まらない時は font-size を下げず、次のどれかで直す（p.202）：
+         ① 図表の数やサイズを変える ② 文字数を減らす
+         ③ ページを分割する        ④ 重要度の低い情報を小さくする
+   ============================================================================ */
+
+/* ============================================================================
+   12. 演習（ハンズオン）スライド — <!-- _class: split work handson -->
+       研修動画で「講師が実画面を見せながら、手順を横に出す」ための型。
+       左2/3＝画面（収録では実画面をここに重ねる。スライド単体では薄い下敷きに
+       「ここにGeminiの画面」と書いておく）／右1/3＝縦長の手順パネル（ワイプ）。
+       右パネルは「塗りだけ」の囲み（p.212 ①）。手順は番号＋文字だけで枠は付けない
+       （p.174「枠を付けるのは最低限に」）。貼る文は白地＋左の細い罫（塗りの中に
+       白地を置くので、色は塗りか枠のどちらか一方＝p.100）。
+       使い方：
+         <div class="split-body">
+           <div class="left"><div class="screen">ここにGeminiの画面</div></div>
+           <div class="right">
+             <div class="steps">
+               <div class="step"><span class="sn">1</span><span class="sb">…<span class="chk">→ 成功の目印</span></span></div>
+             </div>
+             <div class="prompt"><span class="lab">貼る文</span>…</div>
+           </div>
+         </div>
+         <div class="takeaway">…</div>
+       right/left を入れ替えたいときは <!-- _class: split work handson flip -->
+   ============================================================================ */
+:root {
+  --handson-screen: 1.7fr;        /* 左（画面）の幅 */
+  --handson-panel: 1fr;           /* 右（手順）の幅 ＝ 約37%（1/3より少し広い。文字が入る幅） */
+  --handson-label: "やること";     /* 右パネルの見出し。frontmatter で変えられる */
+}
+section.work .split-body,
+section.handson .split-body {
+  grid-template-columns: var(--handson-screen) var(--handson-panel);
+  gap: var(--gap-group);
+  align-items: stretch;
+  min-height: 440px;              /* ヘッダー直下〜takeaway 帯の上までを使い切る */
+}
+section.work.flip .split-body,
+section.handson.flip .split-body {
+  grid-template-columns: var(--handson-panel) var(--handson-screen);
+}
+section.work.flip .split-body .left,
+section.handson.flip .split-body .left { order: 2; }
+
+/* 左＝画面の置き場。画像があればそのまま、無ければ薄い下敷きに説明文 */
+section.work .split-body .left,
+section.handson .split-body .left {
+  display: flex; flex-direction: column; min-height: 0;
+}
+section.work .split-body .left .screen,
+section.handson .split-body .left .screen {
+  flex: 1 1 auto;
+  background: var(--fill-2);
+  border-radius: var(--radius);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink-weak); font-size: 19px; text-align: center;
+  padding: 1em;
+}
+section.work .split-body .left img,
+section.handson .split-body .left img {
+  max-width: 100%; max-height: 430px; width: auto; height: auto;
+  object-fit: contain; border-radius: var(--radius); box-shadow: none;
+}
+
+/* 右＝縦長の手順パネル（塗りだけ） */
+section.work .split-body .right,
+section.handson .split-body .right {
+  background: var(--fill);
+  border-radius: var(--radius);
+  padding: .7em .8em .8em;
+  display: flex; flex-direction: column; gap: .55em;
+  min-height: 0; overflow: hidden;   /* 入り切らない＝手順3つ・各2行・貼る文3行を超えている。文字は下げずに削る */
+}
+section.work .split-body .right::before,
+section.handson .split-body .right::before {
+  content: var(--handson-label);
+  font-size: 19px; font-weight: 700; color: var(--accent);
+  letter-spacing: .04em; line-height: 1.2;
+}
+section.work .split-body .right h3,
+section.handson .split-body .right h3 { font-size: 21px; margin: 0; }
+section.work .split-body .right p,
+section.handson .split-body .right p { margin: 0; max-width: none; }
+
+/* 手順：番号＋文字だけ。枠は付けない */
+.steps { display: flex; flex-direction: column; gap: .45em; margin: 0; }
+.step  { display: flex; align-items: flex-start; gap: .5em; }
+.step .sn {
+  flex: 0 0 auto; width: 1.5em; height: 1.5em; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  font-weight: 700; font-size: 18px; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  margin-top: .1em;
+}
+.step .sb { flex: 1 1 auto; min-width: 0; font-size: 19px; line-height: 1.45; color: var(--ink); letter-spacing: .03em; }
+.step .sb b { color: var(--accent-dark); font-weight: 700; }
+.step .sb .chk { display: block; font-size: 18px; color: var(--ink-weak); line-height: 1.4; margin-top: .05em; }
+
+/* 貼る文：白地＋左の細い罫。コピーしやすいよう1ブロック */
+.prompt {
+  background: #fff; border: none; border-left: 4px solid var(--accent);
+  border-radius: var(--radius);
+  padding: .5em .7em; font-size: 18px; line-height: 1.5; color: var(--ink);
+  letter-spacing: .03em; overflow-wrap: anywhere;
+}
+.prompt .lab { display: block; font-weight: 700; color: var(--accent); font-size: 18px; margin-bottom: .1em; }
+.prompt .ph  { color: var(--accent-dark); font-weight: 700; }   /* 〔　〕受講者が埋める箇所 */
+
+/* 判定表（◎○△×）：罫線3本の表のまま、行を詰め、記号列だけ太く大きく */
+table.judge { width: 100%; margin: .1em 0 0; }
+table.judge td { padding: .12em .4em; font-size: 19px; line-height: 1.4; }
+table.judge td.m {
+  width: 1.6em; text-align: center;
+  font-weight: 700; font-size: 1.1em; color: var(--accent);
+}
+
+/* 演習スライド以外（通常の split）に .steps / .prompt を置いたときも同じ見た目 */
+section.split .split-body .right .steps + .prompt,
+section.split .split-body .left .steps + .prompt { margin-top: .3em; }
+
+/* ============================================================================
+   12b. 演習（ハンズオン）スライド・画面大きめ — <!-- _class: split work handson-2 -->
+       ヘッダー直下から、スライドの左端・下端までを「画面」にする。
+       収録では実画面（動画）をこの領域に重ねる前提。Markdown は handson と同じで、
+       class を handson-2 に変えるだけで切り替わる。
+
+       画面の縦横比は --handson2-ratio（既定 4/3＝横4:縦3）。画面の高さは
+       720 − ヘッダー56 ＝ 664px で固定なので、幅は比率で決まる：
+         4/3 → 画面 885px ／ 右列 395px（既定）
+         5/4 → 画面 830px ／ 右列 450px（右列の文字が多いとき。class に r5-4）
+       右列に「見出し → 手順パネル → takeaway」を縦に積む。
+       takeaway は 28px 固定のまま（右列幅で約12字/行）。
+
+       入る量の目安（右列 395px のとき）：
+         見出し2〜3行／手順3つ・各2行以内／貼る文3〜4行／takeaway 2行以内
+       超えると手順パネルの下が隠れる。文字を小さくせず、文を削る。
+       左右を入れ替えるなら flip を足す（画面が右、手順が左）。
+   ============================================================================ */
+:root {
+  --slide-h: 720px;
+  --handson2-ratio: 4 / 3;
+  --handson2-pad: 18px;
+  --handson2-foot: 46px;          /* 右列の下に空ける高さ（ページ番号 18px＋下余白18px が入る） */
+  --handson2-screen-bg: #E6E6E6;  /* 画面の下敷き（灰は色数に数えない） */
+}
+section.handson-2.r5-4 { --handson2-ratio: 5 / 4; }
+/* 「（3分）」のような短い語句を途中で割らない：<span class="nb">（3分）</span> */
+.nb { white-space: nowrap; }
+
+section.handson-2,
+section.handson-2:has(.takeaway) {
+  display: grid !important;
+  grid-template-columns:
+    calc((var(--slide-h) - var(--header-h)) * var(--handson2-ratio))
+    minmax(0, 1fr);
+  /* 見出し／手順パネル／takeaway／下端の余白行（ページ番号の分）。
+     画面（.left）は4行すべてにまたがるので下端まで届き、右列だけ下が空く。 */
+  grid-template-rows: auto minmax(0, 1fr) auto var(--handson2-foot);
+  gap: 0;
+  padding: var(--header-h) 0 0 0 !important;
+  justify-content: stretch !important;
+  align-content: stretch !important;
+  align-items: stretch !important;
+}
+section.handson-2 > .split-body { display: contents; }
+
+/* 画面：ヘッダー直下から下端まで、左端に密着 */
+section.handson-2 .split-body > .left {
+  grid-column: 1; grid-row: 1 / -1;
+  display: flex; flex-direction: column;
+  min-width: 0; min-height: 0;
+  background: var(--handson2-screen-bg);
+  overflow: hidden;
+}
+section.handson-2 .split-body > .left .screen {
+  flex: 1 1 auto;
+  display: flex; align-items: center; justify-content: center;
+  background: transparent; border-radius: 0; padding: 1em;
+  color: var(--ink-weak); font-size: 19px; text-align: center;
+}
+section.handson-2 .split-body > .left img {
+  width: 100%; height: 100%; max-width: none; max-height: none;
+  object-fit: contain; object-position: center; border-radius: 0; box-shadow: none;
+}
+
+/* 右列：見出し */
+section.handson-2 > h2,
+section.handson-2 > h1 {
+  grid-column: 2; grid-row: 1;
+  font-size: 24px; line-height: 1.4; letter-spacing: .02em;
+  text-wrap: balance;                      /* 行の長さを揃え、最後の行に1〜2字だけ残さない */
+  min-height: 0; margin: 0;
+  padding: 14px var(--handson2-pad) 10px;
+}
+/* 右列：手順パネル（塗りだけ）。見出しが「何をするか」を言うのでラベルは出さない */
+section.handson-2 .split-body > .right {
+  grid-column: 2; grid-row: 2;
+  align-self: start; max-height: 100%;     /* 中身の高さで止め、下に灰色の空きを作らない */
+  box-sizing: border-box;                  /* 上限は余白込みで効かせる（下の takeaway に重ならない） */
+  margin: 0 var(--handson2-pad);
+  background: var(--fill); border-radius: var(--radius);
+  padding: .55em .65em;
+  display: flex; flex-direction: column; gap: .5em;
+  min-width: 0; min-height: 0; overflow: hidden;
+}
+section.handson-2 .split-body > .right::before { content: none; }
+section.handson-2 .split-body > .right p { margin: 0; max-width: none; }
+/* 右列：takeaway（位置固定をやめ、右列の最下段に置く。28px は据え置き） */
+section.handson-2 > .takeaway {
+  position: static; left: auto; right: auto; bottom: auto;
+  grid-column: 2; grid-row: 3;
+  margin: .5em var(--handson2-pad) 0;      /* 下の余白は --handson2-foot の行が持つ */
+  min-height: 0;
+  text-wrap: balance;
+}
+
+/* flip：画面を右、手順を左に */
+section.handson-2.flip {
+  grid-template-columns:
+    minmax(0, 1fr)
+    calc((var(--slide-h) - var(--header-h)) * var(--handson2-ratio));
+}
+section.handson-2.flip .split-body > .left { grid-column: 2; }
+section.handson-2.flip > h2, section.handson-2.flip > h1,
+section.handson-2.flip .split-body > .right,
+section.handson-2.flip > .takeaway { grid-column: 1; }
+
+/* ============================================================================
+   13. 部品ライブラリ：デックごとに重複していた部品を昇格（2026-09）。
+       新規デックはデック側 style: に同じ物を書かない。
+
+       ・既存デックはデック側 style: に同名の定義を持っている。後勝ちで
+         デック側が勝つよう、ここでは詳細度を上げない（:where() で抑える）。
+       ・色は変数だけ。文字は 18px 以上。丸みは --radius。塗りか枠のどちらか一方。
+       ・1枚で同時に見比べる項目は3つまで（docs/cognitive-load-guide.md）。
+         列ものの部品（.grid3 / .keyrow / .chips）は3つまでを前提に作ってある。
+   ============================================================================ */
+:root {
+  --caution: #B45309;             /* 「不可・注意」の語の色。4色目のオレンジ（p.195）と同じ値 */
+  --font-mono: "Menlo", "Consolas", monospace;
+  --qr-size: 175px;               /* QR の一辺。大きくするときは .qr.lg（250px） */
+}
+
+/* ---- 13-1 素の Markdown 箇条書きを「太字の見出し＋説明」で描く（クラス不要）------
+   - **見出し**
+     説明文
+   と書くと .blist（p.205 After）と同じ見た目になる（●なし・左端そろえ・項目間はゆったり）。
+   効く条件：その箇条書きの中に「行頭の太字＋改行＋説明」の項目が1つでもあること。
+   そのとき、同じ箇条書きの行頭が太字の項目はすべて見出し扱いになる。
+   「- **語**：説明」のように同じ行に続けて書く箇条書きは、●つきのまま変わらない。
+   文中の太字は ** でなく <b> で書く（li の最初の要素が ** だと見出しと見分けられない）。
+   元：実デック13本の frontmatter。:where() で詳細度を素の li と同じに留める。 */
+section ul:where(:has(> li > strong:first-child + br)) > li:where(:has(> strong:first-child))::before { content: none; }
+section ul:where(:has(> li > strong:first-child + br)) > li:where(:has(> strong:first-child)) { padding-left: 0; margin: 0 0 var(--gap-group); }
+section ul:where(:has(> li > strong:first-child + br)) > li > strong:first-child { display: block; line-height: 1.6; }
+section ul > li > strong:first-child + br { display: none; }
+
+/* ---- 13-2 .boxed：箇条書きの各項目を塗りで囲む（目標・ねらいの1枚だけ。3項目まで）----
+   <div class="boxed"> の中に素の箇条書きを置く。元：実デック3本（同文）。 */
+.boxed ul > li {
+  background: var(--fill); border-radius: var(--radius);
+  padding: 11px 20px; margin: 0 0 11px;
+}
+.boxed ul > li:last-child { margin-bottom: 0; }
+.boxed ul > li::before { content: none; }
+.boxed ul > li > strong:first-child { display: block; line-height: 1.6; }
+
+/* ---- 13-3 .ex：具体例・補足の塗り（1枚に1つまで）------------------------------
+   主張は箇条書き、具体例はこの枠、と分ける。<div class="ex">例：…</div>
+   div に限る（カードの中の span.ex は別物）。元：実デック2本（色の直値を変数に直した）。 */
+:where(div).ex {
+  background: var(--fill); border-radius: var(--radius);
+  padding: .55em .95em; margin: .5em 0 0;
+  font-size: 21px; color: var(--ink-weak); line-height: 1.65;
+}
+:where(div).ex b { color: var(--ink); }
+
+/* ---- 13-4 .grid3：.grid2 の3列版（1段・子は3つまで）---------------------------
+   中身は .fill ＋ .t/.d。図＋キャプションなら .figrow を使う。元：実デック11本の .grid3。 */
+.grid3 {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px var(--gap-group);
+  margin: .6em 0;
+  align-items: stretch;
+  word-break: auto-phrase;        /* 狭い列で語の途中を折らない（frontmatter に lang: ja が要る） */
+}
+.grid3 > * { min-width: 0; }
+.grid3 p, .grid3 li { max-width: none; }
+
+/* ---- 13-5 .keyrow：名前＋一言の見出し列。上罫だけで囲まない（3つまで）-----------
+   <div class="keyrow"><div><p class="t">名前</p><p class="d">一言</p></div>…</div>
+   元：実デックの .apps/.an/.aw（汎用名に改め、テーマの .t/.d を使う）。 */
+.keyrow {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1em var(--gap-group); margin: .3em 0 1.2em;   /* 行の間隔は、4つ以上を入れてしまったときの保険 */
+}
+.keyrow > * { border-top: 3px solid var(--accent); padding-top: .45em; min-width: 0; }
+.keyrow .d { color: var(--ink-weak); line-height: 1.5; }
+.keyrow p { max-width: none; }
+
+/* ---- 13-6 フローの「いまここ」：.fbox.now ＋ .nowtag（1枚に1か所）---------------
+   <div class="fbox now"><span class="nowtag">いまここ</span>…</div>
+   ラベルが箱の上にはみ出すぶん、フローを自動で下げる。色は --now-bg / --now-ink で変えられる。
+   元：実デック（直値ピンク・999px の丸は採らない）。 */
+section { --now-bg: var(--accent-soft); --now-ink: var(--accent); }
+.flow:where(:has(> .fbox.now)) { margin-top: 1.45em; }
+.flow > .fbox.now {
+  position: relative; background: var(--now-bg);
+  border-color: var(--now-ink); border-width: 2.5px;
+}
+.flow > .fbox.now .nowtag {
+  position: absolute; top: -1.32em; left: 50%; transform: translateX(-50%);
+  background: var(--now-ink); color: #fff;
+  font-size: 20px; font-weight: 700; line-height: 1;
+  padding: .34em 1.1em .38em; border-radius: var(--radius);
+  white-space: nowrap; letter-spacing: 0.06em;
+}
+
+/* ---- 13-7 会場への設問スライド：<!-- _class: slido -->（大きくするなら slido big）----
+   設問は素の箇条書き「- **設問文<span class="qtag">択一</span>**」で書く（補足は次の行に続ける）。
+   1枚2〜3問まで。全画面型（message / qa と同じ扱い）なので文字サイズ3種の例外。
+   元：実デック3本（同文。qtag の丸みだけ --radius に直した）。 */
+section.slido { font-size: 25px; --measure: 42em; }   /* 設問文は全幅で折る */
+section.slido h1, section.slido h2 { font-size: 38px; }
+section.slido ul > li::before { content: none; }
+section.slido ul > li { padding-left: 0; margin: 0 0 1.25em; }
+section.slido ul > li > strong:first-child {
+  display: block;
+  font-size: 31px; color: var(--accent-dark); line-height: 1.45;
+  margin: 0 0 .18em; letter-spacing: 0.01em;
+}
+section.slido .note { font-size: 22px; }
+section.slido .qtag {
+  display: inline-block; vertical-align: .14em;
+  background: var(--accent-dark); color: #fff;
+  font-size: .60em; font-weight: 700; line-height: 1;
+  padding: .40em .95em .44em; border-radius: var(--radius);
+  margin-left: .55em; letter-spacing: 0.06em;
+}
+section.slido.big { font-size: 28px; }
+section.slido.big h1, section.slido.big h2 { font-size: 42px; }
+section.slido.big ul > li > strong:first-child { font-size: 33px; }
+
+/* ---- 13-8 QR を右に置く：.tcols.qr-right ＋ .qr ------------------------------
+   <div class="tcols qr-right"><div>…本文…</div><div class="qr"><img …><div class="cap">参加コード</div></div></div>
+   QR に枠は付けない（白地の上）。URL・コードは .cap（19px）。
+   元：実デックの style 直書き（13〜17px の旧版は採らない）。 */
+.tcols.qr-right { grid-template-columns: 2.6fr 1fr; align-items: center; }
+.qr { align-self: center; text-align: center; }
+.qr img { height: var(--qr-size); width: auto; display: block; margin: 0 auto; }
+.qr .cap { margin-top: .4em; text-align: center; overflow-wrap: anywhere; }
+.qr.lg { --qr-size: 250px; }
+
+/* ---- 13-9 出典：.attr（外部の図の下）と .chips / .src-row（出典リンク）------------
+   <div class="attr">出典：…</div>   ← CLAUDE.md が外部図に必須とする行。補足サイズ 19px。
+   <div class="src-row"><p class="note">注記</p><div class="chips"><a class="fill tight" href="…">指針 PDF</a></div></div>
+   チップは3つまで。リンクは色を変えず下線だけ（3色運用）。
+   元：実デックの .chips と .src-row。旧版の .attr/.srcline/.src（13〜17px）は採らない。 */
+.attr {
+  font-size: 19px; color: var(--ink-weak); line-height: 1.55; letter-spacing: 0.03em;
+  margin: .4em 0 0; max-width: none;
+}
+.attr a { color: inherit; text-decoration: underline; text-underline-offset: .15em; overflow-wrap: anywhere; }
+.chips { display: flex; flex-wrap: wrap; gap: .5em; margin: .2em 0 0; }
+.chips > .fill.tight {
+  font-size: 19px; line-height: 1.4; color: var(--accent-dark); text-decoration: none;
+}
+.src-row { display: flex; align-items: flex-end; gap: 1.2em; margin-top: 1.2em; }
+.src-row .note { flex: 1 1 auto; margin: 0; max-width: none; }
+.src-row .chips { flex: 0 0 auto; flex-wrap: nowrap; margin: 0; }
+
+/* ---- 13-10 .ng：表の中の「不可」「原則不可」の語 --------------------------------
+   色だけに頼らず、語そのものを必ず書く（p.198）。元：実デック3本（同文）。 */
+.ng { color: var(--caution); font-weight: 700; }
+
+/* ---- 13-11 .mono：等幅（コマンド・アドレス・コードだけ。塗りなし。td にも付く）------
+   元：実デック7本（同文）。等幅に字間が乗ると桁がずれるので 0 にする。 */
+.mono { font-family: var(--font-mono); letter-spacing: 0; }
+
+/* ---- 13-12 表紙の副題 .title-sub と、長い題 .title-big.long ---------------------
+   .title-big（88px）は日本語の長い題が入らず、13デックが 54〜68px に下げていた。
+   既定は変えず、長い題だけ class="title-big long"（64px・1行18字まで）にする。
+   元：実デックの雛形（副題は灰色＝色数を増やさない）。 */
+section:where(.cover-hero) .title-sub {
+  font-size: 26px; font-weight: 700; color: var(--ink-weak); margin-top: 12px;
+}
+section.cover-hero .title-big.long { font-size: 64px; }
+
+/* ---- 13-13（保留・無効）締めの qa を控えめに ------------------------------------
+   6デックが同文で上書きしているが、上書きを持たない旧版バックアップ
+   ある実デックの最終ページ（96px）だけ見た目が変わる。
+   「既存デックは変えない」を守るため無効にしてある。了承が出たらコメントを外す。
+   section.qa h1 { font-size: 60px; letter-spacing: .06em; }
+   ---------------------------------------------------------------------------- */
+
+/* ---- 13-14 不具合の修正：.prompt の中の .ph が、図の仮置き .ph（灰色の箱）になる ----
+   元：実デックがデック側で打ち消していた。 */
+.prompt .ph {
+  display: inline; min-height: 0; background: none;
+  font-size: inherit; border-radius: 0;
+}
+
+/* ============================================================================
+   14. 配置クラス（lay-*）— 同じ Markdown のまま、_class の1語で配置を変える（2026-09）
+       <!-- _class: lay-cards3 --> のように書く。div で包まない「素の構造」のスライドが対象：
+       section の直下が h2・箇条書き（ul / ol）・段落・図（![](…)・figure・インライン svg）・
+       .page-title・.takeaway・.note だけのもの。
+       同期プレビュー拡張の「配置案」（右クリック／L）がこの語を差し替える
+       （tools/marp-scroll-sync/lib/layout-variants.cjs）。手で書いてもよい。
+
+       ・見た目の値は既存の部品から引いた（囲みは塗りだけ・丸みは --radius・色は変数・文字は18px以上）。
+         lay-boxed＝.boxed／lay-cards2＝.grid2＋.fill／lay-cards3＝.grid3＋.fill／lay-keyrow＝.keyrow／
+         lay-flow＝.flow＋.fbox＋.arw／lay-steps＝.steps＋.sn／lay-fig-*＝.tcols.fig-*／lay-lead＝.lead
+         lay-points＝要点だけを見出しと同じ 34px で縦の中央に／lay-fig-only＝図1枚だけを中央に（2026-09-26 追加）
+       ・項目の見出しは 13-1 と同じ書き方：「- **見出し**」＋次の行に説明。
+       ・header / .page-title / .takeaway / ページ番号は動かさない（どれも position:absolute のまま）。
+       ・横に並べるのは3つまで（lay-cards2 は 2×2 の4つまで、lay-flow は4つまで）。
+         docs/cognitive-load-guide.md
+       ・1枚に付ける lay-* は1つだけ。
+   ============================================================================ */
+
+/* ---- 14-0 共通：項目の見出し（行頭の太字＋改行）を1行の小見出しにする ---------------- */
+section:is(.lay-boxed, .lay-cards2, .lay-cards3, .lay-keyrow, .lay-flow, .lay-steps) > :is(ul, ol) { max-width: none; }
+section:is(.lay-boxed, .lay-cards2, .lay-cards3, .lay-keyrow, .lay-flow, .lay-steps) > :is(ul, ol) > li::before { content: none; }
+section:is(.lay-boxed, .lay-cards2, .lay-cards3, .lay-keyrow, .lay-flow, .lay-steps) > :is(ul, ol) > li > strong:first-child:has(+ br) { display: block; line-height: 1.6; }
+section:is(.lay-boxed, .lay-cards2, .lay-cards3, .lay-keyrow, .lay-flow, .lay-steps) > :is(ul, ol) > li > strong:first-child + br { display: none; }
+
+/* ---- 14-1 lay-boxed：各項目を塗りで囲む（.boxed と同じ。目標・ねらいの1枚・3項目まで）---- */
+section.lay-boxed > :is(ul, ol) { list-style: none; margin-left: 0; padding-left: 0; }
+section.lay-boxed > :is(ul, ol) > li {
+  background: var(--fill); border-radius: var(--radius);
+  padding: 11px 20px; margin: 0 0 11px;
+}
+section.lay-boxed > :is(ul, ol) > li:last-child { margin-bottom: 0; }
+
+/* ---- 14-2 lay-cards2 / lay-cards3：塗りのカード（.grid2 / .grid3 ＋ .fill と同じ）-------
+   cards2＝2列（2つ、または 2×2 の4つ）。cards3＝3列・1段（3つ）。等幅・等高・間隔均等。 */
+section:is(.lay-cards2, .lay-cards3) > :is(ul, ol) {
+  list-style: none; padding-left: 0;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 18px var(--gap-group);
+  margin: .6em 0;
+  align-items: stretch;
+  word-break: auto-phrase;
+}
+section.lay-cards3 > :is(ul, ol) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+section:is(.lay-cards2, .lay-cards3) > :is(ul, ol) > li {
+  background: var(--fill); border-radius: var(--radius);
+  padding: .8em 1em; margin: 0; min-width: 0;
+}
+
+/* ---- 14-3 lay-keyrow：名前＋一言を横に並べる。上の罫1本だけで囲まない（.keyrow と同じ・3つまで）---- */
+section.lay-keyrow > :is(ul, ol) {
+  list-style: none; padding-left: 0;
+  display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr);
+  gap: 1em var(--gap-group); margin: .3em 0 1.2em;
+  word-break: auto-phrase;
+}
+section.lay-keyrow > :is(ul, ol) > li {
+  border-top: 3px solid var(--accent); padding: .45em 0 0; margin: 0; min-width: 0;
+  color: var(--ink-weak); line-height: 1.5;
+}
+section.lay-keyrow > :is(ul, ol) > li > strong:first-child { color: var(--ink); }
+
+/* ---- 14-4 lay-flow：左から右への流れ（.flow ＋ .fbox ＋ .arw と同じ。4つまで）------------
+   白地・細い枠・直角・等幅・等高。矢印は小さな黒い三角で、大きさは全部同じ。 */
+section.lay-flow > :is(ul, ol) {
+  list-style: none; padding-left: 0;
+  display: flex; align-items: stretch; gap: calc(1.1em + 13px);
+  margin: .8em 0 var(--gap-para);
+  word-break: auto-phrase;
+}
+section.lay-flow > :is(ul, ol) > li {
+  position: relative;
+  flex: 1 1 0; min-width: 0; margin: 0;
+  background: #fff; border: 1.5px solid var(--ink); border-radius: 0;
+  padding: .7em .6em;
+  line-height: 1.45;
+}
+section.lay-flow > :is(ul, ol) > li + li::before {
+  content: ""; position: absolute;
+  left: calc(-.55em - 13px - 1.5px); top: 50%; margin-top: -9px;
+  width: 0; height: 0; font-size: inherit; line-height: 0;
+  border-left: 13px solid var(--ink);
+  border-top: 9px solid transparent;
+  border-bottom: 9px solid transparent;
+}
+
+/* ---- 14-5 lay-steps：番号つきの縦の手順（.steps ＋ .sn と同じ。枠は付けない・5つまで）---- */
+section.lay-steps > :is(ul, ol) {
+  list-style: none; padding-left: 0; margin-left: 0;
+  counter-reset: lay-step;
+}
+section.lay-steps > :is(ul, ol) > li {
+  position: relative; counter-increment: lay-step;
+  padding-left: 2.2em; margin: 0 0 .8em;
+}
+section.lay-steps > :is(ul, ol) > li::before {
+  content: counter(lay-step);
+  position: absolute; left: 0; top: .22em;
+  width: 1.55em; height: 1.55em; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  font-weight: 700; font-size: 20px; line-height: 1.55em; text-align: center;
+  letter-spacing: 0;
+}
+
+/* ---- 14-6 lay-fig-right / lay-fig-left：図と文の2カラム（.tcols.fig-* と同じ比）----------
+   16:9 で行長を伸ばさないための形。図＝段落の中の画像だけ・figure・インライン svg。
+   最下段の 1fr が余りの高さを受けるので、図が文より高くても文の行間は開かない。 */
+section:is(.lay-fig-right, .lay-fig-left) {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  grid-template-rows: auto repeat(14, auto) 1fr;
+  column-gap: var(--gap-group); row-gap: 0;
+  align-content: start !important; justify-content: stretch !important;
+  place-content: start stretch !important;
+  align-items: start !important;
+}
+section.lay-fig-left { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); }
+section:is(.lay-fig-right, .lay-fig-left) > * { grid-column: 1; min-width: 0; max-width: none; }
+section.lay-fig-left > * { grid-column: 2; }
+section:is(.lay-fig-right, .lay-fig-left) > :is(h1, h2, footer) { grid-column: 1 / -1; }
+/* 位置を決めて置いてある物（position:absolute）は格子に載せない。載せると、その列が基準になって位置がずれる */
+section:is(.lay-fig-right, .lay-fig-left) > :is(header, .page-title, .takeaway) { grid-area: auto; max-width: none; }
+section:is(.lay-fig-right, .lay-fig-left) > :is(figure, svg, p:has(> :is(img, svg):only-child)) {
+  grid-column: 2; grid-row: 2 / -1;
+  align-self: stretch; margin: 0;
+  min-height: 0; max-height: 100%;
+  display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start;
+}
+section.lay-fig-left > :is(figure, svg, p:has(> :is(img, svg):only-child)) { grid-column: 1; }
+section:is(.lay-fig-right, .lay-fig-left, .lay-fig-top) > :is(figure, p:has(> img:only-child)) > img {
+  display: block; max-width: 100%; max-height: 100%; min-height: 0;
+  width: auto; height: auto; object-fit: contain; object-position: left top;
+}
+section:is(.lay-fig-right, .lay-fig-left) > :is(svg, p:has(> svg:only-child)) > svg,
+section:is(.lay-fig-right, .lay-fig-left) > svg { width: 100%; height: auto; max-height: 100%; }
+
+/* ---- 14-7 lay-fig-top：図を上に大きく、文は下に短く --------------------------------------
+   見出し → 図 → 文 の順に並べ替える（原稿の順は変えない）。図は残りの高さいっぱいまで。 */
+section.lay-fig-top > :is(h1, h2) { order: -2; }
+section.lay-fig-top > :is(figure, svg, p:has(> :is(img, svg):only-child)) {
+  order: -1; flex: 1 1 0; min-height: 0; margin: 0 0 var(--gap-para);
+  display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start;
+}
+section.lay-fig-top > p:has(> svg:only-child) > svg,
+section.lay-fig-top > svg { height: 100%; width: auto; max-width: 100%; min-height: 0; }
+section.lay-fig-top > :is(ul, ol, p) { flex: 0 0 auto; max-width: none; }
+
+/* ---- 14-8 lay-lead：1文を大きく（.lead と同じ役。文字は 34px＝見出しと同じ大きさで種類を増やさない）---- */
+section.lay-lead > p:not(.note):not(:has(> img)) {
+  font-size: 34px; font-weight: 700; line-height: 1.6;
+  max-width: 24em; margin: auto 0;
+  margin-bottom: auto !important;   /* academic の「最後の子は margin-bottom:0 !important」に勝たせて、縦の中央に置く */
+  word-break: auto-phrase;
+}
+section.lay-lead > :is(h1, h2) { margin-bottom: 0; }
+
+/* ---- 14-9 lay-points：要点だけを大きく、縦の中央に（文字がとても少ない1枚。2〜5行）-----------
+   1行＝1つの要点。説明は付けない（「見出し＋説明」の形なら標準か lay-boxed）。
+   文字は 34px＝見出しと同じ大きさで、サイズの種類を増やさない（p.60 重要度に応じて大きさを変える）。
+   太さは本文と同じ（p.18 本文は太らせない）。強調したい語だけ **太字** にする。
+   大きさを変えたいデックは style: で  section.lay-points { --points-size: 30px; }  のように上書きする。
+   見出し（h2）と要点の帯は有っても無くてもよく、要点はその間の縦の中央に置く。 */
+section.lay-points { --points-size: 34px; }
+section.lay-points > :is(ul, ol) {
+  font-size: var(--points-size); line-height: 1.7;
+  max-width: none;
+  margin-top: auto;
+  margin-bottom: auto !important;   /* academic の「最後の子は margin-bottom:0 !important」に勝たせて、縦の中央に置く */
+  word-break: auto-phrase;
+}
+section.lay-points > :is(ul, ol) > li { margin: 0 0 .5em; }
+section.lay-points > :is(ul, ol) > li:last-child { margin-bottom: 0; }
+section.lay-points > :is(h1, h2) { margin-bottom: 0; }
+
+/* ---- 14-10 lay-fig-only：図1枚だけを中央に大きく。文は置かず、下の要点の帯だけ ---------------
+   見出し（有れば）→ 図。図は残りの高さ・幅いっぱいまで（縦横比は保つ）で、縦横とも中央。
+   要素を減らして図だけを見せる（p.110 図解は要素を減らしてシンプルに）。
+   画像に w:760 のように幅を書いてあれば、その幅が上限になる。 */
+section.lay-fig-only > :is(figure, p:has(> :is(img, svg):only-child)) {
+  flex: 1 1 0; min-height: 0; max-width: none; width: 100%; margin: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+section.lay-fig-only > :is(figure, p:has(> img:only-child)) > img {
+  display: block; max-width: 100%; max-height: 100%; min-height: 0;
+  width: auto; height: auto; object-fit: contain; object-position: center;
+}
+section.lay-fig-only > p:has(> svg:only-child) > svg { height: 100%; width: auto; max-width: 100%; min-height: 0; }
+section.lay-fig-only > svg { flex: 1 1 0; min-height: 0; width: auto; max-width: 100%; align-self: center; margin: 0; }
+section.lay-fig-only > :is(h1, h2) { margin-bottom: .3em; }

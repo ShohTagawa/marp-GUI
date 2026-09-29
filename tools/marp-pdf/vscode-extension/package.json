@@ -1,0 +1,64 @@
+{
+  "name": "marp-gui-pdf",
+  "displayName": "Marp GUI（PDF＋プレゼン）",
+  "description": "開いている Marp .md を、📄 ボタンで落ちない分割ベクターPDF化／▶ ボタンで Chrome 全画面プレゼン。tools/ 配下の Node スクリプトを呼ぶだけのローカル拡張（mac / Windows 共通・マーケット非経由・依存ゼロ）。",
+  "version": "1.3.0",
+  "publisher": "marp-gui-local",
+  "private": true,
+  "engines": { "vscode": "^1.70.0" },
+  "categories": ["Other"],
+  "activationEvents": [
+    "onStartupFinished",
+    "onCommand:marpGui.exportPdf",
+    "onCommand:marpGui.present"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "marpGui.present",
+        "title": "Marp: プレゼン（このスライドを Chrome で全画面）",
+        "icon": "$(play)"
+      },
+      {
+        "command": "marpGui.exportPdf",
+        "title": "Marp: ベクターPDF出力（このスライド）",
+        "icon": "$(file-pdf)"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "marpGui.present",
+          "when": "editorLangId == markdown && marpScrollSync.isMarp",
+          "group": "navigation@98"
+        },
+        {
+          "command": "marpGui.exportPdf",
+          "when": "editorLangId == markdown && marpScrollSync.isMarp",
+          "group": "navigation@99"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Marp GUI PDF",
+      "properties": {
+        "marpGui.chunkSize": {
+          "type": "number",
+          "default": 0,
+          "description": "1チャンクのページ数。0でスクリプト既定(20)。PDFが落ちるなら 12 など小さくする。"
+        },
+        "marpGui.chromePath": {
+          "type": "string",
+          "default": "",
+          "description": "Chrome/Edge 実行ファイルのパス。空なら OS ごとの標準インストール先を自動検出（mac: /Applications、Windows: Program Files）。"
+        },
+        "marpGui.nodePath": {
+          "type": "string",
+          "default": "",
+          "description": "node 実行ファイルのパス。空なら PATH から探す（nvm 等で見つからないときだけ指定）。"
+        }
+      }
+    }
+  }
+}

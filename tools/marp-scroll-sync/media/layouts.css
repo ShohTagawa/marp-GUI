@@ -1,0 +1,22 @@
+/* 配置案のポップアップ（media/layouts.js・DESIGN.md 8.3）。見た目は preview.css の .ss-pop / .ss-gallery と同じ調子 */
+.ss-lay-pop { position:fixed; z-index:35; box-sizing:border-box; width:max-content; max-width:min(620px, calc(100vw - 16px));
+  max-height:calc(100vh - 16px); overflow:auto; padding:10px 12px 9px;
+  font:12.5px/1.5 -apple-system, "Segoe UI", "Hiragino Sans", "BIZ UDPGothic", sans-serif; color:#eee;
+  background:#2a2a30; border:1px solid #55555e; border-radius:8px; box-shadow:0 8px 28px rgba(0,0,0,.5); }
+.ss-lay-head { font-weight:700; margin:0 0 8px; white-space:nowrap; }
+.ss-lay-msg { max-width:340px; color:#ddd; padding:2px 0 4px; }
+.ss-lay-grid { display:grid; grid-template-columns:repeat(3, 184px); gap:10px; }
+@media (max-width:640px) { .ss-lay-grid { grid-template-columns:repeat(2, 184px); } }
+@media (max-width:430px) { .ss-lay-grid { grid-template-columns:184px; } }
+.ss-lay-card { display:block; width:184px; padding:0; margin:0; text-align:left; font:inherit; color:inherit; cursor:pointer;
+  background:#1b1b20; border:2px solid #44444c; border-radius:6px; overflow:hidden; }
+.ss-lay-card:hover, .ss-lay-card:focus { border-color:#4aa3ff; outline:none; }
+.ss-lay-card.ss-lay-current { border-color:#ffd54a; }
+.ss-lay-thumb { display:block; width:180px; height:101.25px; overflow:hidden; background:#fff; pointer-events:none; contain:layout paint; }
+.ss-lay-thumb > svg.ss-lay-svg { display:block; width:180px; height:101.25px; margin:0; border:0; }
+.ss-lay-media { background:#d9d9d9; min-height:40px; }
+.ss-lay-name { padding:4px 7px 5px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ss-lay-warn { color:#ffb547; margin-right:4px; }
+.ss-lay-card.ss-lay-over .ss-lay-thumb { opacity:.72; }
+.ss-lay-why { margin:8px 0 0; max-width:572px; min-height:3em; color:#d6d6dc; }
+.ss-lay-hint { margin:4px 0 0; color:#9a9aa3; font-size:11.5px; }

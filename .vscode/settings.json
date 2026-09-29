@@ -1,0 +1,10 @@
+{
+  "markdown.marp.themes": [
+    "./theme/academic.css",
+    "./theme/tsutawaru-academic.css"
+  ],
+  "markdown.marp.html": "all",
+  "files.associations": { "*.md": "markdown" },
+  "npm.autoDetect": "on",
+  "npm.scriptExplorerAction": "run"
+}

@@ -1,0 +1,29 @@
+/* Alt で箱を動かす・大きさを変える（media/boxedit.js・DESIGN.md 9.1）。枠・札・ハンドル・案内線は画面に固定して重ねる */
+.ss-box-layer { position:fixed; inset:0; z-index:26; pointer-events:none;
+  font:12px/1.5 -apple-system, "Segoe UI", "Hiragino Sans", "BIZ UDPGothic", sans-serif; }
+.ss-box-hover { position:fixed; box-sizing:border-box; border:1.5px dashed #2f8cff; background:rgba(47,140,255,.08); pointer-events:none; }
+.ss-box-sel { position:fixed; box-sizing:border-box; border:2px solid #2f8cff; pointer-events:auto; cursor:move; touch-action:none; }
+.ss-box-sel.ss-box-refused { border:2px dashed #e0a030; pointer-events:none; cursor:default; }
+.ss-box-sel.ss-box-refused .ss-box-handle { display:none; }
+.ss-box-tag { position:fixed; max-width:70vw; padding:1px 7px; border-radius:3px; white-space:pre; overflow:hidden; text-overflow:ellipsis;
+  color:#fff; background:#2f8cff; font-weight:600; font-variant-numeric:tabular-nums; pointer-events:none; box-shadow:0 1px 4px rgba(0,0,0,.35); }
+.ss-box-tag-sel { background:#1463c8; }
+.ss-box-handle { position:absolute; width:11px; height:11px; box-sizing:border-box; background:#fff; border:2px solid #2f8cff; border-radius:2px;
+  pointer-events:auto; touch-action:none; box-shadow:0 0 0 1px rgba(0,0,0,.25); }
+.ss-box-h-nw { left:-6.5px; top:-6.5px; cursor:nwse-resize; }
+.ss-box-h-n  { left:calc(50% - 5.5px); top:-6.5px; cursor:ns-resize; }
+.ss-box-h-ne { right:-6.5px; top:-6.5px; cursor:nesw-resize; }
+.ss-box-h-e  { right:-6.5px; top:calc(50% - 5.5px); cursor:ew-resize; }
+.ss-box-h-se { right:-6.5px; bottom:-6.5px; cursor:nwse-resize; }
+.ss-box-h-s  { left:calc(50% - 5.5px); bottom:-6.5px; cursor:ns-resize; }
+.ss-box-h-sw { left:-6.5px; bottom:-6.5px; cursor:nesw-resize; }
+.ss-box-h-w  { left:-6.5px; top:calc(50% - 5.5px); cursor:ew-resize; }
+/* Markdown の画像は大きさだけ */
+.ss-box-sel.ss-box-mdimg { cursor:default; }
+.ss-box-guide { position:fixed; pointer-events:none; background:#ff3d8b; }
+.ss-box-guide-v { width:1px; }
+.ss-box-guide-h { height:1px; }
+/* Alt を押している間・ドラッグ中：文字選択を止める。preview.js のホバー枠は出さない */
+html.ss-box-alt, html.ss-box-alt *, html.ss-box-drag, html.ss-box-drag * { -webkit-user-select:none !important; user-select:none !important; }
+html.ss-box-alt div.marpit section, html.ss-box-alt div.marpit section * { cursor:crosshair !important; }
+html.ss-box-alt .ss-hover, html.ss-box-on .ss-hover { outline-color:transparent !important; }

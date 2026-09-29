@@ -1,0 +1,4 @@
+{
+  // 公式の Marp 拡張（任意）。同期プレビューだけで使うなら無くてもよい。
+  "recommendations": ["marp-team.marp-vscode"]
+}

@@ -1,0 +1,700 @@
+/* @theme academic */
+/* Marp custom theme for Japanese academic presentations. */
+/* Default look: Red header band + logo top-right. */
+/* Customize colors/fonts via CSS variables in your deck's frontmatter `style:` block. */
+
+@import "default";
+@import "schema";
+@import url('https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&display=swap');
+
+:root {
+  --accent: #A6192E;          /* メインカラー（赤系） */
+  --accent-dark: #7d1322;
+  --accent-soft: #F8E5EA;     /* テイクアウェイ・ハイライト背景 */
+  --text: #1a1a1a;
+  --muted: #555;
+  --bg: #ffffff;
+  --section-bg: #FAF5F6;      /* セクションボックス背景 */
+  --header-h: 56px;
+  --side-pad: 56px;
+  --bottom-pad: 100px;        /* 下部余白（takeaway固定位置のため） */
+  --takeaway-bottom: 28px;    /* takeaway帯のスライド下端からの距離（固定） */
+  --hdr-left-w: 38%;          /* 左側タイトル（生物論文 - AI）の幅 */
+  --hdr-slant: 22px;          /* 斜めカットの幅（傾きの強さ） */
+  --hdr-gap: 4px;             /* 2つのブロック間の白抜きの隙間幅 */
+
+  /* Font stack. To switch fonts, override --font-jp in your deck's frontmatter:
+   *
+   *   style: |
+   *     @import url('https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&display=swap');
+   *     :root { --font-jp: "BIZ UDPGothic", sans-serif; }
+   *
+   * Other options:
+   *   :root { --font-jp: "Noto Sans JP", sans-serif; }     # Google Fonts (要 @import)
+   *   :root { --font-jp: "Google Sans", "Noto Sans JP", sans-serif; }  # Google Sans (要ローカル)
+   */
+  --font-jp: "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Yu Gothic Medium", "Noto Sans JP", "Meiryo", sans-serif;
+}
+
+/* ========== Base ========== */
+section {
+  font-family: var(--font-jp);
+  font-size: 23px;          /* デフォルト 23px。最小 18px を厳守。 */
+  line-height: 1.55;
+  color: var(--text);
+  background: var(--bg);
+  padding: calc(var(--header-h) + 28px) var(--side-pad) var(--bottom-pad);
+  position: relative;
+  letter-spacing: 0.01em;
+  /* Force content to start at the top under the header, not be centered. */
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+  align-items: stretch !important;
+  place-content: flex-start stretch !important;
+}
+
+section h1 {
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 16px;
+  letter-spacing: 0.02em;
+}
+section h2 {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 14px;
+}
+section h3 {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--accent);
+  margin: 0 0 10px;
+}
+
+section p { margin: 0 0 12px; }
+section ul, section ol { margin: 0 0 12px 1.2em; padding: 0; }
+section li { margin: 4px 0; }
+/* strong は色を継承（普通の黒い太字）。強調色が必要な箇所は .hl クラスで明示。 */
+section strong { color: inherit; font-weight: 700; }
+section em { color: var(--accent-dark); font-style: normal; font-weight: 600; }
+/* ハイライト用クラス：赤系の強調色で目立たせる。<span class="hl">…</span> */
+.hl       { color: var(--accent);      font-weight: 700; }
+.hl-dark  { color: var(--accent-dark); font-weight: 700; }
+
+/* 質問/回答ペアを2列グリッドで揃える。<dl class="qa-grid"> または <div class="qa-grid"> 内で
+   <strong>質問1:</strong> / 回答本文 のペアを順に並べる。 */
+.qa-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 24px;
+  row-gap: 14px;
+  margin: 16px 0;
+  align-items: start;
+  line-height: 1.55;
+}
+.qa-grid > :nth-child(odd) { font-weight: 700; }
+.qa-grid > * { margin: 0; }
+
+/* ============================================================ */
+/* Header band                                                  */
+/* Set globally in frontmatter `header:` — contains hdr-left     */
+/* (deck title) and hdr-logo.                                    */
+/* Page title is rendered separately via <div class="page-title">*/
+/* in slide body.                                                */
+/* ============================================================ */
+section > header {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  margin: 0; padding: 0;
+  /* 高さを固定。中身の行詰めや font-size 変動の影響を受けない。 */
+  height: var(--header-h);
+  min-height: var(--header-h);
+  max-height: var(--header-h);
+  box-sizing: border-box;
+  line-height: 1;
+  display: flex;
+  align-items: stretch;
+  /* 上部ラインは無し（背景は透明） */
+  background: transparent;
+  font-size: 22px;
+  font-weight: 700;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* 下部の赤いライン（自己紹介ブロックの裏側から右端まで） */
+section > header::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  /* 下線はヘッダー帯の全幅（左端から右端まで）。実運用の約87%がこれを明示しており既定化。
+     途中から始めたいデックだけ left を上書きする。 */
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--accent);
+  z-index: -1;
+}
+
+section > header .hdr-left {
+  background: var(--accent);
+  color: #fff;
+  padding: 0 16px 0 32px;
+  display: flex; align-items: center;
+  /* 右端を「\」の形にカット */
+  clip-path: polygon(0 0, calc(100% - var(--hdr-slant)) 0, 100% 100%, 0 100%);
+  width: var(--hdr-left-w);
+  height: var(--header-h);
+  box-sizing: border-box;
+  font-size: 24px;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+section > header .hdr-logo {
+  margin-left: auto;
+  margin-right: 28px;
+  height: 38px;
+  width: auto;
+  align-self: center;
+}
+
+/* ========== Page title (center trapezoid, per-slide) ========== */
+section .page-title {
+  position: absolute;
+  top: 0;
+  /* 既定はスライド横幅の30%〜58%を占める濃赤ブロック。
+     --pt-left / --pt-width を上書きすれば位置・幅を調整できる。
+     左帯に噛み合わせたい場合は --pt-left を次の式にする：
+       calc(var(--hdr-left-w) - var(--hdr-slant) + var(--hdr-gap))
+     （--hdr-gap が +なら白い隙間、0で密着、-で重ねて白消し） */
+  left: var(--pt-left, 30%);
+  width: var(--pt-width, 28%);
+  height: var(--header-h);
+  min-height: var(--header-h);
+  max-height: var(--header-h);
+  background: var(--accent-dark);   /* 左ブロックより濃い赤 */
+  color: #fff;
+  padding: 0 40px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 左右両端を「\」の形にカット（平行四辺形） */
+  clip-path: polygon(0 0, calc(100% - var(--hdr-slant)) 0, 100% 100%, var(--hdr-slant) 100%);
+  font-size: 24px;
+  line-height: 1;
+  font-weight: 700;
+  white-space: nowrap;
+  z-index: 11;
+  margin: 0;
+}
+
+/* ========== Page number (paginate) ========== */
+section::after {
+  position: absolute;
+  bottom: 18px;
+  right: 28px;
+  font-size: 18px;          /* min font size 18px */
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* ========== Tables ========== */
+section table {
+  border-collapse: collapse;
+  width: auto;
+  min-width: 60%;
+  margin: 8px auto 12px;     /* 中央寄せ */
+  font-size: 20px;
+}
+section table th,
+section table td {
+  padding: 10px 14px;
+  border: none;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+  vertical-align: middle;
+}
+section table th {
+  font-weight: 700;
+  color: var(--text);
+  border-bottom: 2px solid var(--accent);
+  background: transparent;
+}
+section table tr:last-child td { border-bottom: 1px solid #999; }
+
+/* fig-area 内のテーブルは中央寄せ。fig-area は flex なので margin:auto / justify-content
+   では内容幅テーブルを中央化できない。block 化＋ text-align:center、表は inline-table に。 */
+section.fig .fig-area:has(> table) { display: block; text-align: center; }
+section.fig .fig-area > table { display: inline-table; }
+
+/* ========== Images / figures ========== */
+section img { max-width: 100%; height: auto; }
+section figure { margin: 8px 0; text-align: center; }
+section figure figcaption {
+  font-size: 18px; color: var(--muted); margin-top: 6px;
+}
+
+/* ========== Code / quotes ========== */
+section code {
+  font-family: "Menlo", "Consolas", monospace;
+  font-size: 0.9em;
+  background: #f3f3f3;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+section pre {
+  background: #f7f7f7; padding: 14px 18px; border-radius: 6px;
+  font-size: 18px; line-height: 1.45; overflow: auto;
+}
+section blockquote {
+  border-left: 4px solid var(--accent);
+  margin: 8px 0; padding: 4px 16px;
+  color: var(--muted); font-style: normal;
+}
+
+/* ============================================================ */
+/* Callout boxes — 全幅の色付き帯。セクション見出しやハイライトに。 */
+/* 使い方: <div class="callout-green">① タイトル</div>             */
+/* 色バリエーション: gray / green / pink / orange / blue          */
+/* ============================================================ */
+.callout-gray,
+.callout-green,
+.callout-pink,
+.callout-orange,
+.callout-yellow,
+.callout-blue {
+  padding: 14px 28px;
+  border-radius: 10px;
+  margin: 12px 0;
+  font-size: 23px;     /* 原則 23px。強調したい場合は inline で上書き */
+  font-weight: 700;
+  line-height: 1.4;
+}
+.callout-gray   { background: #ECECEC; color: var(--text); }
+.callout-green  { background: #DDEBC8; color: var(--text); }
+.callout-pink   { background: #FAE1E2; color: var(--text); }
+.callout-orange { background: #FCE3C7; color: var(--text); }
+.callout-yellow { background: #FBEFC8; color: var(--text); }
+.callout-blue   { background: #D9E7F2; color: var(--text); }
+
+/* callout 直下のリストは右にインデント、行間も詰める */
+.callout-gray + ul, .callout-gray + ol,
+.callout-green + ul, .callout-green + ol,
+.callout-pink + ul, .callout-pink + ol,
+.callout-orange + ul, .callout-orange + ol,
+.callout-yellow + ul, .callout-yellow + ol,
+.callout-blue + ul, .callout-blue + ol {
+  margin: 6px 0 6px 2.8em;
+  line-height: 1.35;
+}
+.callout-gray + ul li, .callout-gray + ol li,
+.callout-green + ul li, .callout-green + ol li,
+.callout-pink + ul li, .callout-pink + ol li,
+.callout-orange + ul li, .callout-orange + ol li,
+.callout-yellow + ul li, .callout-yellow + ol li,
+.callout-blue + ul li, .callout-blue + ol li {
+  margin: 1px 0;
+}
+/* インデント幅をその場で変えたい時の補助クラス。
+   <div class="indent-sm|md|lg|xl"> でリストを囲む。
+   行間も自動で詰める。 */
+.indent-sm > ul, .indent-sm > ol,
+.indent-md > ul, .indent-md > ol,
+.indent-lg > ul, .indent-lg > ol,
+.indent-xl > ul, .indent-xl > ol {
+  line-height: 1.35;
+}
+.indent-sm > ul > li, .indent-sm > ol > li,
+.indent-md > ul > li, .indent-md > ol > li,
+.indent-lg > ul > li, .indent-lg > ol > li,
+.indent-xl > ul > li, .indent-xl > ol > li {
+  margin: 1px 0;
+}
+.indent-sm > ul, .indent-sm > ol { margin: 6px 0 6px 2em !important; }
+.indent-md > ul, .indent-md > ol { margin: 6px 0 6px 3.5em !important; }
+.indent-lg > ul, .indent-lg > ol { margin: 6px 0 6px 5em !important; }
+.indent-xl > ul, .indent-xl > ol { margin: 6px 0 6px 7em !important; }
+
+/* ============================================================ */
+/* Takeaway band — fixed at bottom of slide, no left bar.       */
+/* ============================================================ */
+.takeaway {
+  background: var(--accent-soft);
+  border-radius: 10px;
+  padding: 14px 24px;
+  font-weight: 700;
+  color: var(--accent-dark);
+  text-align: center;
+  font-size: 28px;     /* takeaway は固定 28px */
+  margin: 14px 0 0;    /* 本文との最小ギャップ */
+  flex: 0 0 auto;
+  z-index: 5;
+}
+
+/* ============================================================ */
+/* 縦軸フレーミング — takeaway の有無で処理を分ける               */
+/*                                                              */
+/*  ■ takeaway なし: 各パターン本来の縦レイアウトのまま           */
+/*    （fig は grid で図を中央寄せ、など）。                      */
+/*                                                              */
+/*  ■ takeaway あり: フレームを「本文ゾーン＋下端の帯」に上下分割。 */
+/*    ・下パディングを帯の足元(28px)まで詰める                    */
+/*    ・帯は in-flow・flex:0 0 auto で“実際の高さ”ぶん場所を取る   */
+/*      → 1行でも2行でも本文が帯に潜り込まない（見切れない）       */
+/*    ・本文は上に詰め、帯は margin-top:auto で最下部へ固定        */
+/* ============================================================ */
+section:has(.takeaway) {
+  padding-bottom: var(--takeaway-bottom) !important;
+}
+section:has(.takeaway) .takeaway {
+  margin-top: auto;   /* flex列で帯を最下部へ */
+}
+/* fig は通常 grid（図を中央寄せ）。takeaway があるときは flex列に切替え、
+   本文（図＋付随ブロック）を上から詰めて図と次ブロックの隙間を無くし、
+   余った縦スペースは帯の手前にまとめる。 */
+section.fig:has(.takeaway) {
+  display: flex !important;
+  flex-direction: column;
+  gap: 6px;
+  padding-bottom: var(--takeaway-bottom) !important;
+}
+section.fig:has(.takeaway) .fig-area {
+  min-height: 0;      /* 320px固定をやめ、図は自身の max-height ぶんだけ占有 */
+  flex: 0 0 auto;
+}
+
+/* ============================================================ */
+/* 本文ゾーンの縦配分 — タイトル/takeaway を動かさず中身だけ再配置  */
+/*                                                              */
+/* 見出しと takeaway の「間」を <div class="body">…</div> で囲むと、 */
+/* そのゾーンが残りの縦スペースを埋め、配分だけをクラスで選べる：    */
+/*   （既定）         上詰め（現状維持）                           */
+/*   _class: vcenter  本文ゾーンを上下中央                         */
+/*   _class: vspread  上下に均等配分（space-between）              */
+/*   _class: vtop     明示的に上詰め                              */
+/* takeaway が無い場合も同じ（本文ゾーンが下端 --bottom-pad まで）。 */
+/* 見出し(h2/h3)と .takeaway は .body の外に置く＝固定アンカー。   */
+/* 数値(px)で各スライドを微調整しない。配分はこの仕組みに任せる。   */
+/* ============================================================ */
+section .body,
+section.summary .sections {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;   /* 既定は上詰め */
+}
+.body.vtop,    section.vtop    .body, section.vtop    .sections { justify-content: flex-start; }
+.body.vcenter, section.vcenter .body, section.vcenter .sections { justify-content: center; }
+.body.vspread, section.vspread .body, section.vspread .sections { justify-content: space-between; }
+/* split は2カラム：縦中央は列を align-items で中央寄せ（高特異度で既定の start を上書き） */
+section.split.vcenter .split-body { align-items: center; }
+
+/* ---- 横並び：等幅・等高の列（兄弟ブロックの幅・高さを揃える） ---------- */
+/* <div class="cols"><div>…</div><div>…</div></div> を使う。               */
+/* 列は等幅(flex:1 1 0)・等高(align-items:stretch)。上揃えは .cols.top。   */
+/* インラインの display:flex / flex:1 を1枚ずつ書かず、これで揃える。       */
+.cols { display: flex; gap: 24px; align-items: stretch; margin: 8px 0; }
+.cols > * { flex: 1 1 0; min-width: 0; }
+.cols.top { align-items: flex-start; }
+
+/* ============================================================ */
+/* SLIDE PATTERN CLASSES                                        */
+/* Apply with <!-- _class: <name> --> on individual slides.     */
+/* ============================================================ */
+
+/* ----- Cover (P1 表紙) ------------------------------------- */
+section.cover {
+  padding: 80px var(--side-pad);
+  text-align: center;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  background: linear-gradient(180deg, #fff 0%, #fff 70%, var(--accent-soft) 100%);
+}
+/* Hide header band and any page-title for full-bleed slide types. */
+section.cover > header,
+section.message > header,
+section.divider > header { display: none; }
+section.cover .page-title,
+section.message .page-title,
+section.divider .page-title { display: none; }
+section.cover::after,
+section.message::after { display: none !important; }
+
+section.cover h1 {
+  font-size: 54px;
+  color: var(--accent);
+  margin-bottom: 24px;
+  line-height: 1.3;
+  letter-spacing: 0.04em;
+}
+section.cover h2 {
+  font-size: 28px;
+  color: var(--text);
+  font-weight: 500;
+  margin-bottom: 48px;
+}
+section.cover h3 {
+  font-size: 22px;
+  color: var(--text);
+  font-weight: 500;
+  margin: 4px 0;
+}
+section.cover .meta {
+  margin-top: 32px;
+  font-size: 18px;
+  color: var(--muted);
+}
+
+/* ----- Self-introduction (自己紹介型) ---------------------- */
+section.intro .intro-head {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) 1.4fr;
+  gap: 32px;
+  align-items: start;
+  padding: 16px 24px;
+  margin-bottom: 24px;
+}
+section.intro .intro-name {
+  font-size: 44px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  line-height: 1.0;
+}
+section.intro .intro-name .ruby {
+  display: block;
+  font-size: 18px;          /* min font size 18px */
+  font-weight: 400;
+  color: var(--muted);
+  letter-spacing: 0.18em;
+  margin-bottom: 6px;
+}
+section.intro .intro-affil { font-size: 20px; line-height: 1.5; }
+section.intro .intro-affil .role {
+  display: inline-block;
+  background: var(--accent-soft);
+  color: var(--text);
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 4px;
+  margin-top: 8px;
+}
+section.intro .two-col {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 32px;
+  align-items: start;
+}
+section.intro .col h3 { font-size: 22px; }
+
+/* ----- ① Figure-centric (図表中心型) ---------------------- */
+section.fig {
+  display: grid !important;
+  grid-template-rows: auto 1fr auto;
+  gap: 8px;
+  /* Reserve space for absolute takeaway at bottom. */
+  padding-bottom: calc(var(--takeaway-bottom) + 70px);
+}
+section.fig h2 { text-align: center; }
+section.fig .fig-area {
+  display: flex; align-items: center; justify-content: center;
+  padding: 8px 0;
+  min-height: 320px;
+}
+/* 図は「高さ」優先で収める（幅で決めると縦にはみ出て見切れる＝最頻の修正）。 */
+section.fig .fig-area img { max-height: 380px; max-width: 100%; width: auto; height: auto; object-fit: contain; }
+section.fig .placeholder {
+  width: 80%; min-height: 320px;
+  border: 2px dashed #bbb; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--muted); font-size: 20px;
+  background: #fafafa;
+}
+section.fig .caption {
+  text-align: center; font-size: 18px; color: var(--muted);
+}
+
+/* ----- ② Text summary (テキスト要約型) -------------------- */
+section.summary .sections {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+section.summary .sec-box {
+  background: var(--section-bg);
+  border-radius: 10px;
+  padding: 12px 22px;
+}
+section.summary .sec-box h3 {
+  font-size: 22px;
+  color: var(--accent);
+  margin: 0 0 6px;
+}
+section.summary .sec-box ul {
+  margin: 0 0 0 1.2em;
+  font-size: 21px;
+}
+section.summary .sec-box li { margin: 2px 0; }
+
+/* ----- ③ Left-right split (左右分割型) -------------------- */
+section.split {
+  /* Reserve space for absolute takeaway. */
+  padding-bottom: calc(var(--takeaway-bottom) + 70px);
+}
+section.split .split-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: start;
+  min-height: 360px;
+}
+section.split .split-body .left,
+section.split .split-body .right { min-width: 0; }
+section.split .placeholder {
+  width: 100%; min-height: 300px;
+  border: 2px dashed #bbb; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--muted); font-size: 18px;
+  background: #fafafa;
+}
+section.split .right h3 { margin-top: 0; }
+section.split .caption { font-size: 18px; color: var(--muted); margin-top: 4px; }
+
+/* ----- ④ Message (メッセージ型) --------------------------- */
+section.message {
+  display: flex !important; flex-direction: column !important;
+  justify-content: center !important; align-items: center !important;
+  text-align: center;
+  padding: 80px var(--side-pad);
+  background: linear-gradient(180deg, var(--accent-soft) 0%, #fff 60%);
+}
+section.message h1 {
+  font-size: 56px;
+  color: var(--accent);
+  line-height: 1.35;
+  letter-spacing: 0.04em;
+  margin: 0 0 24px;
+}
+section.message h2 {
+  font-size: 28px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+/* ----- Summary / wrap-up (まとめ) -------------------------- */
+section.wrap ul {
+  list-style: none;
+  margin-left: 0;
+  font-size: 24px;
+}
+section.wrap ul li {
+  position: relative;
+  padding-left: 32px;
+  margin: 12px 0;
+  line-height: 1.5;
+}
+section.wrap ul li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 24px;
+}
+
+/* ----- References (参考文献) ------------------------------- */
+section.refs ul, section.refs ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 18px;          /* min font size 18px */
+  line-height: 1.55;
+}
+section.refs li {
+  padding-left: 1.5em;
+  text-indent: -1.5em;
+  margin: 6px 0;
+  color: #333;
+}
+
+/* ----- Chapter divider (章扉) ----------------------------- */
+section.divider {
+  background: var(--accent);
+  color: #fff;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
+  padding: 0 80px;
+}
+section.divider .chapter-num {
+  font-size: 22px;
+  letter-spacing: 0.3em;
+  opacity: 0.85;
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+section.divider h1 {
+  font-size: 60px;
+  color: #fff;
+  margin: 0 0 16px;
+  line-height: 1.2;
+}
+section.divider h2 {
+  font-size: 24px;
+  color: rgba(255,255,255,0.85);
+  font-weight: 400;
+  margin: 0;
+}
+section.divider::after { color: rgba(255,255,255,0.6); }
+
+/* ----- Q&A / End ------------------------------------------ */
+section.qa {
+  display: flex !important; flex-direction: column !important;
+  justify-content: center !important; align-items: center !important;
+  text-align: center;
+}
+section.qa h1 {
+  font-size: 96px;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  margin: 0 0 20px;
+}
+section.qa h2 {
+  font-size: 26px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* ============================================================ */
+/* Cover-hero (標準表紙) — centered title + round photo + meta   */
+/* 使い方: <!-- _class: cover-hero --> に .title-hero/.title-foot */
+/* ============================================================ */
+section.cover-hero {
+  padding-top: calc(var(--header-h) + 60px);
+  --hdr-left-w: 26%;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+}
+section.cover-hero > header::after { left: 0; right: 0; }
+section.cover-hero .page-title { display: none; }
+section.cover-hero .title-hero { text-align: center; margin-bottom: 48px; }
+section.cover-hero .title-small { font-size: 40px; font-weight: 700; line-height: 1.3; margin-bottom: 8px; }
+section.cover-hero .title-big { font-size: 72px; font-weight: 800; line-height: 1.2; letter-spacing: 0.02em; color: var(--accent); }
+section.cover-hero .title-foot { display: grid; grid-template-columns: 280px 1fr; gap: 40px; align-items: center; padding: 0 60px; }
+section.cover-hero .title-photo { width: 240px; height: 240px; border-radius: 50%; overflow: hidden; background: #ddd; display: flex; align-items: center; justify-content: center; color: #777; font-size: 16px; }
+section.cover-hero .title-photo img { width: 100%; height: 100%; object-fit: cover; }
+section.cover-hero .title-meta { font-size: 26px; line-height: 1.7; text-align: center; }
+section.cover-hero .title-event { color: var(--accent-dark); font-weight: 700; margin-bottom: 16px; }
+section.cover-hero .title-date { margin-bottom: 16px; }

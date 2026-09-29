@@ -1,0 +1,78 @@
+{
+  // Marp スライドを「落ちずに」ベクターPDF化するタスク（mac / Windows 共通・追加拡張は不要）。
+  //
+  // ■ ボタンで実行（おすすめ）:
+  //   VS Code 標準の「NPM スクリプト」ビュー（エクスプローラー内）の "pdf" の ▶ を押す。
+  //   → 最後に編集したデックを自動でPDF化する（package.json の scripts）。
+  //   または、デックの .md を開いてステータスバー右下の「📄 PDF」「▶ プレゼン」
+  //   （ローカル拡張 marp-gui-pdf。`npm run setup` でリンクされる）。
+  //
+  // ■ 開いているファイルを確実に対象にしたいとき:
+  //   その .md を開いて ⌘⇧B / Ctrl+Shift+B（既定ビルドタスク。${file} を対象にする）。
+  //
+  // 仕組みは tools/marp-pdf/build-pdf.mjs（全スライドを1HTMLに描画 → ページ範囲ごとに
+  // 分割印刷 → pdf-lib で結合）。Chrome は OS ごとの標準インストール先を自動検出
+  // （変えたいときは環境変数 CHROME_PATH）。marp 実行時に --html / --no-stdin を付与済み。
+  "version": "2.0.0",
+  "tasks": [
+    {
+      // ── ⌘⇧B / Ctrl+Shift+B：開いている .md をPDF化（チャンク既定20）──
+      "label": "Marp: PDF出力（開いているファイル）",
+      "type": "process",
+      "command": "node",
+      "args": ["${workspaceFolder}/tools/marp-pdf/build-pdf.mjs", "${file}"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": { "kind": "build", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true },
+      "problemMatcher": []
+    },
+    {
+      // ── 落ちるとき用：1チャンクの枚数を指定 ──
+      "label": "Marp: PDF出力（チャンク指定）",
+      "type": "process",
+      "command": "node",
+      "args": ["${workspaceFolder}/tools/marp-pdf/build-pdf.mjs", "${file}", "--chunk", "${input:marpChunk}"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true },
+      "problemMatcher": []
+    },
+    {
+      // ── 開いている .md を Chrome で全画面プレゼン ──
+      "label": "Marp: プレゼン（開いているファイル）",
+      "type": "process",
+      "command": "node",
+      "args": ["${workspaceFolder}/tools/marp-present/present.mjs", "${file}"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "presentation": { "reveal": "silent", "panel": "shared", "clear": true },
+      "problemMatcher": []
+    },
+    {
+      // ── 開いている .md を全ページ PNG に描画（目視確認用。out/<deck>.NNN.png）──
+      "label": "Marp: PNG出力（開いているファイル）",
+      "type": "process",
+      "command": "node",
+      "args": ["${workspaceFolder}/tools/marp-png.mjs", "${file}"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true },
+      "problemMatcher": []
+    },
+    {
+      // ── 新しいPCでの初回セットアップ（npm install ＋ ローカル拡張のリンク）──
+      "label": "Marp: セットアップ（npm run setup）",
+      "type": "process",
+      "command": "node",
+      "args": ["${workspaceFolder}/tools/setup.mjs"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true },
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "marpChunk",
+      "type": "promptString",
+      "description": "1チャンクのページ数（落ちるなら小さく。Enterで既定20）",
+      "default": "20"
+    }
+  ]
+}

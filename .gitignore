@@ -1,0 +1,6 @@
+node_modules/
+.DS_Store
+slides/*/out/
+slides/_library/index.json
+slides/_library/corpus.json
+slides/_library/thumbs/

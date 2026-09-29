@@ -1,0 +1,4 @@
+smoke.js
+.vscode/**
+**/*.map
+.gitignore
