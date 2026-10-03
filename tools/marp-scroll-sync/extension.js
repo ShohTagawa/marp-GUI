@@ -31,8 +31,11 @@ const libraryVs = safeRequire('./lib/library-vscode.cjs');
 const corpusVs = safeRequire('./lib/corpus-vscode.cjs');   // 既存スライドの検索と挿入（DESIGN 7〜8章）
 const layoutVariants = safeRequire('./lib/layout-variants.cjs'); // 配置案（DESIGN 8.3）
 const styleEdit = safeRequire('./lib/style-edit.cjs');           // Alt で箱を動かす・大きさを変える（DESIGN 9章）
+const homeVs = safeRequire('./lib/home-vscode.cjs');             // ホーム画面：最近・棚・手を入れた順・検索 → 開く（DESIGN 10章）
 let folding = null;        // foldingVs.register() の戻り値 { onPreviewNavigate, refresh }
 let corpusSvc = null;      // corpusVs.register() の戻り値 { search, prefetch, insert, openSource, shelfEdit, onOverflow, openPopup, rebuild, warm }
+let homeSvc = null;        // homeVs.register() の戻り値 { open, noteOpened, maybeOpenOnStartup, isOpen }
+let homeItem = null;       // ステータスバーの「🏠 Marp」
 // Marp とテーマは使い回す（DESIGN 8.0）。theme/*.css の mtime が変わったら作り直す。
 //   deck … プレビュー本体用（行番号つき）／ thumb … サムネイル用（行番号なし。html が小さい）
 const marpCache = { deck: null, thumb: null };
@@ -240,11 +243,25 @@ function marpFor(kind, repoRoot) {
 /**
  * サムネイル用に、別のデック（mdAbs）を同じテーマで描く。素材の参照はプレビューの webview URI に直す。
  */
-function renderForThumb(mdAbs, text) {
-  if (!panel) throw new Error('プレビューが開かれていません');
+function renderForThumb(mdAbs, text, webview) {
+  const wv = webview || (panel && panel.webview);
+  if (!wv) throw new Error('プレビューが開かれていません');
   const repoRoot = repoRootFor({ uri: vscode.Uri.file(mdAbs) });
   const { html, css } = marpFor('thumb', repoRoot).render(text);
-  return { html: rewriteAssets(html, panel.webview, path.dirname(mdAbs)), css };
+  return { html: rewriteAssets(html, wv, path.dirname(mdAbs)), css };
+}
+
+/**
+ * ホーム画面のためのリポジトリ候補（原稿が開いていなくても探せる）。
+ * 先頭が本命：アクティブな原稿 → 表示中の原稿 → ワークスペースの各フォルダ（theme/academic.css を上へ辿って探す）
+ */
+function repoRoots() {
+  const out = [];
+  const add = (r) => { if (r && !out.includes(r)) out.push(r); };
+  const eds = [vscode.window.activeTextEditor].concat(vscode.window.visibleTextEditors || []).filter(Boolean);
+  for (const ed of eds) { try { if (ed.document.uri.scheme === 'file' && /\.md$/i.test(ed.document.uri.fsPath)) add(repoRootFor(ed.document)); } catch (_) { /* 次へ */ } }
+  for (const f of (vscode.workspace.workspaceFolders || [])) { try { add(repoRootFor({ uri: vscode.Uri.file(path.join(f.uri.fsPath, 'x.md')) })); } catch (_) { /* 次へ */ } }
+  return out;
 }
 
 /** marp-core でデッキを描画し {html, css} を返す（テーマも読み込む） */
@@ -1267,6 +1284,19 @@ function activate(context) {
       });
     } catch (e) { console.error('[marp-scroll-sync] corpus: ' + (e && e.stack || e)); }
   }
+  if (homeVs) {
+    try {
+      homeSvc = homeVs.register(context, {
+        isMarpDoc, repoRootFor, repoRoots,
+        corpusFor: (root) => (corpusSvc && typeof corpusSvc.corpusFor === 'function' ? corpusSvc.corpusFor(root) : null),
+        shelfFor: (root) => (corpusSvc && typeof corpusSvc.shelfFor === 'function' ? corpusSvc.shelfFor(root) : null),
+        renderThumb: (webview, mdAbs, text) => renderForThumb(mdAbs, text, webview),
+        openPreview: () => openPreview(context),
+        rebuildCorpus: () => { try { cmdRebuildCorpus(); } catch (_) { /* 任意 */ } },
+        nonce: SCRIPT_NONCE, mediaDir: path.join(__dirname, 'media'),
+      });
+    } catch (e) { console.error('[marp-scroll-sync] home: ' + (e && e.stack || e)); }
+  }
   if (libraryVs) {
     try {
       library = libraryVs.register(context, {
@@ -1279,7 +1309,19 @@ function activate(context) {
     } catch (e) { console.error('[marp-scroll-sync] library: ' + (e && e.stack || e)); }
   }
 
+  // ホーム：いつでも押せる入口（原稿を開いていなくても）
+  homeItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 201);
+  homeItem.text = '$(home) Marp';
+  homeItem.tooltip = 'Marp ホーム：最近開いたデック・棚・手を入れた順・検索（⌘K H / Ctrl+K H）';
+  homeItem.command = 'marpScrollSync.home';
+  homeItem.show();
+  context.subscriptions.push(homeItem);
+
   context.subscriptions.push(
+    vscode.commands.registerCommand('marpScrollSync.home', (args) => {
+      if (!homeSvc) { vscode.window.showWarningMessage('ホーム画面の部品を読み込めませんでした'); return; }
+      homeSvc.open(args && typeof args === 'object' ? args : undefined);
+    }),
     vscode.commands.registerCommand('marpScrollSync.newSlide', cmdSlideOp('new')),
     vscode.commands.registerCommand('marpScrollSync.duplicateSlide', cmdSlideOp('duplicate')),
     vscode.commands.registerCommand('marpScrollSync.moveSlideUp', cmdSlideOp('moveUp')),
@@ -1305,6 +1347,7 @@ function activate(context) {
     })
   );
   updateStatus(vscode.window.activeTextEditor);
+  if (homeSvc) setTimeout(() => { try { homeSvc.maybeOpenOnStartup(); } catch (_) { /* 起動時のホームは任意 */ } }, 600);
 }
 
 function deactivate() {}

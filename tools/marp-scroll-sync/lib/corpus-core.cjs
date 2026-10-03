@@ -67,11 +67,11 @@ function catFiles(repoRoot, specs, bin) {
  * その版での元の名前へさかのぼって追う（git log --follow と同じ追い方。元デックで重ねた添削も、そのスライドの添削に数える）。
  */
 function repoHistory(repoRoot, bin) {
-  const raw = runGit(repoRoot, ['-c', 'core.quotepath=off', 'log', '-M', '-C', '--find-copies-harder', '--name-status', '--format=C %H %ad', '--date=short', '--', '*.md'], bin);
+  const raw = runGit(repoRoot, ['-c', 'core.quotepath=off', 'log', '-M', '-C', '--find-copies-harder', '--name-status', '--format=C %H %ad %ae', '--date=short', '--', '*.md'], bin);
   const commits = [];
   let c = null;
   for (const l of raw.split('\n')) {
-    if (l.startsWith('C ')) { const [, sha, date] = l.split(' '); c = { sha, date, changes: [] }; commits.push(c); }
+    if (l.startsWith('C ')) { const [, sha, date, email] = l.split(' '); c = { sha, date, email: email || '', changes: [] }; commits.push(c); }
     else if (/^[AMRC]\d*\t/.test(l) && c) { const p = l.split('\t'); c.changes.push({ from: l[0] === 'R' || l[0] === 'C' ? p[1] : null, to: p[p.length - 1] }); }
   }
   return {
@@ -82,7 +82,7 @@ function repoHistory(repoRoot, bin) {
       for (const cm of commits) {
         const ch = cm.changes.find((x) => x.to === tracked);
         if (!ch) continue;
-        out.push({ sha: cm.sha, date: cm.date, path: tracked });
+        out.push({ sha: cm.sha, date: cm.date, email: cm.email || '', path: tracked });
         if (ch.from) tracked = ch.from;
       }
       return out;
@@ -91,6 +91,10 @@ function repoHistory(repoRoot, bin) {
 }
 
 // ───────────────────────── 添削量（churn） ─────────────────────────
+
+/** Claude 名義のコミットか（tools/git-attrib/hook.mjs が付ける author）。追加の目印は CLAUDE_AUTHORS に足す */
+const CLAUDE_AUTHORS = [/noreply@anthropic\.com$/i];
+const isClaudeVersion = (v) => !!(v && typeof v.email === 'string' && CLAUDE_AUTHORS.some((re) => re.test(v.email)));
 
 const normLines = (lines) => lines.map((l) => l.trim()).filter((l) => l && !/^<!--\s*_?class:/.test(l) && !/^_lib:/.test(l));
 
@@ -147,16 +151,16 @@ function churnOf(repoRoot, mdAbs, opts) {
   let versions;
   if (Array.isArray(opts.versions)) versions = opts.versions.map((v) => ({ ...v }));
   else {
-    const logRaw = runGit(repoRoot, ['log', '--follow', '--name-status', '--format=C %H %ad', '--date=short', '--', mdRel], bin);
+    const logRaw = runGit(repoRoot, ['log', '--follow', '--name-status', '--format=C %H %ad %ae', '--date=short', '--', mdRel], bin);
     versions = [];
     let c = null;
     for (const l of logRaw.split('\n')) {
-      if (l.startsWith('C ')) { const [, sha, date] = l.split(' '); c = { sha, date, path: null }; versions.push(c); }
+      if (l.startsWith('C ')) { const [, sha, date, email] = l.split(' '); c = { sha, date, email: email || '', path: null }; versions.push(c); }
       else if (/^[AMR]/.test(l) && c) { const p = l.split('\t'); c.path = p[p.length - 1]; }
     }
   }
   versions.reverse();
-  const stat = cur.map(() => ({ touched: 0, churn: 0, last: '' }));
+  const stat = cur.map(() => ({ touched: 0, churn: 0, last: '', human: { touched: 0, churn: 0, last: '' } }));
   const chain = cur.map(() => null);
   const blobs = catFiles(repoRoot, versions.map((v) => `${v.sha}:${v.path}`), bin);
   const snaps = blobs.map((b) => (b === null ? null : slidesOf(b)));
@@ -178,7 +182,11 @@ function churnOf(repoRoot, mdAbs, opts) {
       const o = snap[best];
       if (chain[i]) {
         const d = lineDelta(chain[i].norm, o.norm);
-        if (d > 0) { stat[i].touched++; stat[i].churn += d; stat[i].last = versions[v].date; }
+        if (d > 0) {
+          stat[i].touched++; stat[i].churn += d; stat[i].last = versions[v].date;
+          // 人の版だけを別に数える。AI 名義（noreply@anthropic.com）のコミットは除く。未コミットの手直しは人の分
+          if (!isClaudeVersion(versions[v])) { stat[i].human.touched++; stat[i].human.churn += d; stat[i].human.last = versions[v].date; }
+        }
       }
       chain[i] = o;
     });
@@ -515,7 +523,12 @@ function buildCorpus(repoRoot, opts) {
         try {
           const r = churnOf(repoRoot, f, { git: bin, text: text === null ? undefined : text, versions: historyOf(deckRel) });
           if (r.rows.length === list.length) {
-            list.forEach((e, i) => { const row = r.rows[i]; e.churn = { touched: row.touched, lines: row.churn, last: row.last && /^\d{4}-/.test(row.last) ? row.last : (row.last ? 'worktree' : '') }; });
+            const lastOf = (x) => (x && /^\d{4}-/.test(x) ? x : (x ? 'worktree' : ''));
+            list.forEach((e, i) => {
+              const row = r.rows[i];
+              e.churn = { touched: row.touched, lines: row.churn, last: lastOf(row.last) };
+              if (row.human) e.churn.human = { touched: row.human.touched, lines: row.human.churn, last: lastOf(row.human.last) };
+            });
             hasChurn = true;
           }
         } catch (e) { warnings.push(`${deckRel}: 履歴を読めません（${String(e.message || e).split('\n')[0]}）`); }
@@ -905,7 +918,7 @@ function shelfMoveShelf(shelf, a) {
 module.exports = {
   CORPUS_VERSION,
   buildCorpus, searchCorpus, corpusPath, readCorpus, writeCorpus,
-  churnOf, repoHistory, jaccard, lineDelta, slidesOf, gitBin,
+  churnOf, repoHistory, jaccard, lineDelta, slidesOf, gitBin, isClaudeVersion, CLAUDE_AUTHORS,
   extractText, normalizeForSearch, readRevisionGroups, groupOf, scoreOf, dedupe,
   SHELF_VERSION, shelfPath, readShelf, writeShelf, resolveShelf, normalizeShelf,
   shelfAdd, shelfRename, shelfMove, shelfRemove, shelfRenameShelf, shelfMoveShelf,

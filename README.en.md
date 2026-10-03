@@ -74,6 +74,7 @@ npm run setup
 
 | To do this | Do this |
 |---|---|
+| Open the home (recent / shelves / most-edited / search) | **⌘K H** (Windows: **Ctrl+K H**), or **🏠 Marp** in the status bar |
 | Fix text | **Double-click** text in the preview → type → **Enter** (Esc cancels) |
 | Change the layout | **Right-click** a slide in the preview → choose an option |
 | Add, duplicate, move, or delete slides | Buttons at the top right of the slide (＋ ⧉ ↑ ↓ 🗑) |

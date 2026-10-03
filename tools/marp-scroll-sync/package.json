@@ -1,8 +1,8 @@
 {
   "name": "marp-scroll-sync",
   "displayName": "Marp Scroll Sync (marp-GUI)",
-  "description": "Marp の同期プレビュー：カーソル位置のスライドへ自動スクロール、プレビュー上での直接編集、スライド操作、完成スライドの再利用、スライド単位の折りたたみ",
-  "version": "0.2.0",
+  "description": "Marp の同期プレビュー：カーソル位置のスライドへ自動スクロール、プレビュー上での直接編集、スライド操作、完成スライドの再利用、スライド単位の折りたたみ、ホーム画面（最近・棚・手を入れた順・検索 → 開く）",
+  "version": "0.3.0",
   "publisher": "marp-gui-local",
   "engines": {
     "vscode": "^1.80.0"
@@ -12,10 +12,18 @@
   ],
   "main": "./extension.js",
   "activationEvents": [
-    "onLanguage:markdown"
+    "onCommand:marpScrollSync.home",
+    "onLanguage:markdown",
+    "workspaceContains:theme/academic.css"
   ],
   "contributes": {
     "commands": [
+      {
+        "command": "marpScrollSync.home",
+        "title": "Marp: ホーム（最近・棚・手を入れた順・検索 → 開く）",
+        "category": "Marp Sync",
+        "icon": "$(home)"
+      },
       {
         "command": "marpScrollSync.openPreview",
         "title": "Marp: Open Synced Preview (side)",
@@ -139,6 +147,16 @@
           "command": "marpScrollSync.present",
           "when": "editorLangId == markdown && marpScrollSync.isMarp",
           "group": "navigation@1"
+        },
+        {
+          "command": "marpScrollSync.home",
+          "when": "editorLangId == markdown && marpScrollSync.isMarp",
+          "group": "navigation@2"
+        },
+        {
+          "command": "marpScrollSync.home",
+          "when": "activeWebviewPanelId == marpScrollSync",
+          "group": "navigation@2"
         }
       ]
     },
@@ -160,6 +178,11 @@
         "key": "ctrl+alt+-",
         "mac": "cmd+alt+-",
         "when": "editorTextFocus && editorLangId == markdown && marpScrollSync.isMarp"
+      },
+      {
+        "command": "marpScrollSync.home",
+        "key": "ctrl+k h",
+        "mac": "cmd+k h"
       }
     ],
     "configuration": {
@@ -205,6 +228,16 @@
           "type": "boolean",
           "default": true,
           "description": "プレビューの直接編集・箱の移動・スライド操作・挿入・印・配置案・サイズ/色など、この拡張が原稿に書いたあと、すぐファイルを保存する（未保存のまま置くと、外で原稿を書き換える Claude Code などとぶつかる）。取り消しは Cmd+Z（Ctrl+Z）でそのまま効く。"
+        },
+        "marpScrollSync.home.onStartup": {
+          "type": "boolean",
+          "default": true,
+          "description": "theme/academic.css のあるフォルダ（marp-GUI）を開いたとき、Marp の原稿がまだ表示されていなければホーム（最近・棚・手を入れた順・検索）を出す。"
+        },
+        "marpScrollSync.home.openPreview": {
+          "type": "boolean",
+          "default": true,
+          "description": "ホームのカードを押して原稿を開いたとき、同期プレビューも横に開く。"
         }
       }
     }

@@ -448,7 +448,8 @@ function register(context, api) {
     } });
   }
 
-  return { search, prefetch, insert, openSource, shelfEdit, onOverflow, openPopup, rebuild, invalidate, warm, stats, isBuilding: () => !!child };
+  return { search, prefetch, insert, openSource, shelfEdit, onOverflow, openPopup, rebuild, invalidate, warm, stats, isBuilding: () => !!child,
+    corpusFor: (repoRoot) => getCorpus(repoRoot), shelfFor: (repoRoot) => getShelf(repoRoot) };   // ホーム画面（home-vscode.cjs）と索引・棚を共有する
 }
 
 module.exports = { register };

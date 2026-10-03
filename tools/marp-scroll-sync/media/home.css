@@ -1,0 +1,78 @@
+/* Marp ホーム（lib/home-vscode.cjs が同梱する）。配色は同期プレビューのポップアップ（preview.css）に合わせる */
+:root { color-scheme: dark; }
+html, body { margin:0; padding:0; background:#121216; color:#e6e6ea; font:13px/1.5 -apple-system, "Segoe UI", "Hiragino Sans", "BIZ UDPGothic", sans-serif; }
+#home { max-width:1280px; margin:0 auto; padding:18px 22px 40px; }
+button, input, select { font:inherit; }
+
+/* 頭：題・検索・設定 */
+.hm-head { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
+.hm-title { font-size:20px; font-weight:800; letter-spacing:.02em; margin:0 8px 0 0; }
+.hm-title small { font-size:11.5px; font-weight:600; color:#9a9aa4; margin-left:8px; }
+.hm-search { flex:1; min-width:260px; display:flex; align-items:center; gap:6px; background:#1b1b20; border:1px solid #4a4a54; border-radius:8px; padding:6px 10px; }
+.hm-search:focus-within { border-color:#4aa3ff; }
+.hm-search input { flex:1; min-width:0; background:transparent; border:0; outline:none; color:#fff; font-size:14px; }
+.hm-search .hm-clear { background:transparent; border:0; color:#9a9aa4; cursor:pointer; font-size:14px; padding:0 2px; }
+.hm-opt { display:flex; align-items:center; gap:6px; color:#c4c4cc; white-space:nowrap; cursor:pointer; user-select:none; }
+.hm-opt input { margin:0; accent-color:#4aa3ff; }
+.hm-btn { color:#ddd; background:#1b1b20; border:1px solid #4a4a54; border-radius:8px; padding:5px 10px; cursor:pointer; white-space:nowrap; }
+.hm-btn:hover, .hm-btn:focus-visible { border-color:#8fc0ff; outline:none; }
+
+/* タブ */
+.hm-tabs { display:flex; gap:6px; flex-wrap:wrap; margin:4px 0 14px; border-bottom:1px solid #2e2e36; padding-bottom:10px; }
+.hm-tab { color:#ccc; background:#1b1b20; border:1px solid #4a4a54; border-radius:14px; padding:4px 14px; cursor:pointer; font-weight:700; }
+.hm-tab .n { color:#9a9aa4; font-weight:600; margin-left:5px; font-size:11.5px; }
+.hm-tab.hm-on { color:#1a1a1a; background:#ffd54a; border-color:#ffd54a; }
+.hm-tab.hm-on .n { color:#4a3a00; }
+.hm-tab:focus-visible { outline:2px solid #4aa3ff; outline-offset:1px; }
+
+/* 節の見出し・注記 */
+.hm-h { display:flex; align-items:center; gap:10px; margin:14px 0 8px; color:#b9b9c2; font-size:12px; font-weight:700; }
+.hm-h .hm-sort { margin-left:auto; display:flex; gap:4px; }
+.hm-sort button { color:#bbb; background:#1b1b20; border:1px solid #44444c; border-radius:10px; padding:1px 9px; cursor:pointer; font-size:11.5px; }
+.hm-sort button.hm-on { color:#1a1a1a; background:#cfe6ff; border-color:#cfe6ff; }
+.hm-note { color:#a4a4ae; font-size:12px; padding:6px 0 10px; }
+.hm-note code { color:#ffd54a; }
+.hm-toast { position:fixed; left:50%; bottom:18px; transform:translateX(-50%); background:#2a2a32; color:#fff; border:1px solid #5a5a63; border-radius:8px; padding:8px 14px; opacity:0; transition:opacity .15s; pointer-events:none; }
+.hm-toast.hm-show { opacity:1; }
+.hm-toast.hm-warn { border-color:#e0a030; }
+
+/* 棚のタブ */
+.hm-shelf-tabs { display:flex; flex-wrap:wrap; gap:4px; }
+.hm-shelf-tab { color:#ccc; background:#1b1b20; border:1px solid #4a4a54; border-radius:11px; padding:1px 10px; cursor:pointer; font-size:11.5px; font-weight:700; }
+.hm-shelf-tab.hm-on { color:#1a1a1a; background:#ffd54a; border-color:#ffd54a; }
+
+/* カード */
+.hm-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); gap:12px; align-items:start; }
+.hm-card { position:relative; display:block; text-align:left; padding:0; color:inherit; background:#1b1b20; border:2px solid #44444c; border-radius:8px; overflow:hidden; cursor:pointer; }
+.hm-card:hover, .hm-card:focus-visible { border-color:#4aa3ff; outline:none; }
+.hm-card.hm-lost { cursor:default; opacity:.7; }
+.hm-thumbbox { position:relative; width:100%; aspect-ratio:16 / 9; overflow:hidden; background:#fff; }
+.hm-shadow { display:block; width:100%; height:100%; }
+.hm-shadow.hm-wait { display:flex; align-items:center; justify-content:center; box-sizing:border-box; padding:8px; overflow:hidden; background:#f4f1ea; color:#333; font-weight:700; font-size:13px; text-align:center; line-height:1.4; }
+.hm-shadow.hm-nothumb { display:flex; align-items:center; justify-content:center; box-sizing:border-box; padding:8px; background:#f4f1ea; color:#333; font-weight:700; font-size:13px; text-align:center; }
+.hm-badges { position:absolute; left:6px; top:6px; display:flex; gap:4px; pointer-events:none; }
+.hm-badge { font-size:11px; font-weight:700; color:#ddd; background:rgba(40,40,48,.92); border-radius:9px; padding:1px 8px; white-space:nowrap; box-shadow:0 1px 3px rgba(0,0,0,.4); }
+.hm-badge.hm-b-mark { color:#1a1a1a; background:#ffd54a; }
+.hm-badge.hm-b-touch { color:#d6f5dd; background:#25573a; }
+.hm-badge.hm-b-group { color:#cfe6ff; background:#2b4a68; }
+.hm-meta { padding:6px 9px 8px; }
+.hm-name { font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.hm-sub { color:#aaa; font-size:11.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:2px; }
+.hm-snippet { margin-top:4px; color:#c4c4cc; font-size:11.5px; line-height:1.45; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+.hm-empty { grid-column:1 / -1; color:#aaa; text-align:center; padding:36px 0; }
+
+/* デック一覧（表） */
+.hm-table { width:100%; border-collapse:collapse; font-size:12.5px; table-layout:fixed; }
+.hm-table col.c-date { width:92px; } .hm-table col.c-deck { width:34%; } .hm-table col.c-theme { width:150px; } .hm-table col.c-n { width:44px; } .hm-table col.c-touch { width:110px; } .hm-table col.c-last { width:92px; }
+.hm-table th { text-align:left; color:#9a9aa4; font-weight:700; font-size:11.5px; padding:6px 8px; border-bottom:1px solid #2e2e36; white-space:nowrap; }
+.hm-table td { padding:6px 8px; border-bottom:1px solid #222228; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.hm-table tr.hm-row { cursor:pointer; }
+.hm-table tr.hm-row:hover td, .hm-table tr.hm-row:focus-within td { background:#1b1b20; }
+.hm-table td.num { text-align:right; font-variant-numeric:tabular-nums; }
+.hm-table .hm-deckname { font-weight:700; color:#fff; }
+.hm-table .hm-decktitle { color:#aaa; }
+.hm-table .hm-c { color:#8a8a94; }
+.hm-tag { display:inline-block; font-size:11px; font-weight:700; color:#cfe6ff; background:#2b4a68; border-radius:9px; padding:0 7px; margin-right:4px; }
+.hm-tag.hm-g-A { color:#1a1a1a; background:#ffd54a; }
+.hm-tag.hm-g-B { color:#fff; background:#5a5a63; }
+.hm-tag.hm-g-C { color:#bbb; background:#2a2a32; }

@@ -412,3 +412,17 @@ _lib: alc-agenda | 構成, アジェンダ | 2026-09-20
 - **はみ出し**（media/overflow.js）：流し込み（position: static）の `.takeaway` も重なりだけ見る（床は決めない。インライン SVG の箱は除く）。ある実デックで QR を 180px にすると、注意書きが帯の下へ潜るのに ⚠ が出なかったため。実デック 6 本（計 328 枚）で新しく ⚠ が付くのは 1 枚だけで、実際に枠が帯に隠れている。
 - **実測**（headless Chrome・実デックの写し）：離してから表示の確定まで 70〜82ms（patch 1 枚）。プレビューの QR の位置・大きさ（1280×720 の座標で x=640.6, 190×190）は、同じ原稿を標準の marp-cli で PNG にした結果と一致。
 - **未確認**：VS Code 実機の Webview で Option+クリック・Option+↑ が届くか、Windows で Alt がメニューバーに取られないか。札の「幅×高さ」は border-box、原稿に書く width は CSS の width（content-box の要素では食い違って見える。QR は札 190×190・原稿 180px）。
+
+
+## 10. ホーム画面（v0.3）
+
+起動直後の「ホーム」に当たる Webview。**原稿は書かない**（7〜9 章の編集系とは独立。読むだけ）。
+
+- `lib/home-core.cjs`：純粋（vscode 非依存）。`mostEdited`（touched／human／score／recent の並べ替え。dupOf と「変換のまま・未修正」は出さない）、`decksOf`（entries → デック単位）、`recentPush/recentItems`（最近開いたデック・上限 12）、`search`（corpus-core の searchCorpus の包み）、`shelfItems`、`splitSlides/safeThumb`。
+- `lib/home-vscode.cjs`：`register(context, api)`。WebviewPanel `marpHome`（ViewColumn.Active・retainContextWhenHidden）。索引と棚は `api.corpusFor/shelfFor`（corpus-vscode のメモリ上の索引を共有。無ければ corpus.json → buildCorpus）。サムネイルは `api.renderThumb(webview, mdAbs, text)`（extension.js の `renderForThumb` に webview を渡せるようにした）。LRU 40 デック。
+- `media/home.css`／`media/home.js`：画面。preview.js と同じ Shadow DOM＋adoptedStyleSheets でサムネイルを描く。
+- 入口：コマンド `marpScrollSync.home`（⌘K H）、ステータスバー `$(home) Marp`（常時）、editor/title のアイコン、起動時（`home.onStartup`）。
+
+メッセージ：W→E `homeReady`／`homeRefresh`／`homeSearch {reqId, query, sort}`／`homeThumbs {reqId, keys, haveCss}`／`homeOpen {deck, slide, preview}`／`homeSetPreview`／`homeRebuild`。E→W `homeData`／`homeResults`（reqId が最新でなければ Webview は捨てる）／`homeThumbData`（60ms の予算を越えた残りは同じ reqId の後便）／`homeRecent`／`homeToast`／`homeQuery`。
+
+決めたこと：速さの予算は 8.0 と同じ 0.4 秒（一覧は索引のメモリから作るだけ。サムネイルは後から埋める）。「最近」は `workspaceState`。起動時の自動表示は、ワークスペースに theme/academic.css があり・Marp の原稿が表示されておらず・直近 60 秒に出していないときだけ。「手を入れた順」の既定は直した回数。索引の `churn.human`（AI 名義のコミットを除いた人の版の回数）があれば「人が直した回数」の並べ替えも出る。
