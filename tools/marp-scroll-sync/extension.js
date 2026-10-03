@@ -12,6 +12,7 @@
 const vscode = require('vscode');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const { Marp } = require('@marp-team/marp-core');
 const { slideStartLines, slideIndexForLine, lineRangeForSlide, splitDeck, slideMeta } = require('./lib/slide-split.cjs');
 
@@ -186,6 +187,27 @@ function repoRootFor(doc) {
   return vscode.workspace.getWorkspaceFolder(doc.uri)?.uri.fsPath || docDir;
 }
 
+/**
+ * プレビューでスクリプトを動かしてよい印（CSP の nonce）。拡張を読み込むたびに乱数で作る。
+ * 【なぜ要るか】デックは html: true で描くので、他人から受け取ったデックに <script> や onerror= が
+ *   入っていると、以前（script-src 'unsafe-inline'）はそれがプレビューの中で動いてしまった。
+ *   動いたスクリプトは acquireVsCodeApi() を先に取り、拡張になりすまして原稿の書き換えなどを頼めた。
+ * 【どう防ぐか】CSP を script-src 'nonce-…' だけにし、この印は拡張自身の <script> と
+ *   Marp が出す補助スクリプト（見出しの自動縮小など）にだけ付ける。デックの中の <script>・イベント属性
+ *   （onclick= など）・javascript: の URL には印が無いので、ブラウザが実行を拒む。
+ *   デックの側から印を読む手段は無い（スクリプトは動かず、CSS からも nonce 属性は見えない）。
+ *
+ * Nonce that marks which scripts may run in the preview (CSP nonce). Regenerated randomly on each load.
+ * [Why] Decks are rendered with html: true. With the old CSP (script-src 'unsafe-inline'), a <script>
+ *   or onerror= inside a deck received from someone else ran inside the preview, could grab
+ *   acquireVsCodeApi() first, and impersonate the extension (e.g. ask it to rewrite the source).
+ * [How] The CSP allows only script-src 'nonce-…', and the nonce is given only to the extension's own
+ *   <script> tags and to Marp's helper script (heading auto-scaling etc.). Deck <script>, event
+ *   attributes (onclick= etc.) and javascript: URLs carry no nonce, so the browser refuses to run them.
+ *   A deck cannot read the nonce (its scripts do not run, and CSS cannot see the nonce attribute).
+ */
+const SCRIPT_NONCE = crypto.randomBytes(18).toString('base64');
+
 /** テーマ込みの Marp を返す（kind＝'deck'|'thumb'）。theme/*.css の場所と mtime が同じ間は同じ物を使い回す */
 function marpFor(kind, repoRoot) {
   const files = themeFiles(repoRoot);
@@ -193,7 +215,9 @@ function marpFor(kind, repoRoot) {
   for (const f of files) { try { key += f + ':' + fs.statSync(f).mtimeMs + ';'; } catch (_) { /* 無いテーマは飛ばす */ } }
   const hit = marpCache[kind];
   if (hit && hit.key === key) return hit.marp;
-  const marp = new Marp({ html: true });
+  // script.nonce：Marp が html の末尾に入れる自前の補助スクリプトに、上の印を付けてもらう（無いと CSP で止まる）
+  // script.nonce: have Marp put the nonce on the helper script it appends to the html (otherwise CSP blocks it)
+  const marp = new Marp({ html: true, script: { nonce: SCRIPT_NONCE } });
   if (kind === 'deck') {
     // 各ブロックに元の行番号(0-based)を data-line / data-line-end として付与 → クリック逆引きと、直接編集の書き戻し位置の特定に使う。
     // html_block の中のタグには data-hline を付ける（プレビュー専用。marp-cli の出力には影響しない）
@@ -271,7 +295,8 @@ function buildHtml(webview, doc, initialIndex) {
   catch (e) { lastSent = null; return `<body style="font-family:sans-serif;padding:20px;color:#b00">レンダリングエラー: ${String(e.message || e)}</body>`; }
 
   // プレビューの UI（バッジ・ツールバー・直接編集・スライド操作・ギャラリー）は media/preview.js が自分で作る。
-  // CSP が script-src 'unsafe-inline' だけなので、ファイルの中身をその場に埋め込む。
+  // スクリプトは外部ファイルを読まず、中身をその場に埋め込む。CSP は nonce で許す（上の SCRIPT_NONCE を参照）。
+  // Scripts are inlined rather than loaded from files; CSP allows them by nonce (see SCRIPT_NONCE above).
   const media = (name) => {
     try { return fs.readFileSync(path.join(__dirname, 'media', name), 'utf8'); }
     catch (e) { console.error('[marp-scroll-sync] media/' + name + ' を読めません: ' + (e && e.message)); return ''; }
@@ -288,10 +313,15 @@ function buildHtml(webview, doc, initialIndex) {
   const boxeditJs = styleEdit ? optional('boxedit.js') : '';
   const init = { index: Number.isInteger(initialIndex) ? initialIndex : 0, version: doc.version, marks: marksFor(doc) };
   const cspSource = webview.cspSource;
+  // CSP の script-src は nonce だけ（'unsafe-inline' は付けない）。下の <script> にはすべて nonce="${nonce}" を付ける。
+  // 付け忘れたスクリプトは黙って動かなくなるので、<script> を足すときは必ず nonce も付けること。
+  // CSP script-src is nonce-only (no 'unsafe-inline'); every <script> below carries nonce="${nonce}".
+  // A script without the nonce silently fails to run, so always add the nonce when adding a <script>.
+  const nonce = SCRIPT_NONCE;
   return /* html */ `<!DOCTYPE html>
 <html><head><meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy"
-  content="default-src 'none'; img-src ${cspSource} https: data:; media-src ${cspSource} https: data: blob:; style-src ${cspSource} https: 'unsafe-inline'; script-src 'unsafe-inline'; font-src ${cspSource} https: data:;">
+  content="default-src 'none'; img-src ${cspSource} https: data:; media-src ${cspSource} https: data: blob:; style-src ${cspSource} https: 'unsafe-inline'; script-src 'nonce-${nonce}'; font-src ${cspSource} https: data:;">
 <style>${media('preview.css')}</style>
 ${layoutsJs ? `<style>${optional('layouts.css')}</style>` : ''}
 ${boxeditJs ? `<style>${optional('boxedit.css')}</style>` : ''}
@@ -299,12 +329,12 @@ ${boxeditJs ? `<style>${optional('boxedit.css')}</style>` : ''}
 </head>
 <body>
 <div id="wrap">${html}</div>
-<script>window.__SS_INIT__ = ${JSON.stringify(init).replace(/</g, '\\u003c')};</script>
-<script>${media('textnodes.js')}</script>
-<script>${optional('overflow.js')}</script>
-<script>${media('preview.js')}</script>
-${layoutsJs ? `<script>window.__SS_LAYOUTS__ = ${layoutsTable};</script>\n<script>${layoutsJs}</script>` : ''}
-${boxeditJs ? `<script>${boxeditJs}</script>` : ''}
+<script nonce="${nonce}">window.__SS_INIT__ = ${JSON.stringify(init).replace(/</g, '\\u003c')};</script>
+<script nonce="${nonce}">${media('textnodes.js')}</script>
+<script nonce="${nonce}">${optional('overflow.js')}</script>
+<script nonce="${nonce}">${media('preview.js')}</script>
+${layoutsJs ? `<script nonce="${nonce}">window.__SS_LAYOUTS__ = ${layoutsTable};</script>\n<script nonce="${nonce}">${layoutsJs}</script>` : ''}
+${boxeditJs ? `<script nonce="${nonce}">${boxeditJs}</script>` : ''}
 </body></html>`;
 }
 

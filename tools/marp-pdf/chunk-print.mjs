@@ -21,9 +21,30 @@ export async function printChunks(htmlPath, jobs, { chromePath = findChrome() } 
     headless: 'shell',
     // VS Code 拡張ホストから起動すると、Chrome の初回起動処理やデフォルトブラウザ確認で
     // 止まる/許可待ちになることがある。それらを抑止して非対話でも確実に上がるようにする。
+    //
+    // 【安全のため付けないフラグ】（2026-10-02 に外した）
+    //   --no-sandbox ……………………… Chrome の砂場（サンドボックス）を切る。切ると、ページの中で
+    //                                  悪さをするコードが PC 本体にまで手を伸ばしやすくなる。
+    //   --allow-file-access-from-files … file:// のページが、同じ PC の別のファイル（~/.ssh など）を
+    //                                  スクリプトで読めるようにする。他人から受け取ったデックに
+    //                                  <script> が入っていると、手元のファイルを読んで外へ送れてしまう。
+    //   どちらも無くても、画像・動画・インライン SVG は file:// からそのまま表示される（<img> などの
+    //   読み込みはこのフラグと関係ない）。外す前後で PDF の見た目が同じことを確かめてある。
+    //   砂場がどうしても使えない環境（root で動く Linux のコンテナ等）だけ、環境変数
+    //   MARP_PDF_NO_SANDBOX=1 を付けて実行すると --no-sandbox を足す。
+    //
+    // [Flags intentionally NOT used] (removed 2026-10-02 for security)
+    //   --no-sandbox ..................... disables Chrome's sandbox, so malicious code in a page
+    //                                      can reach the host machine more easily.
+    //   --allow-file-access-from-files ... lets a file:// page read other local files (e.g. ~/.ssh)
+    //                                      from script. A deck received from someone else could use
+    //                                      an embedded <script> to read local files and send them out.
+    //   Neither is needed: images, videos and inline SVG still load from file:// (plain <img> loads
+    //   are not affected by this flag). The PDF output was verified to be identical before/after.
+    //   Only where the sandbox cannot run at all (e.g. a Linux container running as root),
+    //   set MARP_PDF_NO_SANDBOX=1 to add --no-sandbox back.
     args: [
-      '--no-sandbox',
-      '--allow-file-access-from-files',
+      ...(process.env.MARP_PDF_NO_SANDBOX === '1' ? ['--no-sandbox'] : []),
       '--disable-dev-shm-usage',
       '--no-first-run',
       '--no-default-browser-check',

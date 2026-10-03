@@ -12,7 +12,10 @@
 //   <style id="deck-css">、<div id="wrap">（marp の html）、window.__SS_INIT__ = { index, version, marks }、
 //   先に読み込まれた media/textnodes.js（window.ssCollectTextNodes）。media/overflow.js（window.ssDetectOverflow）は任意。
 //   それ以外の UI 要素（バッジ・ツールバー・ボタン・トースト・ギャラリー）は全部ここで作る。
-// CSP は script-src 'unsafe-inline' だけ。外部スクリプト・eval・new Function は使わない。
+// CSP は script-src 'nonce-…' だけ（extension.js の SCRIPT_NONCE）。拡張が nonce を付けた <script> しか動かず、
+// デックの中の <script>・onclick= などのイベント属性は動かない。外部スクリプト・eval・new Function も使わない。
+// CSP is script-src 'nonce-…' only (SCRIPT_NONCE in extension.js): only <script> tags given the nonce by the
+// extension run; deck <script> and event attributes such as onclick= do not. No external scripts, eval or new Function.
 // メッセージの取り決めは DESIGN.md 2.3・7.4・8.2・8.4。変えるときは DESIGN.md も直すこと。
 // 速さの予算（DESIGN.md 8.0）：操作から表示まで 0.4 秒以内。ポップアップは骨組みを同期的に出し、サムネイルは後から埋める。
 (function () {
@@ -1114,7 +1117,10 @@
     const tpl = document.createElement('template');
     tpl.innerHTML = it.html.replace(/<script\b[\s\S]*?<\/script\s*>/gi, '');
     tpl.content.querySelectorAll('script, iframe, object, embed').forEach(e => e.remove());
-    // CSP が script-src 'unsafe-inline' なので、onerror= などのイベント属性は文書に入れた瞬間に動く。サムネイルでは全部外す
+    // イベント属性（onerror= など）は CSP（nonce 方式）でも動かないが、念のための二重の守りとして全部外す。
+    // javascript: の URL も同じ（クリックされても動かないよう、ここで消しておく）
+    // Event attributes (onerror= etc.) are already blocked by the nonce CSP; strip them anyway as a second
+    // line of defense. Same for javascript: URLs (removed so they do nothing even if clicked).
     tpl.content.querySelectorAll('*').forEach((e) => {
       for (const a of Array.from(e.attributes)) {
         if (/^on/i.test(a.name) || (/^(href|xlink:href|src|action|formaction)$/i.test(a.name) && /^\s*javascript:/i.test(a.value))) e.removeAttribute(a.name);

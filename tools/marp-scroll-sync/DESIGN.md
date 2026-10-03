@@ -357,7 +357,8 @@ _lib: alc-agenda | 構成, アジェンダ | 2026-09-20
 
 ### 8.7 通し試験で確定した点（2026-09-20）
 
-- **サムネイルの html は二重に洗う**：Webview の CSP は `script-src 'unsafe-inline'` なので、`<img onerror=…>` のようなイベント属性は Shadow DOM に入れた瞬間に動く（実測で動いた）。拡張（corpus-vscode.cjs `safeThumb`）が `<script>`・タグの中の `on*=`・`javascript:` の URL を外し、Webview（preview.js `fillShadow`）も DOM で `on*` 属性と `javascript:` を外してから入れる。プレビュー本体（自分の原稿）は対象外。
+- **スクリプトは nonce 方式**（2026-10-02）：Webview の CSP は `script-src 'nonce-…'` だけ。nonce は拡張の読み込みごとに乱数で作り（extension.js `SCRIPT_NONCE`）、拡張自身の `<script>` と Marp の補助スクリプト（`new Marp({ script: { nonce } })`）にだけ付ける。他人のデックの `<script>`・`on*=`・`javascript:` は、プレビュー本体でもサムネイルでも動かない。以前の `'unsafe-inline'` では、デックのスクリプトが先に `acquireVsCodeApi()` を取って拡張になりすませた。buildHtml に `<script>` を足すときは nonce を付け忘れないこと（付け忘れると黙って動かない）。
+- **サムネイルの html は二重に洗う**：以前の CSP（`'unsafe-inline'`）では、`<img onerror=…>` のようなイベント属性は Shadow DOM に入れた瞬間に動いた（実測で動いた）。nonce 方式にした今も、念のための守りとして残す。拡張（corpus-vscode.cjs `safeThumb`）が `<script>`・タグの中の `on*=`・`javascript:` の URL を外し、Webview（preview.js `fillShadow`）も DOM で `on*` 属性と `javascript:` を外してから入れる。プレビュー本体（自分の原稿）は対象外。
 - **古い版の patch は当てない**：`patch.version` がいま表示している版より小さければ捨てる（同じ版は当てる＝書くものが無い editCommit の描き戻し）。
 - **棚の読み直し**：拡張は Webview へ最後に送った棚の shelf.json の姿（mtime＋size）を覚え、`corpusSearch`（offset 0）のときに変わっていたら `corpusResults.shelves` に棚を載せ直す。Webview は棚つきの応答を受けたら、結果が前と同じでも棚を描き直す。壊れた shelf.json を直したあと・CLI で棚を足したあとに、プレビューを開き直さなくてよい。
 - **索引の作り直しの時機**：原稿（.md）の変更・保存から `DIRTY_MS`（1.5 秒）後に、検索を待たずに裏で作り直す（デバウンス）。以前は「次の検索の後」だったので、印を付けた直後の 📚 で ★ が映らなかった。
