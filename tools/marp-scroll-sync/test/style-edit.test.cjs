@@ -319,6 +319,7 @@ test('見本デック：sample-parts の数枚', (t) => {
 });
 
 test('速さ：80 枚のデックで 1 回 5ms 以内', (t) => {
+  if (process.env.CI) return t.skip('CI の共有ランナーでは速さを測らない');
   const file = deckPath(LEC);
   let src;
   if (fs.existsSync(file)) {
