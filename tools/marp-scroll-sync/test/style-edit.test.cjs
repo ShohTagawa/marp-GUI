@@ -308,7 +308,7 @@ test('見本デック：sample-lecture の QR スライド（QR を大きくし�
   });
   if (stat.skip) return t.skip(stat.skip);
   t.diagnostic('sample-lecture #4: ' + JSON.stringify(stat));
-  assert.ok(stat.total > 10 && stat.ok === stat.total, JSON.stringify(stat));
+  assert.ok(stat.total >= 8 && stat.ok === stat.total, JSON.stringify(stat));   // 見本の QR スライドは HTML 要素 9 個
 });
 
 test('見本デック：sample-parts の数枚', (t) => {
