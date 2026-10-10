@@ -248,6 +248,7 @@ test('配置案のサムネイル：縮小した複製・画面外でも同じ�
 });
 
 test('速さ：80 枚のデックで 1 枚あたり ' + BUDGET_MS + 'ms 以内（開いた直後の 1 巡目も、2 巡目以降も）。測るだけで DOM を変えない', async (t) => {
+  if (process.env.CI) return t.skip('CI の共有ランナーでは速さを測らない');
   if (!browser) return t.skip('Chrome か puppeteer-core がありません');
   // 型の違う 8 枚（takeaway・split・表・長い箇条書き…）× 10 ＝ 80 枚
   const kinds = ['fit', 'long', 'tkHit', 'vcFit', 'splitRight', 'tableOver', 'sibling', 'bgOver'].map((k) => SLIDES[INDEX[k]][1]);

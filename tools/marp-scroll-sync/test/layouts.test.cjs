@@ -273,6 +273,7 @@ test('はみ出す案に ⚠ が付く（収まる案には付かない）', asy
 });
 
 test(`速さ：80 枚のデックで、右クリックから全サムネイルの表示まで ${BUDGET_MS}ms 以内`, async (t) => {
+  if (process.env.CI) return t.skip('CI の共有ランナーでは速さを測らない');
   if (skip()) return t.skip(skip());
   const parts = demoMd().split('\n---\n');
   const fm = parts[0];                                         // frontmatter（閉じの --- の手前まで）

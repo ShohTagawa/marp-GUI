@@ -339,7 +339,8 @@ test('searchCorpus：絞り込み・並び・重複のまとめ・ページ送�
   assert.deepEqual(C.searchCorpus({}, ''), { total: 0, items: [] });
 });
 
-test('searchCorpus：約 4,000 件で 1 回 30ms 以内', () => {
+test('searchCorpus：約 4,000 件で 1 回 30ms 以内', (t) => {
+  if (process.env.CI) return t.skip('CI の共有ランナーでは速さを測らない');
   const words = ['生成AI', 'ハルシネーション', '著作権', '自己紹介', 'Slido', '重み', 'ネットワーク', '学習', '推論', '評価'];
   const entries = [];
   for (let i = 0; i < 4000; i++) {

@@ -14,7 +14,7 @@
     "lint": "node tools/tsutawaru-lint.mjs",
     "library": "node tools/marp-library.mjs index && node tools/marp-library.mjs thumbs && node tools/marp-library.mjs corpus",
     "corpus": "node tools/marp-library.mjs corpus",
-    "test": "node --test \"tools/marp-scroll-sync/test/*.test.cjs\""
+    "test": "node --test --test-concurrency=1 \"tools/marp-scroll-sync/test/*.test.cjs\""
   },
   "devDependencies": {
     "@marp-team/marp-cli": "^4.5.1",
