@@ -263,13 +263,13 @@ T('4. Shift+Enter：確定＋下に箇条書き＋編集開始 → 打鍵 → En
   const S = await session(LEC);
   try {
     const t0 = S.doc.getText();
-    const si = slideOf(t0, '- 「スターター＋ステップ」のしくみを知る');
-    const ln = lineOf(t0, '- 「スターター＋ステップ」のしくみを知る');
+    const si = slideOf(t0, '- 「原稿＋プレビュー」のしくみを知る');
+    const ln = lineOf(t0, '- 「原稿＋プレビュー」のしくみを知る');
     const shown0 = await H.slideText(S.page, si);
     const r = await editText(S, si, 'のしくみを知る', '追', { shift: true });
     assert.equal(S.undoDepth(), r.depth + 1, '文字の確定＋箇条書きの追加で WorkspaceEdit は1回');
     let d = H.lineDiff(t0, S.doc.getText());
-    assert.deepEqual(d.added, ['- 「スターター＋ステップ」のしくみを知る追', '- '].slice(0, d.added.length), JSON.stringify(d));
+    assert.deepEqual(d.added, ['- 「原稿＋プレビュー」のしくみを知る追', '- '].slice(0, d.added.length), JSON.stringify(d));
     assert.equal(S.doc.lineAt(ln + 1).text.trimEnd(), '-', '直下に同じ記号の空の箇条書き');
     assert.equal(S.sinceW(r.mk, 'startEdit').length, 1, 'startEdit が届く');
     let info = await H.pageInfo(S.page);
