@@ -151,7 +151,7 @@ test('suggestId: 題名の英数字とイベント略号から作り、既存 id
   const p = 'slides/20260623_LEC_15min04_workspace-studio/20260623_LEC_15min04_workspace-studio.md';
   assert.strictEqual(core.suggestId('Workspace Studio とは', p, 3, []), 'lec-workspace-studio');
   assert.strictEqual(core.suggestId('Workspace Studio とは', p, 3, ['lec-workspace-studio']), 'lec-workspace-studio-2');
-  assert.match(core.suggestId('今回の構成', p, 3, []), /^alc-.*-3$/);
+  assert.match(core.suggestId('今回の構成', p, 3, []), /^lec-.*-3$/);
 });
 
 // ---------------------------------------------------------------- CSS
@@ -270,7 +270,7 @@ function mkRepo() {
     '# 先1', '',
   ].join('\n'));
   // 重複 id
-  w('PonchiE/20260404_P_x/20260404_P_x.md', '---\nmarp: true\ntheme: ponchie\n---\n\n<!--\n_class: a\n_lib: src-agenda | dup | 2026-01-01\n-->\n\n# ぽんち\n\n---\n\n<!-- _lib: leak-one | | d -->\n\n# x\n');
+  w('slides/20260404_P_x/20260404_P_x.md', '---\nmarp: true\ntheme: ponchie\n---\n\n<!--\n_class: a\n_lib: src-agenda | dup | 2026-01-01\n-->\n\n# ぽんち\n\n---\n\n<!-- _lib: leak-one | | d -->\n\n# x\n');
   return { root, src, d1, d2 };
 }
 
@@ -299,7 +299,7 @@ test('buildIndex: out・_library・marp でない md を除き、重複 id は�
   assert.strictEqual(e.palette.accent, '#C8611C');
   assert.deepStrictEqual(e.deckClasses, ['agenda', 'qrbox', 'row']);
   assert.strictEqual(e.thumb, null);
-  assert.ok(idx.warnings.some((w) => /重複/.test(w) && /PonchiE/.test(w) && /SRC_a/.test(w)));
+  assert.ok(idx.warnings.some((w) => /重複/.test(w) && /P_x/.test(w) && /SRC_a/.test(w)), idx.warnings.join('\n'));
   assert.throws(() => core.findEntry(idx, 'src-agenda'), /2 か所/);
   assert.strictEqual(core.findEntry(idx, 'nope'), null);
   const p = core.writeIndex(R.root, idx);
@@ -903,7 +903,8 @@ test('keepTypo：同じテーマなら何もしない。貼り付け先に部品
   // parts-deck の部品（flowrow / fbox）は academic に無い → 組版だけ戻しても形は戻らない
   const p = core.adaptSlide({ srcMdPath: R.parts, slideIndex: 0, destMdPath: R.aca, repoRoot: R.root, afterIndex: 0, keepTypo: true });
   assert.ok(!/ss-keep-typo/.test(p.slideText), p.slideText);
-  assert.ok(p.warnings.some((w) => /元の組版は持ち込みません/.test(w) && /\.flowrow|\.fbox/.test(w)), p.warnings.join('\n'));
+  // 配布版には parts-deck（部品テーマ）が無いので「theme/ に無い」の理由になる。本体では「部品が無い」の理由
+  assert.ok(p.warnings.some((w) => (/元の組版は持ち込みません/.test(w) && /\.flowrow|\.fbox/.test(w)) || /theme\/ に無い/.test(w)), p.warnings.join('\n'));
   // theme/ に無いテーマ
   const odd = path.join(R.root, 'slides', '20260104_KT_odd', '20260104_KT_odd.md');
   fs.mkdirSync(path.dirname(odd), { recursive: true });
