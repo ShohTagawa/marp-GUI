@@ -72,7 +72,8 @@ style: |
 - 読み取れない人は隣の人の画面を見てください
 
 </div>
-<div class="sq-qr"><img src="./src/slido-qr-sample.png" alt="参加用 QR" width="150">
+<div class="sq-qr">
+<img src="./src/slido-qr-sample.png" alt="参加用 QR" width="150">
 <div class="sq-url"><a href="https://example.com/join">example.com/join</a><br>参加コード 1234</div></div>
 </div>
 

@@ -511,7 +511,7 @@ test('library-vscode: 印を付ける→marksFor→外す（1 操作 = 1 Workspa
 test('library-vscode: insert は本文＋frontmatter style を 1 つの WorkspaceEdit で入れ、素材をコピーし、警告を見せる', async () => {
   const R = mkRepo();
   // 重複 id があると挿入できない（どちらか決められない）→ まず重複を消す
-  fs.rmSync(path.join(R.root, 'PonchiE'), { recursive: true, force: true });
+  fs.rmSync(path.join(R.root, 'slides', '20260404_P_x'), { recursive: true, force: true });
   const { ctx, lib, posted } = setupVscode(R);
   const doc = stub.makeDocument(fs.readFileSync(R.d1, 'utf8'), { fsPath: R.d1 });
   const ed = stub.makeEditor(doc, { active: true, line: 7 });
