@@ -13,11 +13,14 @@
     "png": "node tools/marp-png.mjs",
     "lint": "node tools/tsutawaru-lint.mjs",
     "library": "node tools/marp-library.mjs index && node tools/marp-library.mjs thumbs && node tools/marp-library.mjs corpus",
-    "corpus": "node tools/marp-library.mjs corpus"
+    "corpus": "node tools/marp-library.mjs corpus",
+    "test": "node --test tools/marp-scroll-sync/test/",
+    "test:quick": "node --test --test-name-pattern='^(?!.*Chrome)' tools/marp-scroll-sync/test/slide-split.test.cjs tools/marp-scroll-sync/test/source-map.test.cjs tools/marp-scroll-sync/test/slide-ops.test.cjs tools/marp-scroll-sync/test/folding.test.cjs tools/marp-scroll-sync/test/library-core.test.cjs tools/marp-scroll-sync/test/corpus-core.test.cjs tools/marp-scroll-sync/test/layout-variants.test.cjs tools/marp-scroll-sync/test/home-core.test.cjs tools/marp-scroll-sync/test/wiring.test.cjs"
   },
   "devDependencies": {
     "@marp-team/marp-cli": "^4.5.1",
-    "pdf-lib": "^1.17.1"
+    "pdf-lib": "^1.17.1",
+    "puppeteer-core": "^25.13.0"
   },
   "engines": {
     "node": ">=20"
