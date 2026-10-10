@@ -30,7 +30,7 @@ function makeMarp() {
   return m;
 }
 const render = (md) => makeMarp().render(md);
-const FM = (extra) => `---\nmarp: true\ntheme: chiba-deck\n${extra || ''}paginate: true\n---\n\n`;
+const FM = (extra) => `---\nmarp: true\ntheme: parts-deck\n${extra || ''}paginate: true\n---\n\n`;
 
 // ---------------------------------------------------------------- 3.1 印
 
@@ -148,9 +148,9 @@ test('markSlideEdit: デック全文に対する差分 1 件。グローバル c
 });
 
 test('suggestId: 題名の英数字とイベント略号から作り、既存 id は連番で避ける', () => {
-  const p = 'slides/20260623_ALC_15min04_workspace-studio/20260623_ALC_15min04_workspace-studio.md';
-  assert.strictEqual(core.suggestId('Workspace Studio とは', p, 3, []), 'alc-workspace-studio');
-  assert.strictEqual(core.suggestId('Workspace Studio とは', p, 3, ['alc-workspace-studio']), 'alc-workspace-studio-2');
+  const p = 'slides/20260623_LEC_15min04_workspace-studio/20260623_LEC_15min04_workspace-studio.md';
+  assert.strictEqual(core.suggestId('Workspace Studio とは', p, 3, []), 'lec-workspace-studio');
+  assert.strictEqual(core.suggestId('Workspace Studio とは', p, 3, ['lec-workspace-studio']), 'lec-workspace-studio-2');
   assert.match(core.suggestId('今回の構成', p, 3, []), /^alc-.*-3$/);
 });
 
@@ -225,11 +225,11 @@ function mkRepo() {
     if (n.endsWith('.css')) fs.copyFileSync(path.join(REPO, 'theme', n), path.join(root, 'theme', n));
   }
   const w = (rel, content) => { const p = path.join(root, rel); fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, content); return p; };
-  w('slides/assets/chiba-logo.png', 'LOGO');
+  w('slides/assets/logo-placeholder.png', 'LOGO');
   // 元デック：オレンジ配色・デック固有 CSS・素材あり
   const src = w('slides/20260101_SRC_a/20260101_SRC_a.md', [
     '---', 'marp: true', 'theme: academic', 'paginate: true',
-    "header: '<div class=\"hdr-left\">元</div><img class=\"hdr-logo\" src=\"../assets/chiba-logo.png\">'",
+    "header: '<div class=\"hdr-left\">元</div><img class=\"hdr-logo\" src=\"../assets/logo-placeholder.png\">'",
     'style: |',
     '  :root { --accent: #C8611C; --accent-dark: #8A3F0E; --accent-soft: #FBE9DC; }',
     '  .agenda { display: grid; gap: 8px; }',
@@ -244,7 +244,7 @@ function mkRepo() {
     '<!--', '_class: summary', '_lib: src-agenda | 構成, QR | 2026-09-20', '-->', '',
     '<div class="page-title">今回の構成</div>', '',
     '<div class="agenda">', '<div class="row" style="color:#C8611C"><b>1</b> はじめに</div>', '</div>', '',
-    '<div class="qrbox"><img src="./src/qr.png" alt="QR"><img src="../assets/chiba-logo.png"></div>', '',
+    '<div class="qrbox"><img src="./src/qr.png" alt="QR"><img src="../assets/logo-placeholder.png"></div>', '',
     '<svg viewBox="0 0 10 10"><rect fill="#8a3f0e" stroke="var(--accent, #C8611C)" width="10" height="10"/></svg>', '',
     '<a href="https://example.com/#C8611C">リンク</a> &#123;', '',
     '<div class="takeaway">要点</div>', '',
@@ -258,9 +258,9 @@ function mkRepo() {
   w('slides/_library/x.md', '---\nmarp: true\n---\n\n<!--\n_class: a\n_lib: should-not-appear2 | | d\n-->\n');
   // marp でない md は無視
   w('slides/20260101_SRC_a/原稿.md', '<!--\n_class: a\n_lib: not-marp | | d\n-->\n');
-  // 貼り付け先(1)：chiba-deck teal。style: | なし。src/qr.png が同名・別内容
+  // 貼り付け先(1)：parts-deck teal。style: | なし。src/qr.png が同名・別内容
   const d1 = w('slides/grp/20260202_DST_b/20260202_DST_b.md', [
-    '---', 'marp: true', 'theme: chiba-deck', 'class: teal', 'paginate: true', '---', '',
+    '---', 'marp: true', 'theme: parts-deck', 'class: teal', 'paginate: true', '---', '',
     '# 先1', '', '---', '', '# 先2', '',
   ].join('\n'));
   w('slides/grp/20260202_DST_b/src/qr.png', 'ANOTHER-QR');
@@ -281,7 +281,7 @@ test('slideDeps: デック固有クラスだけを拾い、参照する @keyfram
   assert.deepStrictEqual(deps.deckClasses, ['agenda', 'qrbox', 'row']);
   assert.ok(deps.classes.includes('summary') && deps.classes.includes('takeaway'));
   assert.deepStrictEqual(deps.rules.map((r) => r.selector), ['.agenda', '.agenda .row', '.agenda .row b', '.qrbox', '@keyframes pop']);
-  assert.deepStrictEqual(deps.assets.sort(), ['../assets/chiba-logo.png', './src/bg-tile.png', './src/qr.png']);
+  assert.deepStrictEqual(deps.assets.sort(), ['../assets/logo-placeholder.png', './src/bg-tile.png', './src/qr.png']);
   assert.ok(deps.cssBytes > 100);
   assert.deepStrictEqual(deps.themeOverrides, ['takeaway']);
   fs.rmSync(R.root, { recursive: true, force: true });
@@ -308,7 +308,7 @@ test('buildIndex: out・_library・marp でない md を除き、重複 id は�
   fs.rmSync(R.root, { recursive: true, force: true });
 });
 
-test('adaptSlide → chiba-deck teal：素材コピー（同名別内容は -2）・共有素材の相対パス・CSS 同梱・色の追従・_from', () => {
+test('adaptSlide → parts-deck teal：素材コピー（同名別内容は -2）・共有素材の相対パス・CSS 同梱・色の追従・_from', () => {
   const R = mkRepo();
   const before = fs.readFileSync(R.d1, 'utf8');
   const plan = core.adaptSlide({ srcMdPath: R.src, id: 'src-agenda', destMdPath: R.d1, repoRoot: R.root, afterIndex: 0 });
@@ -790,7 +790,7 @@ test('再発防止(CLI): --root はコマンドの前でもよい／番号の省
 
 // ───────────────────────── 7.2 元の組版を保つ（keepTypo） ─────────────────────────
 
-/** academic の元デック（sec-box・callout・表・デック固有の .attr と feat3）と、tsutawaru / academic / chiba-deck の貼り付け先 */
+/** academic の元デック（sec-box・callout・表・デック固有の .attr と feat3）と、tsutawaru / academic / parts-deck の貼り付け先 */
 function mkTypoRepo() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'marp-kt-test-'));
   fs.mkdirSync(path.join(root, 'theme'));
@@ -812,9 +812,9 @@ function mkTypoRepo() {
     '<style scoped>', 'td { color: red; }', '</style>', '',
     '---', '', '## 部品の枚', '', '<div class="stepbox"><div class="st">① 手順</div></div>', '',
   ].join('\n'));
-  const chiba = w('slides/20260101_KT_chiba/20260101_KT_chiba.md', ['---', 'marp: true', 'theme: chiba-deck', '---', '', '# 部品', '', '<div class="flowrow"><div class="fbox blue">箱</div></div>', ''].join('\n'));
+  const chiba = w('slides/20260101_KT_chiba/20260101_KT_chiba.md', ['---', 'marp: true', 'theme: parts-deck', '---', '', '# 部品', '', '<div class="flowrow"><div class="fbox blue">箱</div></div>', ''].join('\n'));
   const dest = (name, theme) => w(`slides/${name}/${name}.md`, ['---', 'marp: true', `theme: ${theme}`, 'paginate: true', '---', '', '# 先頭', ''].join('\n'));
-  return { root, src, chiba, tsu: dest('20260102_KT_tsu', 'tsutawaru-academic'), aca: dest('20260102_KT_aca', 'academic'), cd: dest('20260102_KT_cd', 'chiba-deck') };
+  return { root, src, chiba, tsu: dest('20260102_KT_tsu', 'tsutawaru-academic'), aca: dest('20260102_KT_aca', 'academic'), cd: dest('20260102_KT_cd', 'parts-deck') };
 }
 const ktBlock = (t) => (/\/\* ss-keep-typo:start[\s\S]*?ss-keep-typo:end \*\//.exec(t) || [''])[0];
 
@@ -900,7 +900,7 @@ test('keepTypo：同じテーマなら何もしない。貼り付け先に部品
   const same = core.adaptSlide({ srcMdPath: R.src, slideIndex: 0, destMdPath: R.aca, repoRoot: R.root, afterIndex: 0, keepTypo: true });
   assert.ok(!/ss-keep-typo/.test(same.slideText));
   assert.equal(same.info.keepTypo, 0);
-  // chiba-deck の部品（flowrow / fbox）は academic に無い → 組版だけ戻しても形は戻らない
+  // parts-deck の部品（flowrow / fbox）は academic に無い → 組版だけ戻しても形は戻らない
   const p = core.adaptSlide({ srcMdPath: R.chiba, slideIndex: 0, destMdPath: R.aca, repoRoot: R.root, afterIndex: 0, keepTypo: true });
   assert.ok(!/ss-keep-typo/.test(p.slideText), p.slideText);
   assert.ok(p.warnings.some((w) => /元の組版は持ち込みません/.test(w) && /\.flowrow|\.fbox/.test(w)), p.warnings.join('\n'));

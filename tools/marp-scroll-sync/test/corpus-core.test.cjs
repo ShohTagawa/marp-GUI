@@ -23,9 +23,9 @@ const needGit = GIT ? {} : { skip: 'git が見つかりません' };
 
 const FM = (theme, extra) => `---\nmarp: true\ntheme: ${theme}\npaginate: true\n${extra || ''}---\n`;
 
-const INTRO_V1 = `# 自己紹介\n\n- 田川 翔（たがわ しょう）\n- 千葉大学 国際未来教育基幹\n- 専門は高等教育論と地球惑星科学です\n`;
-const INTRO_V2 = `# 自己紹介\n\n- 田川 翔（たがわ しょう）\n- 千葉大学 国際未来教育基幹 准教授\n- 専門は高等教育論と地球惑星科学です\n- 理学から民間を経て、教育の仕事をしています\n`;
-const INTRO_V3 = `# 自己紹介\n\n- 田川 翔（たがわ しょう）\n- 千葉大学 国際未来教育基幹 准教授\n- 専門は高等教育論と地球惑星科学です\n- 理学から民間を経て、いまは教育の実務を回しています\n\n<div class="takeaway">越境してきた経験が、生成AIの話の土台です</div>\n`;
+const INTRO_V1 = `# 自己紹介\n\n- 山田 太郎（やまだ たろう）\n- 見本大学 教育センター\n- 専門は高等教育論です\n`;
+const INTRO_V2 = `# 自己紹介\n\n- 山田 太郎（やまだ たろう）\n- 見本大学 教育センター 准教授\n- 専門は高等教育論です\n- 企業を経て、教育の仕事をしています\n`;
+const INTRO_V3 = `# 自己紹介\n\n- 山田 太郎（やまだ たろう）\n- 見本大学 教育センター 准教授\n- 専門は高等教育論です\n- 企業を経て、いまは教育の実務を回しています\n\n<div class="takeaway">越境の経験が、生成AIの話の土台です</div>\n`;
 const STABLE = `# 変えないスライド\n\n- サーバーとクライアントの関係を説明します\n- この行は一度も直しません\n`;
 const SVG_ONLY = `<!-- _class: fig -->\n\n<svg viewBox="0 0 100 50"><rect width="10" height="10"/><text x="1" y="2">ハルシネーション</text><text x="1" y="9">もっともらしい <tspan>誤り</tspan></text></svg>\n`;
 const NOISY = `<!--\n_class: split\n_paginate: false\n-->\n\n## 生成AIの **重み** とは\n\n<style scoped>\n.secretcss { color: red; }\n</style>\n\n<div class="box" style="color:#123456">パラメータは [学習](https://example.com/hidden-url) で決まる &amp; 固定される</div>\n\n| 列A | 列B |\n|---|---|\n| Ｓｌｉｄｏ | 投票 |\n\n<!-- これは発表者ノート。ひみつのメモ -->\n`;
@@ -289,7 +289,7 @@ const ent = (o) => ({
 
 function sample() {
   const entries = [
-    ent({ slide: 1, title: '自己紹介', text: '自己紹介 田川 翔', score: 0.3 }),
+    ent({ slide: 1, title: '自己紹介', text: '自己紹介 山田 太郎', score: 0.3 }),
     ent({ slide: 2, title: '自己紹介', text: '自己紹介 山田 太郎 准教授', score: 3.1, deck: 'slides/e/e.md', deckName: '20260620_Demo', date: '2026-06-20' }),
     ent({ slide: 3, title: '今日の流れ', text: '今日の流れ 最初に自己紹介をします', score: 5.0 }),
     ent({ slide: 4, title: 'Slidoの使い方', text: 'Ｓｌｉｄｏ を開いてください。サーバーに接続します', score: 1, theme: 'tsutawaru-academic', date: '2026-09-01' }),

@@ -25,7 +25,7 @@ const mkDeck = (name, slides) => {
   fs.writeFileSync(md, ['---', 'marp: true', 'theme: academic', '---', ''].concat(slides.map(s => s + '\n\n---\n')).join('\n'));
   return md;
 };
-const MD1 = mkDeck('20260101_T_intro', ['# 自己紹介\n\n- 千葉大学 田川', '# 研究の概要\n\n- 地球中心核の水素']);
+const MD1 = mkDeck('20260101_T_intro', ['# 自己紹介\n\n- 見本大学 山田', '# 研究の概要\n\n- 地球中心核の水素']);
 const MD2 = mkDeck('20260102_T_net', ['# ネットワークとは\n\n- LAN と WAN', '# IP アドレス\n\n- 住所のしくみ']);
 
 const orig = { createWebviewPanel: vscode.window.createWebviewPanel, showTextDocument: vscode.window.showTextDocument };

@@ -87,7 +87,7 @@ test('search：実際の索引（一時リポジトリ）で題名に当たり�
     fs.mkdirSync(path.join(tmp, 'slides', name), { recursive: true });
     fs.writeFileSync(path.join(tmp, 'slides', name, name + '.md'), ['---', 'marp: true', 'theme: academic', '---', ''].concat(slides.map((s) => s + '\n\n---\n')).join('\n'));
   };
-  deck('20260101_X_intro', ['# 自己紹介\n\n- 千葉大学', '# 研究の概要\n\n- 水素']);
+  deck('20260101_X_intro', ['# 自己紹介\n\n- 見本大学', '# 研究の概要\n\n- 水素']);
   deck('20260102_Y_net', ['# ネットワークとは\n\n- LAN と WAN']);
   const c = core.buildCorpus(tmp, { withChurn: false });
   const r = home.search(c, '自己紹介', { limit: 10 });
