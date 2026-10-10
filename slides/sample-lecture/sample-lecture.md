@@ -12,6 +12,7 @@ style: |
   .sec-qr-row { display: flex; align-items: center; gap: 16px; }
   .sec-qr-row .sq-text { flex: 1; min-width: 0; }
   .sec-qr-row .sq-qr { flex: 0 0 160px; text-align: center; }
+  .sec-qr-row .sq-url { font-size: 16px; color: #555; margin-top: 4px; }
   /* ===== 期限の表・帯 ===== */
   table.dtbl { border-collapse: collapse; font-size: 20px; }
   table.dtbl th, table.dtbl td { border: 1px solid #ccc; padding: 4px 14px; }
@@ -71,7 +72,8 @@ style: |
 - 読み取れない人は隣の人の画面を見てください
 
 </div>
-<div class="sq-qr"><img src="./src/slido-qr-sample.png" alt="参加用 QR" width="150"></div>
+<div class="sq-qr"><img src="./src/slido-qr-sample.png" alt="参加用 QR" width="150">
+<div class="sq-url"><a href="https://example.com/join">example.com/join</a><br>参加コード 1234</div></div>
 </div>
 
 <div class="takeaway">質問はいつでもどうぞ</div>

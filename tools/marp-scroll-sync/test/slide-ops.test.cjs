@@ -421,7 +421,7 @@ test('newSlideTemplates: 形・academic.css に実在するクラスだけ', () 
 });
 
 test('newSlideTemplates: 各テンプレートを挿入して marp-core で描画できる', { skip: !Marp && 'marp-core なし' }, () => {
-  for (const theme of ['academic', 'chiba-deck', 'tsutawaru-academic']) {
+  for (const theme of ['academic', 'parts-deck', 'tsutawaru-academic']) {
     const base = '---\nmarp: true\ntheme: ' + theme + '\npaginate: true\n---\n\n# 表紙\n\n---\n\n# 終わり\n';
     for (const tpl of newSlideTemplates()) {
       for (const src of [base, crlf(base)]) {

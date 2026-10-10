@@ -38,7 +38,7 @@ function copyDir(from, to, filter) {
 
 /**
  * root に「theme/ ＋ slides/assets ＋ 指定デック（md と src/ だけ）」のコピーを作る。毎回作り直す。
- * decks: ['20260623_ALC_15min04_workspace-studio', …]。戻り値 { root, md: { [deck]: mdの絶対パス } }
+ * decks: ['sample-lecture', …]。戻り値 { root, md: { [deck]: mdの絶対パス } }
  */
 function makeRepo(root, decks) {
   const abs = path.resolve(root);

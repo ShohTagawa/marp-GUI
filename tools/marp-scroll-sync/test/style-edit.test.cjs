@@ -19,8 +19,8 @@ const { slideStartLines } = require(path.join(EXT, 'lib', 'slide-split.cjs'));
 const { Marp } = require(path.join(EXT, 'node_modules', '@marp-team', 'marp-core'));
 
 const deckPath = (d) => path.join(ROOT, 'slides', d, d + '.md');
-const MEIKAI = 'sample-lecture';
-const ALC = 'sample-layouts';
+const LEC = 'sample-lecture';   // QR の見本スライド（index 3）と 80 枚への水増しに使う
+const PARTS = 'sample-parts';   // HTML の部品が多い見本
 
 // ---- 描画（extension.js の renderDeck と同じ条件：html:true、theme/*.css を academic.css 先頭で全部） ----
 const THEMES = (() => {
@@ -246,15 +246,15 @@ test('mdimg：alt のキーワードだけを差し替える・足す・消す',
   }
 });
 
-test('実デック：明海FD 第2回 2 枚目（QR を大きくして右へ）', (t) => {
-  const stat = realDeck(MEIKAI, [1], (src, before, ranges) => {
-    const range = ranges[1];
-    const hline = lineOfStr(src, '<img src="./src/slido-qr.png"');
+test('見本デック：sample-lecture の QR スライド（QR を大きくして右へ）', (t) => {
+  const stat = realDeck(LEC, [3], (src, before, ranges) => {
+    const range = ranges[3];
+    const hline = lineOfStr(src, '<img src="./src/slido-qr-sample.png"');
     const target = { kind: 'html', hline, nth: 0, tag: 'img' };
     const plan = planStyleEdit(src, range, target, { translate: [60, 0], width: 180, height: 180, important: true });
     assert.ok(plan.ok, plan.reason);
     const out = SM.applyEdits(src, plan.edits);
-    assert.ok(out.includes('<img src="./src/slido-qr.png" alt="Slido QRコード（make-ai2）" style="translate: 60px 0px !important; width: 180px !important; height: 180px !important">'));
+    assert.ok(out.includes('<img src="./src/slido-qr-sample.png" alt="参加用 QR" width="150" style="translate: 60px 0px !important; width: 180px !important; height: 180px !important">'), out.split('\n').find(l => l.includes('slido-qr-sample')));
     assertRoundTrip(src, before, target, plan, 'QR');
     const reset = planStyleEdit(out, range, target, { translate: null, width: null, height: null });
     assert.strictEqual(SM.applyEdits(out, reset.edits), src);
@@ -269,19 +269,19 @@ test('実デック：明海FD 第2回 2 枚目（QR を大きくして右へ）'
     });
   });
   if (stat.skip) return t.skip(stat.skip);
-  t.diagnostic('明海 #2: ' + JSON.stringify(stat));
+  t.diagnostic('sample-lecture #4: ' + JSON.stringify(stat));
   assert.ok(stat.total > 10 && stat.ok === stat.total, JSON.stringify(stat));
 });
 
-test('実デック：ALC workspace-studio の数枚', (t) => {
-  const stat = realDeck(ALC, [1, 2, 3, 4, 5]);
+test('見本デック：sample-parts の数枚', (t) => {
+  const stat = realDeck(PARTS, [1, 2, 3, 4, 5]);
   if (stat.skip) return t.skip(stat.skip);
-  t.diagnostic('ALC #2-6: ' + JSON.stringify(stat));
+  t.diagnostic('sample-parts #2-6: ' + JSON.stringify(stat));
   assert.ok(stat.total > 10 && stat.ok === stat.total, JSON.stringify(stat));
 });
 
 test('速さ：80 枚のデックで 1 回 5ms 以内', (t) => {
-  const file = deckPath(MEIKAI);
+  const file = deckPath(LEC);
   let src;
   if (fs.existsSync(file)) {
     src = fs.readFileSync(file, 'utf8');

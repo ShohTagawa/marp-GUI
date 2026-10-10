@@ -320,7 +320,7 @@ test('adaptSlide → parts-deck teal：素材コピー（同名別内容は -2�
   assert.ok(!/_lib:/.test(t));
   assert.match(t, /_class: summary teal\n_from: src-agenda\n/);           // 貼り付け先の配色プリセットを引き継ぐ
   assert.match(t, /src="\.\/src\/qr-2\.png"/);                              // 同名・別内容
-  assert.match(t, /src="\.\.\/\.\.\/assets\/chiba-logo\.png"/);             // 深さの差
+  assert.match(t, /src="\.\.\/\.\.\/assets\/logo-placeholder\.png"/);             // 深さの差
   assert.match(t, /style="color:var\(--accent, #C8611C\)"/);
   assert.match(t, /fill="var\(--accent-dark, #8a3f0e\)"/);                  // SVG 属性・小文字も一致
   assert.match(t, /stroke="var\(--accent, #C8611C\)"/);                     // 既に var( の中 → 二重にしない
@@ -812,9 +812,9 @@ function mkTypoRepo() {
     '<style scoped>', 'td { color: red; }', '</style>', '',
     '---', '', '## 部品の枚', '', '<div class="stepbox"><div class="st">① 手順</div></div>', '',
   ].join('\n'));
-  const chiba = w('slides/20260101_KT_chiba/20260101_KT_chiba.md', ['---', 'marp: true', 'theme: parts-deck', '---', '', '# 部品', '', '<div class="flowrow"><div class="fbox blue">箱</div></div>', ''].join('\n'));
+  const parts = w('slides/20260101_KT_parts/20260101_KT_parts.md', ['---', 'marp: true', 'theme: parts-deck', '---', '', '# 部品', '', '<div class="flowrow"><div class="fbox blue">箱</div></div>', ''].join('\n'));
   const dest = (name, theme) => w(`slides/${name}/${name}.md`, ['---', 'marp: true', `theme: ${theme}`, 'paginate: true', '---', '', '# 先頭', ''].join('\n'));
-  return { root, src, chiba, tsu: dest('20260102_KT_tsu', 'tsutawaru-academic'), aca: dest('20260102_KT_aca', 'academic'), cd: dest('20260102_KT_cd', 'parts-deck') };
+  return { root, src, parts, tsu: dest('20260102_KT_tsu', 'tsutawaru-academic'), aca: dest('20260102_KT_aca', 'academic'), cd: dest('20260102_KT_cd', 'parts-deck') };
 }
 const ktBlock = (t) => (/\/\* ss-keep-typo:start[\s\S]*?ss-keep-typo:end \*\//.exec(t) || [''])[0];
 
@@ -901,7 +901,7 @@ test('keepTypo：同じテーマなら何もしない。貼り付け先に部品
   assert.ok(!/ss-keep-typo/.test(same.slideText));
   assert.equal(same.info.keepTypo, 0);
   // parts-deck の部品（flowrow / fbox）は academic に無い → 組版だけ戻しても形は戻らない
-  const p = core.adaptSlide({ srcMdPath: R.chiba, slideIndex: 0, destMdPath: R.aca, repoRoot: R.root, afterIndex: 0, keepTypo: true });
+  const p = core.adaptSlide({ srcMdPath: R.parts, slideIndex: 0, destMdPath: R.aca, repoRoot: R.root, afterIndex: 0, keepTypo: true });
   assert.ok(!/ss-keep-typo/.test(p.slideText), p.slideText);
   assert.ok(p.warnings.some((w) => /元の組版は持ち込みません/.test(w) && /\.flowrow|\.fbox/.test(w)), p.warnings.join('\n'));
   // theme/ に無いテーマ

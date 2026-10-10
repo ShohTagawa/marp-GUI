@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright (c) 2026 Shoh Tagawa
 // プレビュー（media/preview.js）のテスト用ハーネス。
-//   - 実デック（A群の workspace-studio）の先頭 N 枚＋テスト用の追加スライドを marp-core で描画し、
+//   - 見本デック（sample-lecture）の先頭 N 枚＋テスト用の追加スライドを marp-core で描画し、
 //     extension.js の buildHtml が後段の配線で出す形と同じ HTML を作る。
 //   - acquireVsCodeApi はモック（postMessage を window.__posted に記録）。2回呼ばれたら例外にして、1回だけの約束も確かめる。
 //   - Chrome は tools/lib/marp-env.mjs と同じ順で探す（CHROME_PATH → OS 別の既知パス）。無ければ null を返し、テスト側が skip する。

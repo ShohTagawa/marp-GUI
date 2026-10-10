@@ -293,7 +293,7 @@ test('整った見本デック（sample-layouts）を誤ってはみ出しと言
     const r = await detectAll(page);
     const bad = r.map((o, i) => ({ i: i + 1, ...o })).filter((o) => o.overflow || o.unknown);
     t.diagnostic(`${r.length} 枚中 はみ出し判定 ${bad.length} 枚`);
-    // デックは先生が直し続けるので 1 枚までは許す（検知の誤りなら何枚も出る）
+    // デックは著者が直し続けるので 1 枚までは許す（検知の誤りなら何枚も出る）
     assert.ok(bad.length <= 1, '誤検知の疑い: ' + JSON.stringify(bad));
   } finally { await page.close(); }
 });
