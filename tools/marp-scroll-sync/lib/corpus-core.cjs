@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Shoh Tagawa
 // 既存の全スライドの索引と検索（DESIGN.md 7.1）。vscode 非依存。Node 標準モジュールだけ。
 //   buildCorpus  … slides/ 配下の全デックをスライド単位に索引化（本文・型・素材・印・git の添削量・重複の束）
 //   searchCorpus … 索引に対する部分一致の検索（全角/半角・大文字小文字・長音の揺れに強い）

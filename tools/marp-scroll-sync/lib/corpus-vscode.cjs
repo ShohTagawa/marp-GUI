@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Shoh Tagawa
 // 既存スライドの検索と挿入・棚（vscode 依存の配線）。DESIGN.md 7章・8章。
 //
 // 速さの方針（8.0）：

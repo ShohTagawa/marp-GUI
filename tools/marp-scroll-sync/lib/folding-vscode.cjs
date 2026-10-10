@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Shoh Tagawa
 // 折りたたみ・スライドラベル・パネルラベルの VS Code 側（DESIGN.md 4）。
 // 計算は全部 lib/folding.cjs（純粋関数）。ここは provider・装飾・コマンドへの配線だけを持つ。
 // 原稿には何も書かない（書くのは writePanelLabels コマンドを明示的に実行したときだけ）。

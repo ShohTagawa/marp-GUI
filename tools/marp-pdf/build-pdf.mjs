@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Shoh Tagawa
 // marp のスライドを「落ちずに」ベクターPDF化するビルドスクリプト（mac / Windows / Linux 共通）。
 //
 // 背景: スライド枚数が多い/インラインSVGが重いデックでは、Chrome の printToPDF が

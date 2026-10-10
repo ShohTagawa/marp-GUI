@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Shoh Tagawa
 // 配置案（DESIGN.md 8.3）。同じ Markdown のまま、_class の 1 語（lay-*）で配置を変える。
 //   - 配置クラスの CSS は theme/tsutawaru-academic.css の §14。ここは「どの案を出すか」と「原稿のどこを書き換えるか」だけ。
 //   - 純粋関数だけ（vscode 非依存・fs も使わない）。planSetLayout だけが library-core.cjs を遅延 require する。

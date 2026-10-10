@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Shoh Tagawa
 // tools/marp-library.mjs — 完成スライドのライブラリ（印・台帳・サムネイル・候補出し・挿入）。mac / Windows 共通。
 //
 //   node tools/marp-library.mjs index                       台帳 slides/_library/index.json を作り直す

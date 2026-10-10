@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Shoh Tagawa
 // 全スライドを1つのHTMLに描画しておき、Chrome(puppeteer)で「ページ範囲」ごとに
 // 分割印刷するためのワーカー。printToPDF は1回でserializeするページ数が多いほど
 // "Printing failed" で落ちるため、範囲を区切って小さく印刷し、後段で結合する。

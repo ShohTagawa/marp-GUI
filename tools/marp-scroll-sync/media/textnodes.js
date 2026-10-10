@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Shoh Tagawa
 // ブラウザ側：section 内のテキストノードを DOM 順に列挙する（lib/source-map.cjs の locateNodes と対）。
 // Webview（preview.js）とテスト（puppeteer）で同じ物を使う。ここを変えたら source-map のテストを回すこと。
 //   戻り値: [{ node, t, near, svg }]

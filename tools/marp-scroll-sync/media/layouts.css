@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+/* Copyright (c) 2026 Shoh Tagawa */
 /* 配置案のポップアップ（media/layouts.js・DESIGN.md 8.3）。見た目は preview.css の .ss-pop / .ss-gallery と同じ調子 */
 .ss-lay-pop { position:fixed; z-index:35; box-sizing:border-box; width:max-content; max-width:min(620px, calc(100vw - 16px));
   max-height:calc(100vh - 16px); overflow:auto; padding:10px 12px 9px;

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Shoh Tagawa
 // スライド単位の操作（複製・削除・移動・新規・箇条書きの追加/削除）→ 編集の計算（vscode 非依存・純粋関数）。
 // DESIGN.md 2.4。どの関数も原稿を書き換えず、{ ok, edits:[{start,end,text}], revealLine } を返すだけ。
 //   - offset は doc.getText() と同じ UTF-16 オフセット。edits は互いに重ならない。

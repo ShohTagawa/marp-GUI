@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Shoh Tagawa
 // Marp ホーム（Webview 側）。lib/home-vscode.cjs と postMessage でやり取りする。
 //   受け取る：homeData / homeResults / homeThumbData / homeRecent / homeToast / homeQuery
 //   送る    ：homeReady / homeRefresh / homeSearch / homeThumbs / homeOpen / homeSetPreview / homeRebuild

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Shoh Tagawa
 // ブラウザ側：スライド 1 枚の「本文のはみ出し」を測る（DESIGN.md 7.2）。
 // Webview（preview.js のはみ出しバッジ）とテスト（puppeteer）で同じ物を使う。ここを変えたら test/overflow.test.cjs を回すこと。
 //

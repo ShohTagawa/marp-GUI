@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Shoh Tagawa
 # marp-GUI インストーラー（mac）。Finder でダブルクリック（初回は右クリック →「開く」）。
 cd "$(dirname "$0")" || exit 1
 export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"

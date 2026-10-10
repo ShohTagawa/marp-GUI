@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Shoh Tagawa
 // プレビューのテキストノード → 原稿（.md）のオフセットの特定と、書き戻し編集の計算（vscode 非依存・純粋関数）。
 // ブラウザ側の対は media/textnodes.js（ssCollectTextNodes）。取り決めは DESIGN.md 2.1。
 //

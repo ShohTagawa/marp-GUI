@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Shoh Tagawa
 // Alt で箱を動かす・大きさを変える（DESIGN.md 9.2 / 9.3）の原稿側：書き戻す編集の計算（vscode 非依存・純粋関数）。
 //
 // 方針は source-map.cjs と同じ：「誤った場所へ書く」のが最悪で、「書かない」のは許容。

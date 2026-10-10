@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Shoh Tagawa
 // tools/marp-png.mjs — デックを全ページ PNG に描画する（目視確認用・mac / Windows 共通）。
 //
 //   node tools/marp-png.mjs [slides/<deck>/<deck>.md] [出力先.png]

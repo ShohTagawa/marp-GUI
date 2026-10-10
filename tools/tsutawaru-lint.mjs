@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Shoh Tagawa
 // tsutawaru-lint — 『伝わるデザインの基本 増補改訂3版』のルールに照らして Marp デックを点検する。
 //
 //   node tools/tsutawaru-lint.mjs slides/<deck>/<deck>.md

@@ -1,4 +1,6 @@
 @echo off
+REM SPDX-License-Identifier: Apache-2.0
+REM Copyright (c) 2026 Shoh Tagawa
 rem marp-GUI インストーラー（Windows）。エクスプローラーでダブルクリック。
 chcp 65001 >nul
 cd /d "%~dp0"

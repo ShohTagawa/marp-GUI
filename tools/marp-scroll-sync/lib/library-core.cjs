@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Shoh Tagawa
 // 完成スライドの印・台帳・貼り付け先への適応（vscode 非依存。fs / path / crypto だけ）。
 // DESIGN.md 3 の正本実装。拡張（lib/library-vscode.cjs）と CLI（tools/marp-library.mjs）の両方がここを使う。
 //

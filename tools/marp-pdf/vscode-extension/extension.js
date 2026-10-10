@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Shoh Tagawa
 // Marp GUI PDF — エディタ右上ツールバー／ステータスバーに「▶ プレゼン」「📄 PDF出力」ボタンを足す最小ローカル拡張。
 // 実体は tools/marp-pdf/build-pdf.mjs（全スライドを1HTMLに描画 → ページ範囲ごとに分割印刷
 // → pdf-lib で結合）と tools/marp-present/present.mjs。Node スクリプトなので mac / Windows / Linux 共通。

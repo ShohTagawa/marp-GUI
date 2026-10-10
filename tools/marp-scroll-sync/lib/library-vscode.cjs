@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Shoh Tagawa
 // 完成スライドの印・ライブラリからの挿入・貼り付け適応の VS Code 側（DESIGN.md 3.4）。
 // 計算は全部 lib/library-core.cjs（vscode 非依存）。ここは入力欄・QuickPick・WorkspaceEdit・診断への配線だけを持つ。
 // 原稿に書くのは「_class と同居する _lib / _from の 1 行」と、挿入したスライド本文・運んだ CSS だけ。

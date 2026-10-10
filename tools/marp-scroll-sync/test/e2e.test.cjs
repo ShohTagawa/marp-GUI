@@ -1,8 +1,10 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Shoh Tagawa
 // 通し試験（E2E）：仮想 VS Code の上で本物の extension.js を動かし、本物の Webview HTML を Chrome に読み込んでつなぐ。
 //   node --test tools/marp-scroll-sync/test/e2e.test.cjs
 //   作業フォルダ：環境変数 SS_E2E_DIR（無ければ OS の一時フォルダ）。SS_E2E_KEEP=1 で終了後も残す（PNG 目視用）。
 // 実デック（slides/ の原本）は読むだけ。作業フォルダへコピーしてから触る。
-// ALC のコピーの末尾には、実デックに無い記法（自動リンク・インラインコード・コードブロック・Markdown の表）を
+// LEC のコピーの末尾には、実デックに無い記法（自動リンク・インラインコード・コードブロック・Markdown の表）を
 // 確かめるための合成スライドを1枚足している（SYNTH）。
 'use strict';
 const test = require('node:test');
@@ -13,9 +15,9 @@ const path = require('path');
 const H = require('./helpers/e2e-harness.cjs');
 const SPLIT = require('../lib/slide-split.cjs');
 
-const ALC = 'sample-parts';
-const NET = 'sample-layouts';
-const DEST = '20241008_SurveyFD_survey-system-usage';   // theme: chiba-deck・配色 navy（ALC は academic・橙）
+const LEC = 'sample-lecture';   // 見本：academic・橙（--accent #C8611C）
+const LAY = 'sample-layouts';   // 見本：tsutawaru-academic・20 枚
+const DEST = 'sample-parts';   // theme: tsutawaru-academic（LEC は academic・橙）＝テーマ違いの貼り付け先
 const WORK = process.env.SS_E2E_DIR || path.join(os.tmpdir(), 'marp-scroll-sync-e2e');
 const Q = 400;   // settle の静穏時間。単クリック逆引きの 250ms 待ちより長くする
 
@@ -40,7 +42,7 @@ test.after(async () => {
 
 function freshRepo(decks, o) {
   const repo = H.makeRepo(path.join(WORK, 'repo-' + (++repoSeq)), decks);
-  if (o && o.synth && repo.md[ALC]) fs.appendFileSync(repo.md[ALC], SYNTH);
+  if (o && o.synth && repo.md[LEC]) fs.appendFileSync(repo.md[LEC], SYNTH);
   return repo;
 }
 async function session(deck, o) {
@@ -152,7 +154,7 @@ const T = (name, o, fn) => { if (typeof o === 'function') { fn = o; o = {}; } re
 
 // ---------- 1. 開く ----------
 T('1. プレビューを開く：枚数・バッジ・操作ボタン・★・コンソールエラー無し', async () => {
-  for (const deck of [ALC, NET]) {
+  for (const deck of [LEC, LAY]) {
     const S = await session(deck);
     try {
       assert.equal(S.activateError, null);
@@ -171,10 +173,10 @@ T('1. プレビューを開く：枚数・バッジ・操作ボタン・★・�
 
 // ---------- 2. 3. 直接編集 ----------
 T('2. 箇条書きをダブルクリック→打鍵→Enter：1行だけ変わり、undo 1回で戻る', async () => {
-  const S = await session(ALC);
+  const S = await session(LEC);
   try {
     const t = S.doc.getText();
-    const si = slideOf(t, '- Workspace Studio とは何かを理解する');
+    const si = slideOf(t, '- 同期プレビューとは何かを理解する');
     await expectOneLineEdit(S, si, 'とは何かを理解する', 'Ｅ２Ｅ');
     // Esc：破棄。原稿は変わらず、表示も戻り、何も送られない
     const r = await editText(S, si, 'とは何かを理解する', '捨てる', { key: 'Escape' });
@@ -189,7 +191,7 @@ T('2. 箇条書きをダブルクリック→打鍵→Enter：1行だけ変わ�
     await S.page.mouse.click(blank.x, blank.y);
     await S.settle(Q);
     assert.equal(S.sinceE(mk, 'editCommit').length, 1, 'blur で確定');
-    assert.equal(S.doc.lineAt(lineOf(t, '- Workspace Studio とは何かを理解する')).text, '- Workspace Studio とは何かを理解する確定');
+    assert.equal(S.doc.lineAt(lineOf(t, '- 同期プレビューとは何かを理解する')).text, '- 同期プレビューとは何かを理解する確定');
     assert.deepEqual(S.sinceE(mk).filter(m => /^reveal/.test(m.type)), [], '確定のクリックで逆引きしない');
     await undoFromPreview(S);
     assert.equal(S.doc.getText(), t);
@@ -201,16 +203,16 @@ T('2. 箇条書きをダブルクリック→打鍵→Enter：1行だけ変わ�
   } finally { await S.close(); }
 });
 
-T('3a. takeaway / page-title / html_block 内の div / 太字の外側（ALC）', async () => {
-  const S = await session(ALC, { synth: true });
+T('3a. takeaway / page-title / html_block 内の div / 太字の外側（LEC）', async () => {
+  const S = await session(LEC, { synth: true });
   try {
     const t = S.doc.getText();
-    await expectOneLineEdit(S, slideOf(t, '<div class="takeaway">今日のゴール'), 'ひとつ自動化してみる', '！');
+    await expectOneLineEdit(S, slideOf(t, '<div class="takeaway">今日のゴール'), 'ひとつ直してみる', '！');
     await expectOneLineEdit(S, slideOf(t, '<div class="page-title">こんな「面倒」</div>'), 'こんな「面倒」', '集');
     // 太字の外側（**締切を見落とす** の前の地の文）
-    await expectOneLineEdit(S, slideOf(t, '- 課題やレポートの**締切を見落とす**'), '課題やレポートの', 'ＸＹ');
+    await expectOneLineEdit(S, slideOf(t, '- 原稿の**誤字を見落とす**'), '原稿の', 'ＸＹ');
     // 太字の内側
-    await expectOneLineEdit(S, slideOf(t, '- 課題やレポートの**締切を見落とす**'), '締切を見落とす', '点');
+    await expectOneLineEdit(S, slideOf(t, '- 原稿の**誤字を見落とす**'), '誤字を見落とす', '点');
     // 合成スライド：太字の直後の地の文・Markdown の表のセル
     const si = slideOf(t, '## E2E 合成スライド');
     await expectOneLineEdit(S, si, '後半の文', '末');
@@ -219,8 +221,8 @@ T('3a. takeaway / page-title / html_block 内の div / 太字の外側（ALC）'
   } finally { await S.close(); }
 });
 
-T('3b. HTML の表のセル・同じ語が複数ある箇所・html_block の div・インライン SVG の text（InfoLit_8）', async () => {
-  const S = await session(NET);
+T('3b. HTML の表のセル・同じ語が複数ある箇所・html_block の div・インライン SVG の text', async () => {
+  const S = await session(LEC);
   try {
     const t = S.doc.getText();
     const si = slideOf(t, '<tr><td class="l">リフレクションシート</td>');
@@ -246,7 +248,7 @@ T('3b. HTML の表のセル・同じ語が複数ある箇所・html_block の di
 // 回帰：テキストノードの先頭の空白より前に打った文字が、原稿では空白の後ろに入っていた（source-map.cjs の planEdgeEdit で修正）。
 // 期待：打ったとおり「…docs>X を見る」と書く（または書かずに断る）。
 T('3c. 要素の直後（次のノードの先頭の空白より前）に打った文字の位置', async () => {
-  const S = await session(ALC, { synth: true });
+  const S = await session(LEC, { synth: true });
   try {
     const t = S.doc.getText();
     const si = slideOf(t, '## E2E 合成スライド');
@@ -258,7 +260,7 @@ T('3c. 要素の直後（次のノードの先頭の空白より前）に打っ�
 
 // ---------- 4. 箇条書きの追加と削除 ----------
 T('4. Shift+Enter：確定＋下に箇条書き＋編集開始 → 打鍵 → Enter。空の箇条書きで Backspace', async () => {
-  const S = await session(ALC);
+  const S = await session(LEC);
   try {
     const t0 = S.doc.getText();
     const si = slideOf(t0, '- 「スターター＋ステップ」のしくみを知る');
@@ -308,7 +310,7 @@ T('4. Shift+Enter：確定＋下に箇条書き＋編集開始 → 打鍵 → En
 
 // ---------- 5. 書けない編集 ----------
 T('5. 書けない編集：自動リンク・インラインコード・コードブロック・改行の混入', async () => {
-  const S = await session(ALC, { synth: true });
+  const S = await session(LEC, { synth: true });
   try {
     const t = S.doc.getText();
     const si = slideOf(t, '## E2E 合成スライド');
@@ -336,7 +338,7 @@ T('5. 書けない編集：自動リンク・インラインコード・コー�
 });
 
 T('5b. 改行入りの貼り付けは1行にして入る（paste）', async () => {
-  const S = await session(ALC);
+  const S = await session(LEC);
   try {
     const t = S.doc.getText();
     const si = slideOf(t, '- 実際にテストを行ってみる');
@@ -352,7 +354,7 @@ T('5b. 改行入りの貼り付けは1行にして入る（paste）', async () =
 
 // ---------- 6. version 不一致 ----------
 T('6. 編集中に原稿が先に変わった（version 不一致）→ 書かれない', async () => {
-  const S = await session(ALC);
+  const S = await session(LEC);
   try {
     const t = S.doc.getText();
     const si = slideOf(t, '- 実際にテストを行ってみる');
@@ -372,7 +374,7 @@ T('6. 編集中に原稿が先に変わった（version 不一致）→ 書か�
 
 // ---------- 7. スライド操作 ----------
 T('7. スライド操作：複製・上へ・下へ・削除（キャンセル／削除）・新規', async () => {
-  const S = await session(ALC);
+  const S = await session(LEC);
   try {
     const t0 = S.doc.getText();
     const n = H.marpRender(t0).slides;
@@ -444,7 +446,7 @@ T('7. スライド操作：複製・上へ・下へ・削除（キャンセル�
 });
 
 T('7b. 端のスライド：1枚目を上へ・最後を下へは断る（原稿は変わらない）', async () => {
-  const S = await session(ALC);
+  const S = await session(LEC);
   try {
     const t0 = S.doc.getText();
     let mk = S.mark();
@@ -463,7 +465,7 @@ T('7b. 端のスライド：1枚目を上へ・最後を下へは断る（原稿
 });
 
 T('7c. 編集中（未確定）に複製ボタン：文字が確定してから複製される', async () => {
-  const S = await session(ALC);
+  const S = await session(LEC);
   try {
     const t0 = S.doc.getText();
     const n = H.marpRender(t0).slides;
@@ -486,7 +488,7 @@ T('7c. 編集中（未確定）に複製ボタン：文字が確定してから�
 });
 
 T('7d. プレビューを開かずにコマンドで複製・削除（カーソルのあるスライドが対象）', async () => {
-  const S = await session(ALC, { session: { open: false } });
+  const S = await session(LEC, { session: { open: false } });
   try {
     const t0 = S.doc.getText();
     const n = H.marpRender(t0).slides;
@@ -505,8 +507,8 @@ T('7d. プレビューを開かずにコマンドで複製・削除（カーソ�
 
 // ---------- 8. 9. 印とライブラリ ----------
 T('8. 9. 印（★）→ 別テーマ・別配色のデックへ libraryInsert', async () => {
-  const repo = freshRepo([ALC, DEST, NET]);
-  let S = await session(ALC, { repo });
+  const repo = freshRepo([LEC, DEST, LAY]);
+  let S = await session(LEC, { repo });
   const today = new Date();
   try {
     const t0 = S.doc.getText();
@@ -515,14 +517,14 @@ T('8. 9. 印（★）→ 別テーマ・別配色のデックへ libraryInsert',
     const ln = lineOf(t0, '<div class="page-title">開始の前に</div>');
     const i = slideOfLine(t0, ln);
     await moveCursor(S, ln);
-    S.answers.inputBox.push('e2e-alc-prep', '準備, slido');
+    S.answers.inputBox.push('e2e-lec-prep', '準備, slido');
     await clickOp(S, 'mark');
     assert.equal(S.asked.inputBox.length, 2, 'id とタグを聞く');
     const t1 = S.doc.getText();
     const d = H.lineDiff(t0, t1);
     assert.equal(d.removed.length, 1); assert.equal(d.removed[0], '<!-- _class: summary -->');
     const block = d.added.join('\n');
-    assert.match(block, /^<!--\n_class: summary\n_lib: e2e-alc-prep \| 準備, slido \| \d{4}-\d{2}-\d{2}\n-->$/, '_class と同じコメントに _lib が同居: ' + block);
+    assert.match(block, /^<!--\n_class: summary\n_lib: e2e-lec-prep \| 準備, slido \| \d{4}-\d{2}-\d{2}\n-->$/, '_class と同じコメントに _lib が同居: ' + block);
     const r1 = H.marpRender(t1);
     assert.deepEqual(r1.comments, comments0, '発表者ノートが増えない');
     assert.equal(r1.html, html0, 'marp-core の HTML が変わらない');
@@ -540,9 +542,9 @@ T('8. 9. 印（★）→ 別テーマ・別配色のデックへ libraryInsert',
     assert.ok(!/_lib/.test(S.doc.getText()));
 
     // 付け直して保存（台帳はディスクの原稿から作られる）
-    S.answers.inputBox.push('e2e-alc-prep', '準備, slido');
+    S.answers.inputBox.push('e2e-lec-prep', '準備, slido');
     await clickOp(S, 'mark');
-    assert.match(S.doc.getText(), /_lib: e2e-alc-prep/);
+    assert.match(S.doc.getText(), /_lib: e2e-lec-prep/);
     // 保存前：ギャラリーに出るか（未保存の印の扱い）。📚 は検索つきのギャラリー（8章）。「★ 完成だけ」で絞って確かめる
     await H.sleep(1800);   // 原稿を触ってから索引へ映るまで（corpus-vscode の DIRTY_MS＝1.5 秒）
     await clickOp(S, 'library');
@@ -554,7 +556,7 @@ T('8. 9. 印（★）→ 別テーマ・別配色のデックへ libraryInsert',
   } finally { await S.close(); }
   const unsavedIds = S.unsavedIds;
 
-  // 9. 貼り付け先（chiba-deck・navy）
+  // 9. 貼り付け先（別テーマ）
   S = await session(DEST, { repo });
   try {
     const t0 = S.doc.getText();
@@ -564,7 +566,7 @@ T('8. 9. 印（★）→ 別テーマ・別配色のデックへ libraryInsert',
     assert.ok(info.galleryOpen, 'ギャラリーが開く');
     const keys = await markedKeys(S);
     assert.equal(keys.length, 1, '★ 完成だけ に絞ると 1 枚: ' + JSON.stringify(keys));
-    assert.match(keys[0], new RegExp(ALC), '印を付けた ALC のスライド');
+    assert.match(keys[0], new RegExp(LEC), '印を付けた LEC のスライド');
     S.answers.message.push(undefined);
     // クリック＝選択 →「ここに挿入」（8.1。全面ギャラリーではクリックで即挿入しない）
     await S.page.click('.ss-gal-grid > .ss-gal-pick[data-key="' + keys[0] + '"] .ss-gal-name');
@@ -579,7 +581,7 @@ T('8. 9. 印（★）→ 別テーマ・別配色のデックへ libraryInsert',
     assert.ok(!info.galleryOpen);
     const deck = SPLIT.splitDeck(t1);
     const body = deck.lines.slice(deck.slides[1].startLine, deck.slides[1].endLine + 1).join('\n');
-    assert.match(body, /開始の前に/); assert.match(body, /_from: e2e-alc-prep/); assert.ok(!/_lib:/.test(body), '_lib は写さない');
+    assert.match(body, /開始の前に/); assert.match(body, /_from: e2e-lec-prep/); assert.ok(!/_lib:/.test(body), '_lib は写さない');
     const fm = t1.slice(0, t1.indexOf('\n---', 4));
     assert.match(fm, /\.sec-qr-row/, 'デック固有 CSS が frontmatter の style へ入る');
     assert.ok(!/--accent:\s*#C8611C/i.test(fm), ':root は運ばない');
@@ -602,11 +604,11 @@ let unsavedGallery = null;
 T('9b. 保存前の印もギャラリーに出る', async () => {
   assert.notEqual(unsavedGallery, null, '8. 9. の試験が先に走っていること');
   assert.equal(unsavedGallery.length, 1, JSON.stringify(unsavedGallery));
-  assert.match(unsavedGallery[0], new RegExp(ALC));
+  assert.match(unsavedGallery[0], new RegExp(LEC));
 });
 
 T('8b. _class の無いスライドに印：見た目（marp-core の HTML）とノートが変わらない', async () => {
-  const S = await session(NET);
+  const S = await session(LAY);
   try {
     const t0 = S.doc.getText();
     const deck = SPLIT.splitDeck(t0);
@@ -614,10 +616,10 @@ T('8b. _class の無いスライドに印：見た目（marp-core の HTML）と
     if (k < 0) return;   // 該当なし
     const r0 = H.marpRender(t0);
     await moveCursor(S, deck.slides[k].startLine + 1);
-    S.answers.inputBox.push('e2e-net-noclass', '');
+    S.answers.inputBox.push('e2e-lay-noclass', '');
     await clickOp(S, 'mark');
     const t1 = S.doc.getText();
-    assert.match(t1, /_lib: e2e-net-noclass/);
+    assert.match(t1, /_lib: e2e-lay-noclass/);
     const r1 = H.marpRender(t1);
     assert.equal(r1.html, r0.html, 'HTML が変わらない'); assert.deepEqual(r1.comments, r0.comments);
     assert.equal((await H.pageInfo(S.page)).stars, 1);
@@ -629,7 +631,7 @@ T('8b. _class の無いスライドに印：見た目（marp-core の HTML）と
 
 // ---------- 10. tuneSelect ----------
 T('10. プレビューで文字を選択 → 原稿の選択が同じ文字 → A+ で ss-tune、赤（テーマ）で var(--accent)', async () => {
-  const S = await session(ALC);
+  const S = await session(LEC);
   try {
     const t0 = S.doc.getText();
     const si = slideOf(t0, '- 実際にテストを行ってみる');
@@ -655,14 +657,14 @@ T('10. プレビューで文字を選択 → 原稿の選択が同じ文字 → 
       const f = document.querySelectorAll('div.marpit > svg[data-marpit-svg]')[i];
       const e = Array.from(f.querySelectorAll('.ss-tune')).find(x => x.textContent === 'テスト'); return e ? getComputedStyle(e).color : null;
     }, si);
-    assert.equal(color, 'rgb(200, 97, 28)', 'ALC の --accent（#C8611C）で描かれる');
+    assert.equal(color, 'rgb(200, 97, 28)', 'LEC の --accent（#C8611C）で描かれる');
     noErrors(S, '10');
   } finally { await S.close(); }
 });
 
 // ---------- 11. 退行 ----------
 T('11. 退行：単クリック逆引き・j/k/↑↓ のスライド送り・原稿を打って 150ms 後の再描画', async () => {
-  const S = await session(ALC);
+  const S = await session(LEC);
   try {
     const t0 = S.doc.getText();
     const si = slideOf(t0, '- 実際にテストを行ってみる');
@@ -711,7 +713,7 @@ T('11. 退行：単クリック逆引き・j/k/↑↓ のスライド送り・�
 // ---------- 12. 故障注入 ----------
 for (const [label, re] of [['source-map', /source-map\.cjs$/], ['slide-ops', /slide-ops\.cjs$/], ['folding-vscode', /folding-vscode\.cjs$/], ['library-vscode', /library-vscode\.cjs$/], ['library-core', /library-core\.cjs$/]]) {
   T(`12. 故障注入：lib/${label} を読み込めなくても、プレビューが開き、逆引きと再描画が動く`, async () => {
-    const S = await session(ALC, { session: { failRequire: re } });
+    const S = await session(LEC, { session: { failRequire: re } });
     try {
       assert.equal(S.activateError, null, 'activate が通る: ' + (S.activateError && S.activateError.stack));
       const t0 = S.doc.getText();

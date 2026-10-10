@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Shoh Tagawa
 // tools/lib/marp-env.mjs — mac / Windows / Linux 共通の環境解決ヘルパー。
 //
 // build-pdf.mjs / present.mjs / setup.mjs から import する。

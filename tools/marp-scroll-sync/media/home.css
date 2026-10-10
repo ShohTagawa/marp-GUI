@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+/* Copyright (c) 2026 Shoh Tagawa */
 /* Marp ホーム（lib/home-vscode.cjs が同梱する）。配色は同期プレビューのポップアップ（preview.css）に合わせる */
 :root { color-scheme: dark; }
 html, body { margin:0; padding:0; background:#121216; color:#e6e6ea; font:13px/1.5 -apple-system, "Segoe UI", "Hiragino Sans", "BIZ UDPGothic", sans-serif; }

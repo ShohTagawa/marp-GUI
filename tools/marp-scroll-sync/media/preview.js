@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Shoh Tagawa
 // Marp Scroll Sync：プレビュー（Webview のブラウザ側）の全 UI。
 //   - スライド強調・スクロール同期・クリック逆引き・キーでのスライド送り・tune ツールバー（従来どおり）
 //   - 直接編集（ダブルクリック → その場で文字を直す → 原稿へ書き戻し）

@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Shoh Tagawa
 // tools/setup.mjs — marp-GUI を使い始めるときの一発セットアップ（mac / Windows / Linux）。
 //
 //   npm run setup            すべて実行

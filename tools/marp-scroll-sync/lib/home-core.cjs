@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Shoh Tagawa
 // ホーム画面（DESIGN.md 10章）の純粋な部分。vscode に依存しない（test/home-core.test.cjs で試す）。
 //   ・手を入れた順（直した回数）／点数順／新しい順の並べ替え
 //   ・デック一覧（索引の entries からデック単位に畳む）

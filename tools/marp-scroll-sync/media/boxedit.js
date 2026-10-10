@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Shoh Tagawa
 // ブラウザ側：Alt で箱を動かす・大きさを変える（DESIGN.md 9.1 / 9.2 / 9.4）。
 //   Alt を押している間、ポインタの下の要素に枠と札（タグ名.クラス 幅×高さ）を出す。Alt+クリックで選択（8 つのハンドル）。
 //   ドラッグ＝移動（style.translate）、ハンドル＝大きさ（style.width / height）。ドラッグ中は Webview の中だけで

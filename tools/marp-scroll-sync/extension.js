@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Shoh Tagawa
 // Marp Scroll Sync (marp-GUI)
 // - ステータスバーに「編集中のカーソル行が Marp の何枚目か」を表示
 // - サイドの Webview プレビューをカーソル位置のスライドへ自動スクロール

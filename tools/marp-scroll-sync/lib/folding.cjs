@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Shoh Tagawa
 // 折りたたみ範囲・スライドラベル・パネルラベルの計算（vscode 非依存・純粋関数）。
 // 原稿（.md）は読むだけ。原稿に書くのは planWritePanelLabels の編集だけで、それも
 // 「開始タグと同じ行の行末」に限る（単独行のコメントは発表者ノートに混入する＝実測）。

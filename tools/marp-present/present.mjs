@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Shoh Tagawa
 // Marp スライドを「そのまま発表」するスクリプト（mac / Windows / Linux 共通）。
 // bespoke テンプレートのHTMLを描画して Chrome(無ければ既定ブラウザ)で開くだけ。発表中のキー操作:
 //   F = 全画面 /  P = 発表者ビュー(ノート・タイマー・次スライド) /  ←→ = ページ送り /  O = 一覧

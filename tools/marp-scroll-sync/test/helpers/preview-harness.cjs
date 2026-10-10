@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Shoh Tagawa
 // プレビュー（media/preview.js）のテスト用ハーネス。
 //   - 実デック（A群の workspace-studio）の先頭 N 枚＋テスト用の追加スライドを marp-core で描画し、
 //     extension.js の buildHtml が後段の配線で出す形と同じ HTML を作る。
@@ -12,7 +14,7 @@ const { pathToFileURL } = require('url');
 
 const EXT_ROOT = path.resolve(__dirname, '..', '..');
 const REPO_ROOT = path.resolve(EXT_ROOT, '..', '..');
-const DECK = path.join(REPO_ROOT, 'slides', 'sample-parts', 'sample-parts.md');
+const DECK = path.join(REPO_ROOT, 'slides', 'sample-lecture', 'sample-lecture.md');
 
 // 実デックの先頭10枚には無い要素（インライン SVG の文字・span.hl・空の箇条書き・ゆるいリスト）を足すスライド。
 // 直接編集のテストで使う。行は FIXTURE_MARK で探す。

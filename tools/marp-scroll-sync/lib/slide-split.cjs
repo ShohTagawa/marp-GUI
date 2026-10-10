@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Shoh Tagawa
 // スライド分割の正本（vscode 非依存・純粋関数）。
 // extension.js / tools/*.mjs / テストの全部がここを使う。marp-core のページ分割と一致させること
 // （148デックで実描画枚数と一致を確認済み。test/slide-split.test.cjs が回帰テスト）。

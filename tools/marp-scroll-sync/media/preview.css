@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+/* Copyright (c) 2026 Shoh Tagawa */
 /* Marp Scroll Sync：プレビュー専用 UI の CSS。
    デックの CSS（.badge / .toast / .card など）と衝突させないよう、クラスも id もすべて ss- 接頭辞にする。
    デックの DOM（section の中）に一時的に付けるクラスは .ss-hover / .ss-editing / .ss-svg-hidden の3つだけ。 */

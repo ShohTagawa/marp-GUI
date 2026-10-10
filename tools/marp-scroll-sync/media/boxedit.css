@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+/* Copyright (c) 2026 Shoh Tagawa */
 /* Alt で箱を動かす・大きさを変える（media/boxedit.js・DESIGN.md 9.1）。枠・札・ハンドル・案内線は画面に固定して重ねる */
 .ss-box-layer { position:fixed; inset:0; z-index:26; pointer-events:none;
   font:12px/1.5 -apple-system, "Segoe UI", "Hiragino Sans", "BIZ UDPGothic", sans-serif; }

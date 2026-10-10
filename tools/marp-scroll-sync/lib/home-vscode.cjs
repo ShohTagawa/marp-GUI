@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Shoh Tagawa
 // ホーム画面（DESIGN.md 10章）：PowerPoint や Google スライドを立ち上げた直後の「ホーム」に当たる Webview。
 //   ・最近開いたデック／棚／手を入れた順（直した回数）／デック一覧／検索 を並べ、カードを押すとその md を開いて
 //     該当スライドの行にカーソルを置き、同期プレビューも開く（設定で切れる）。

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Shoh Tagawa
 // ブラウザ側：配置案のポップアップ（DESIGN.md 8.3）。
 //   スライドを右クリック（またはキー L）→ いまのスライドの svg を複製して section の class だけ差し替えた
 //   小さなサムネイルを並べる。再描画も拡張との往復もしないので一瞬で出る（予算 0.4 秒・8.0）。
