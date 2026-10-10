@@ -15,8 +15,8 @@ const S = require('../lib/slide-split.cjs');
 
 const REPO = path.resolve(__dirname, '..', '..', '..');
 const DECKS = [
+  'sample-lecture',   // frontmatter に style: がある（畳む範囲の試験に要る）
   'sample-layouts',
-  'sample-lecture',
   'sample-parts',
 ].map(d => path.join(REPO, 'slides', d, d + '.md'));
 const readDeck = (p) => (fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : null);
