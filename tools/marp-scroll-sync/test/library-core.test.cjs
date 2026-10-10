@@ -290,8 +290,7 @@ test('slideDeps: デック固有クラスだけを拾い、参照する @keyfram
 test('buildIndex: out・_library・marp でない md を除き、重複 id は両方残して warnings に出す', () => {
   const R = mkRepo();
   const idx = core.buildIndex(R.root);
-  // v1.0：_class と同じコメントに無い _lib（単独コメント＝発表者ノートに出る）は台帳に載せない
-  assert.deepStrictEqual(idx.entries.map((e) => e.id).sort(), ['src-agenda', 'src-agenda']);
+  assert.deepStrictEqual(idx.entries.map((e) => e.id).sort(), ['leak-one', 'src-agenda', 'src-agenda']);
   const e = idx.entries.find((x) => x.deck.startsWith('slides/'));
   assert.deepStrictEqual(
     { deck: e.deck, slide: e.slide, title: e.title, pattern: e.pattern, theme: e.theme, tags: e.tags, markedAt: e.markedAt },
@@ -300,11 +299,12 @@ test('buildIndex: out・_library・marp でない md を除き、重複 id は�
   assert.deepStrictEqual(e.deckClasses, ['agenda', 'qrbox', 'row']);
   assert.strictEqual(e.thumb, null);
   assert.ok(idx.warnings.some((w) => /重複/.test(w) && /P_x/.test(w) && /SRC_a/.test(w)), idx.warnings.join('\n'));
+  assert.ok(idx.warnings.some((w) => /発表者ノート/.test(w) && /P_x\.md:15/.test(w)), idx.warnings.join('\n'));
   assert.throws(() => core.findEntry(idx, 'src-agenda'), /2 か所/);
   assert.strictEqual(core.findEntry(idx, 'nope'), null);
   const p = core.writeIndex(R.root, idx);
   assert.strictEqual(p, path.join(R.root, 'slides', '_library', 'index.json'));
-  assert.strictEqual(core.readIndex(R.root).entries.length, 2);
+  assert.strictEqual(core.readIndex(R.root).entries.length, 3);
   fs.rmSync(R.root, { recursive: true, force: true });
 });
 
@@ -559,7 +559,7 @@ test('library-vscode: 診断（混入する印に Warning）と rebuildLibrary�
   const R = mkRepo();
   fs.mkdirSync(path.join(R.root, 'tools'), { recursive: true });
   fs.writeFileSync(path.join(R.root, 'tools', 'marp-library.mjs'), '');
-  const leaky = path.join(R.root, 'PonchiE', '20260404_P_x', '20260404_P_x.md');
+  const leaky = path.join(R.root, 'slides', '20260404_P_x', '20260404_P_x.md');
   stub.reset();
   const doc = stub.makeDocument(fs.readFileSync(leaky, 'utf8'), { fsPath: leaky });
   stub.makeEditor(doc, { active: true });
