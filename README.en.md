@@ -183,6 +183,19 @@ npm run png      -- slides/<deck>/<deck>.md   # every page as PNG
 npm run lint     -- slides/<deck>             # checks for too many boxes, too much text, etc.
 ```
 
+## 8. Tests (for developers)
+
+The synced-preview extension ships its test suite in `tools/marp-scroll-sync/test/`, run by Node's built-in test runner.
+
+```bash
+npm test
+```
+
+- The pure-logic tests (slide splitting, source mapping, slide operations, folding, library, index, layout variants, home screen) use only the three sample decks in `slides/` (`sample-layouts`, `sample-parts`, `sample-lecture`).
+- The tests that drive the real preview (direct editing, box editing, gallery, end-to-end flows) need a local Google Chrome and `puppeteer-core` (installed by `npm install`). If Chrome is not found, only those tests are skipped.
+- GitHub Actions (`.github/workflows/test.yml`) runs the same suite on macOS, Windows and Ubuntu with Node 20 and 22.
+- The sample deck `sample-lecture` is a fictional lecture deck that gathers the structures the tests rely on (an HTML table, inline SVG, a QR column, slides with and without `_class`).
+
 ## Contents
 
 ```
@@ -207,6 +220,8 @@ These tools are developed on a limited budget. If you find them useful, please c
 - How to donate (in Japanese): https://kikin.chiba-u.ac.jp/howto
 
 ## License
+
+Every source file carries an `SPDX-License-Identifier: Apache-2.0` header with the copyright notice.
 
 Apache License 2.0 ([LICENSE](LICENSE)). You are free to use and modify the themes, extensions, and tools.
 

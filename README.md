@@ -179,6 +179,19 @@ npm run png      -- slides/<デック>/<デック>.md   # 全ページを PNG �
 npm run lint     -- slides/<デック>               # 囲み過多・文字過多などの点検
 ```
 
+## 8. テスト（開発者向け）
+
+同期プレビュー拡張のテストは `tools/marp-scroll-sync/test/` にあり、Node の標準テストランナーで走ります。
+
+```bash
+npm test
+```
+
+- 純粋なロジック（スライドの分割・原稿への対応付け・スライド操作・折りたたみ・ライブラリ・索引・配置案・ホーム画面）は、`slides/` の見本デック 3 本（`sample-layouts`・`sample-parts`・`sample-lecture`）だけを使います。
+- プレビューを実際に動かす試験（直接編集・箱の編集・ギャラリー・通し試験）は、手元の Google Chrome と `puppeteer-core`（`npm install` で入ります）を使います。Chrome が見つからないときは、その試験だけ skip になります。
+- GitHub Actions（`.github/workflows/test.yml`）が macOS・Windows・Ubuntu × Node 20・22 で同じテストを回します。
+- 見本デック `sample-lecture` は、テストが頼る構造（表・インライン SVG・QR の列・`_class` の有無）を 1 本に集めた「講義の見本」です。中身は架空です。
+
 ## 中身
 
 ```
@@ -203,6 +216,8 @@ VS Code 拡張はマーケットプレイスを通さず、このフォルダを
 - ご寄付の方法：https://kikin.chiba-u.ac.jp/howto
 
 ## ライセンス
+
+各ソースファイルの先頭に `SPDX-License-Identifier: Apache-2.0` と著作権表示を入れています。
 
 Apache License 2.0（[LICENSE](LICENSE)）。テーマ・拡張・ツールとも自由に使い、改変できます。
 
