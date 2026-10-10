@@ -19,7 +19,7 @@
   "devDependencies": {
     "@marp-team/marp-cli": "^4.5.1",
     "pdf-lib": "^1.17.1",
-    "puppeteer-core": "^25.13.0"
+    "puppeteer-core": "^24.43.1"
   },
   "engines": {
     "node": ">=20"
