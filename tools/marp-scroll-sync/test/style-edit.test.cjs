@@ -246,6 +246,44 @@ test('mdimg：alt のキーワードだけを差し替える・足す・消す',
   }
 });
 
+
+
+// ---------------------------------------------------------------------------
+// 実デック（読むだけ）
+// ---------------------------------------------------------------------------
+function realDeck(name, slideIdxs, mustContain) {
+  const file = deckPath(name);
+  if (!fs.existsSync(file)) return { skip: 'デックが無い: ' + name };
+  const src = fs.readFileSync(file, 'utf8');
+  const before = render(src);
+  const ranges = slideRanges(src);
+  assert.strictEqual(before.comments.length, ranges.length, '枚数の数え方が marp と合わない');
+  const stat = { ok: 0, refused: {}, total: 0 };
+  for (const idx of slideIdxs) {
+    const range = ranges[idx];
+    const targets = htmlTargets(before.html, range);
+    for (const t of targets) {
+      stat.total++;
+      const style = { translate: [40, -12], width: 200, height: 200 };
+      const plan = planStyleEdit(src, range, t, style);
+      if (!plan.ok) { stat.refused[plan.reason] = (stat.refused[plan.reason] || 0) + 1; continue; }
+      stat.ok++;
+      const tagText = assertRoundTrip(src, before, t, plan, name + ' #' + (idx + 1) + ' ' + t.tag + '@' + t.hline + '/' + t.nth);
+      const sty = styleOf(tagText);
+      assert.match(sty, /translate: ?40px -12px/); assert.match(sty, /width: ?200px/); assert.match(sty, /height: ?200px/);
+      const src2 = SM.applyEdits(src, plan.edits);
+      assert.deepStrictEqual(planStyleEdit(src2, range, t, style).edits, [], '2 回目は変更なし');
+      // style 属性が無かった要素（＝編集が挿入だけ）は、reset で完全に元へ戻る
+      if (plan.edits.length === 1 && plan.edits[0].start === plan.edits[0].end) {
+        const reset = planStyleEdit(src2, range, t, { translate: null, width: null, height: null });
+        assert.strictEqual(SM.applyEdits(src2, reset.edits), src, 'reset で戻らない');
+      }
+    }
+  }
+  if (mustContain) mustContain(src, before, ranges);
+  return stat;
+}
+
 test('見本デック：sample-lecture の QR スライド（QR を大きくして右へ）', (t) => {
   const stat = realDeck(LEC, [3], (src, before, ranges) => {
     const range = ranges[3];
