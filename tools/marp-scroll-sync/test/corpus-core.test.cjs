@@ -290,7 +290,7 @@ const ent = (o) => ({
 function sample() {
   const entries = [
     ent({ slide: 1, title: '自己紹介', text: '自己紹介 山田 太郎', score: 0.3 }),
-    ent({ slide: 2, title: '自己紹介', text: '自己紹介 山田 太郎 准教授', score: 3.1, deck: 'slides/e/e.md', deckName: '20260620_Demo', date: '2026-06-20' }),
+    ent({ slide: 2, title: '自己紹介', text: '自己紹介 山田 太郎 准教授', score: 3.1, deck: 'slides/e/e.md', deckName: '20260620_EdTech', date: '2026-06-20' }),
     ent({ slide: 3, title: '今日の流れ', text: '今日の流れ 最初に自己紹介をします', score: 5.0 }),
     ent({ slide: 4, title: 'Slidoの使い方', text: 'Ｓｌｉｄｏ を開いてください。サーバーに接続します', score: 1, theme: 'tsutawaru-academic', date: '2026-09-01' }),
     ent({ slide: 5, title: '完成スライド', text: '完成した まとめ', score: 7, mark: { id: 'done-summary', tags: ['まとめ', '締め'] }, pattern: 'summary' }),
