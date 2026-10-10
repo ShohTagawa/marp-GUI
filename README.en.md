@@ -193,7 +193,8 @@ npm test
 
 - The pure-logic tests (slide splitting, source mapping, slide operations, folding, library, index, layout variants, home screen) use only the three sample decks in `slides/` (`sample-layouts`, `sample-parts`, `sample-lecture`).
 - The tests that drive the real preview (direct editing, box editing, gallery, end-to-end flows) need a local Google Chrome and `puppeteer-core` (installed by `npm install`). If Chrome is not found, only those tests are skipped.
-- GitHub Actions (`.github/workflows/test.yml`) runs the same suite on macOS, Windows and Ubuntu with Node 20 and 22.
+- 324 tests in total; about 5 minutes with a local Chrome (files run one at a time, because some tests measure timing budgets).
+- GitHub Actions (`.github/workflows/test.yml`) runs the same suite on macOS, Windows and Ubuntu with Node 20 and 22 (the timing-budget tests are skipped on shared runners).
 - The sample deck `sample-lecture` is a fictional lecture deck that gathers the structures the tests rely on (an HTML table, inline SVG, a QR column, slides with and without `_class`).
 
 ## Contents

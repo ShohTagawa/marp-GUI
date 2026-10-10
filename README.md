@@ -189,7 +189,8 @@ npm test
 
 - 純粋なロジック（スライドの分割・原稿への対応付け・スライド操作・折りたたみ・ライブラリ・索引・配置案・ホーム画面）は、`slides/` の見本デック 3 本（`sample-layouts`・`sample-parts`・`sample-lecture`）だけを使います。
 - プレビューを実際に動かす試験（直接編集・箱の編集・ギャラリー・通し試験）は、手元の Google Chrome と `puppeteer-core`（`npm install` で入ります）を使います。Chrome が見つからないときは、その試験だけ skip になります。
-- GitHub Actions（`.github/workflows/test.yml`）が macOS・Windows・Ubuntu × Node 20・22 で同じテストを回します。
+- 全部で 324 件。手元の Chrome ありで約 5 分（ファイルを 1 つずつ直列に走らせます。速さの予算を測る試験があるためです）。
+- GitHub Actions（`.github/workflows/test.yml`）が macOS・Windows・Ubuntu × Node 20・22 で同じテストを回します（共有ランナーでは速さの試験だけ skip）。
 - 見本デック `sample-lecture` は、テストが頼る構造（表・インライン SVG・QR の列・`_class` の有無）を 1 本に集めた「講義の見本」です。中身は架空です。
 
 ## 中身
