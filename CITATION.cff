@@ -1,0 +1,28 @@
+# SPDX-License-Identifier: Apache-2.0
+cff-version: 1.2.0
+message: "If you use marp-GUI in your work, please cite it as below."
+title: "marp-GUI: text-first slide authoring with direct-manipulation write-back and design-rule linting"
+version: 1.1.0
+date-released: 2026-10-18
+authors:
+  - family-names: Tagawa
+    given-names: Shoh
+    affiliation: Chiba University
+license: Apache-2.0
+repository-code: "https://github.com/ShohTagawa/marp-GUI"
+abstract: >-
+  marp-GUI is a workspace for writing presentation slides as plain Marp Markdown in
+  Visual Studio Code. Its synchronized preview writes every gesture (in-place text
+  editing, slide operations, box dragging, layout switching, slide insertion) back into
+  the Markdown source as one undoable edit. Themes expose design rules as CSS variables
+  and one-word layout classes, a lint checks slide-design rules per slide, a library
+  indexes and reuses slides across decks, and a chunked builder produces vector PDFs of
+  long decks.
+keywords:
+  - Markdown
+  - Marp
+  - presentation slides
+  - VS Code extension
+  - direct manipulation
+  - lint
+  - design rules
