@@ -64,12 +64,12 @@
     if (cl.some(function (c) { return PATTERN[c]; })) { a.plain = false; a.reason = 'pattern'; }
     var lists = [];
     var notPlain = function (why) { if (a.plain) { a.plain = false; a.reason = why; } };
-    Array.prototype.forEach.call(section.children, function (el) {
+    var visit = function (el, inWrap) {
       var t = el.tagName.toLowerCase();
       var c = el.classList;
       if (t === 'header' || t === 'footer' || t === 'style' || t === 'script') return;
-      if (c.contains('page-title') || c.contains('note')) return;
-      if (c.contains('takeaway')) { a.hasTakeaway = true; return; }
+      if (SIDE.some(function (k) { return c.contains(k); })) { if (c.contains('takeaway')) a.hasTakeaway = true; return; }
+      if (!inWrap && isWrap(el)) { a.wrapped = true; Array.prototype.forEach.call(el.children, function (ch) { visit(ch, true); }); return; }
       if (/^(marp-)?h[1-6]$/.test(t)) return;
       if (t === 'ul' || t === 'ol') { lists.push(el); return; }
       if (t === 'figure' || t === 'svg' || t === 'img') { a.figures++; return; }
