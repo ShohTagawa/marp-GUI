@@ -399,10 +399,176 @@
     if (!before.translate[0] && !before.width[0] && !before.height[0]) return;   // 元のまま
     PROPS.forEach(function (p) { el.style.removeProperty(p); });
     if (el.getAttribute('style') === '') el.removeAttribute('style');
-    lastCommit = { el: el, before: before };
+    lastCommit = { el: el, before: before, props: PROPS };
     P.post({ type: 'boxCommit', index: sel.index, version: P.version(), target: sel.target,
       style: { translate: null, width: null, height: null, important: false } });
     refreshSel();
+  }
+
+  // ───────── トリミング（clip-path: inset と、切った分だけ詰める margin-*。DESIGN 9.6） ─────────
+  // margin は辺ごとの longhand で「元の margin − 切った量」を書く。元の margin 宣言（テーマの 0 auto など）は残るので、
+  // トリミングを外せば元へ戻る。切っていない辺には書かない。
+  function cropRefusal(el, t) {
+    if (!t || t.refuse) return (t && t.refuse) || MSG_MD;
+    if (tagOf(el) !== 'img') return MSG_CROP_IMG;
+    if (t.kind === 'mdimg') {
+      // 画像だけの段落でないと <img> に書き換えられない（文と混ざるとインラインの HTML になり、以後選べない）
+      var p = el.parentElement;
+      if (!p || p.children.length !== 1 || /\S/.test(p.textContent || '')) return MSG_CROP_INLINE;
+      if (/(^|;)\s*filter\s*:/.test(el.getAttribute('style') || '')) return MSG_CROP_FILTER;
+    }
+    return '';
+  }
+  /** 左右の margin が auto（中央寄せ）か：幅を少し縮めて、左の margin が動くかで見る */
+  function autoMarginX(el, fallLeft) {
+    var cs = getComputedStyle(el);
+    if (/^inline/.test(cs.display)) return false;   // インラインの auto は 0 で、動かない
+    var w = parseFloat(cs.width);
+    if (!isFinite(w) || w < 8) return false;
+    var old = [el.style.getPropertyValue('width'), el.style.getPropertyPriority('width')];
+    el.style.setProperty('width', (w - 4) + 'px', 'important');
+    var ml = parseFloat(getComputedStyle(el).marginLeft);
+    if (old[0]) el.style.setProperty('width', old[0], old[1]); else el.style.removeProperty('width');
+    return isFinite(ml) && Math.abs(ml - fallLeft) > 0.5;
+  }
+  function enterCrop() {
+    if (!sel || drag || crop) return;
+    var why = cropRefusal(sel.el, sel.target || { refuse: sel.refused });
+    if (why) { try { P.toast(why, true); } catch (_) {} return; }
+    flushKeys();
+    var el = sel.el, before = snapshot(el, CROP_PROPS);
+    var prev = parseInset(before['clip-path'][0]) || [0, 0, 0, 0];
+    // 元の margin＝前のトリミングで書いた margin-* を外したときの値
+    SIDES.forEach(function (s, i) { if (prev[i] > 0) el.style.removeProperty('margin-' + s); });
+    var cs = getComputedStyle(el);
+    var fall = SIDES.map(function (s) { return parseFloat(cs.getPropertyValue('margin-' + s)) || 0; });
+    var autoX = autoMarginX(el, fall[3]);
+    restore(el, before, CROP_PROPS);
+    // 原稿に margin-* を手で書いてあった辺は、その値が元（前のトリミングで「元 − 切った量」にしてある）
+    var base = SIDES.map(function (s, i) {
+      var own = before['margin-' + s][0];
+      return prev[i] > 0 && /px$/.test(own) ? parseFloat(own) + prev[i] : fall[i];
+    });
+    var m = metrics(el), r = el.getBoundingClientRect(), k = m ? m.k : 1;
+    crop = { el: el, before: before, prev: prev, cut: prev.slice(), base: base, fall: fall, autoX: autoX, last: null,
+      important: !!before['clip-path'][1], full: { w: r.width / k, h: r.height / k } };
+    hideHover();
+    refreshSel();
+    setRoot();
+  }
+  /** 辺 i の margin：数＝書く、null＝消す、undefined＝原稿のまま */
+  function marginFor(c, i) {
+    if (c.cut[i] > 0) return Math.round(c.base[i] - c.cut[i]);
+    // 0.5 ちょうどを含める：中央寄せの auto が X.5px だと、base（round(fall − cut) + cut）と fall の差がちょうど 0.5 になる
+    if (c.prev[i] > 0) return Math.abs(c.base[i] - c.fall[i]) <= 0.5 ? null : Math.round(c.base[i]);
+    return undefined;
+  }
+  function insetText(c) { return 'inset(' + c.map(function (v) { return v ? v + 'px' : '0'; }).join(' ') + ')'; }
+  function writeCrop(c) {
+    var el = c.el, pr = c.important ? 'important' : '';
+    if (anyCut(c.cut)) el.style.setProperty('clip-path', insetText(c.cut), pr); else el.style.removeProperty('clip-path');
+    SIDES.forEach(function (s, i) {
+      var v = marginFor(c, i), p = 'margin-' + s, b = c.before[p];
+      if (v === undefined) { if (b[0]) el.style.setProperty(p, b[0], b[1]); else el.style.removeProperty(p); }
+      else if (v === null) el.style.removeProperty(p);
+      else el.style.setProperty(p, v + 'px', pr);
+    });
+    if (el.getAttribute('style') === '') el.removeAttribute('style');
+  }
+  /** 辺 i の切り量を v に（0 以上、見える範囲は MIN_SIZE 以上） */
+  function setCut(c, i, v) {
+    var lim = (i % 2 === 0 ? c.full.h : c.full.w) - MIN_SIZE - c.cut[(i + 2) % 4];
+    c.cut[i] = Math.max(0, Math.min(Math.round(v), Math.floor(lim)));
+  }
+  /** ハンドル dir を (dx, dy)（スライドの px）動かした切り量。from は動かし始めの切り量 */
+  function moveEdge(c, dir, dx, dy, from) {
+    c.cut = from.slice();
+    if (/n/.test(dir)) setCut(c, 0, from[0] + dy);
+    if (/s/.test(dir)) setCut(c, 2, from[2] - dy);
+    if (/w/.test(dir)) setCut(c, 3, from[3] + dx);
+    if (/e/.test(dir)) setCut(c, 1, from[1] - dx);
+    writeCrop(c);
+  }
+  function nudgeCrop(key, d) {
+    if (!crop.last) { try { P.toast(MSG_CROP_EDGE); } catch (_) {} return; }
+    moveEdge(crop, crop.last, key === 'ArrowLeft' ? -d : key === 'ArrowRight' ? d : 0, key === 'ArrowUp' ? -d : key === 'ArrowDown' ? d : 0, crop.cut);
+    refreshSel();
+  }
+  /** 書いた値が computed に出ていないか（デック側の !important に負けている） */
+  function cropMismatch(c) {
+    var cs = getComputedStyle(c.el), bad = false;
+    if (anyCut(c.cut)) {
+      var got = parseInset(cs.clipPath);
+      if (!got || got.some(function (v, i) { return Math.abs(v - c.cut[i]) > 0.75; })) bad = true;
+    }
+    SIDES.forEach(function (s, i) {
+      var v = marginFor(c, i);
+      if (typeof v === 'number' && Math.abs(parseFloat(cs.getPropertyValue('margin-' + s)) - v) > 0.75) bad = true;
+    });
+    return bad;
+  }
+  /** !important を付ければ通るときだけ true（9.2 と同じ） */
+  function cropNeedsImportant(c) {
+    if (c.important || !cropMismatch(c)) return false;
+    c.important = true; writeCrop(c);
+    var ok = !cropMismatch(c);
+    c.important = false; writeCrop(c);
+    return ok;
+  }
+  function commitCrop(reset) {
+    var c = crop;
+    if (!c) return false;
+    if (drag) endDrag();
+    crop = null;
+    ghost.style.display = 'none';
+    if (!c.el.isConnected) { refreshSel(); setRoot(); return false; }
+    if (reset) c.cut = [0, 0, 0, 0];
+    writeCrop(c);
+    var sent = sendCrop(c);
+    refreshSel();
+    setRoot();
+    return sent;
+  }
+  function sendCrop(c) {
+    if (!sel || sel.el !== c.el || !sel.target) return false;
+    if (sameSnap(c.before, snapshot(c.el, CROP_PROPS), CROP_PROPS)) return false;   // 変化が無ければ送らない
+    if (cropNeedsImportant(c)) { c.important = true; writeCrop(c); }
+    var style = { important: c.important, clipPath: anyCut(c.cut) ? c.cut.slice() : null };
+    var mg = null;
+    SIDES.forEach(function (s, i) { var v = marginFor(c, i); if (v !== undefined) { mg = mg || {}; mg[s] = v; } });
+    if (mg) style.margin = mg;
+    lastCommit = { el: c.el, before: c.before, props: CROP_PROPS };
+    pendingConvert = sel.target.kind === 'mdimg' && style.clipPath ? { index: sel.index } : null;
+    P.post({ type: 'boxCommit', index: sel.index, version: P.version(), target: sel.target, style: style });
+    if (c.autoX && (c.cut[1] > 0 || c.cut[3] > 0) && !(c.prev[1] > 0 || c.prev[3] > 0)) { try { P.toast(MSG_AUTO); } catch (_) {} }
+    return true;
+  }
+  function cancelCrop() {
+    var c = crop;
+    if (!c) return;
+    if (drag) endDrag();
+    crop = null;
+    ghost.style.display = 'none';
+    if (c.el.isConnected) restore(c.el, c.before, CROP_PROPS);
+    refreshSel();
+    setRoot();
+  }
+  /** 切られる部分：元の画像を全体の枠に重ね、見える範囲だけくり抜く（evenodd） */
+  function showGhost(m) {
+    var c = crop;
+    if (!c || !c.el.isConnected || !anyCut(c.cut)) { ghost.style.display = 'none'; return; }
+    var el = c.el, r = el.getBoundingClientRect(), k = m.k, cs = getComputedStyle(el);
+    var src = el.currentSrc || el.src;
+    if (ghost.getAttribute('src') !== src) ghost.setAttribute('src', src);
+    var pad = function (s) { return ((parseFloat(cs.getPropertyValue('padding-' + s)) || 0) + (parseFloat(cs.getPropertyValue('border-' + s + '-width')) || 0)) * k + 'px'; };
+    var g = ghost.style;
+    g.display = 'block';
+    g.left = r.left + 'px'; g.top = r.top + 'px'; g.width = r.width + 'px'; g.height = r.height + 'px';
+    g.padding = pad('top') + ' ' + pad('right') + ' ' + pad('bottom') + ' ' + pad('left');
+    g.objectFit = cs.objectFit; g.objectPosition = cs.objectPosition;
+    var W = r.width, Hh = r.height, L = c.cut[3] * k, T = c.cut[0] * k, R = W - c.cut[1] * k, B = Hh - c.cut[2] * k;
+    var P2 = function (x, y) { return x.toFixed(1) + 'px ' + y.toFixed(1) + 'px'; };
+    g.clipPath = 'polygon(evenodd, ' + [P2(0, 0), P2(W, 0), P2(W, Hh), P2(0, Hh), P2(0, 0), P2(L, T), P2(L, B), P2(R, B), P2(R, T), P2(L, T)].join(', ') + ')';
   }
 
   // ───────── ドラッグ ─────────
