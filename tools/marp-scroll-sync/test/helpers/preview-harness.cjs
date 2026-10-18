@@ -83,7 +83,7 @@ function rewriteAssets(html, docDir) {
 
 
 // ---------- 検索ギャラリー（DESIGN.md 7.3 / 7.4）の材料 ----------
-// テーマの違う実デック 2 本。配色も違う（ALC＝academic＋橙 #C8611C、tsutawaru＝既定のガーネット #A6192E）ので、
+// テーマの違う見本デック 2 本。配色も違う（sample-lecture＝academic＋橙 #C8611C、sample-layouts＝tsutawaru-academic の既定のガーネット #A6192E）ので、
 // Shadow DOM の中でデックごとの css が効いているかを色で確かめられる。
 const DECK_TSUTAWARU = path.join(REPO_ROOT, 'slides', 'sample-layouts', 'sample-layouts.md');
 
