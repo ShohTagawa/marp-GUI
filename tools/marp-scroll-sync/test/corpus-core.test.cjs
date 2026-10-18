@@ -311,6 +311,22 @@ function sample() {
   return { version: C.CORPUS_VERSION, entries };
 }
 
+test('byScore：同点は新しいデック → デックのパス → スライド番号（数として #2 が #10 より先）', () => {
+  const list = [];
+  for (const n of [1, 10, 11, 2, 19, 3]) list.push(ent({ slide: n, deck: 'slides/b/b.md', date: null, score: 0 }));
+  list.push(ent({ slide: 5, deck: 'slides/a/a.md', date: null, score: 0 }));
+  list.push(ent({ slide: 9, deck: 'slides/c/c.md', date: '2026-02-01', score: 0 }));
+  list.push(ent({ slide: 4, deck: 'slides/z/z.md', date: null, score: 1 }));
+  assert.deepEqual(list.slice().sort(C.byScore).map((e) => e.key), [
+    'slides/z/z.md#4', 'slides/c/c.md#9', 'slides/a/a.md#5',
+    'slides/b/b.md#1', 'slides/b/b.md#2', 'slides/b/b.md#3', 'slides/b/b.md#10', 'slides/b/b.md#11', 'slides/b/b.md#19',
+  ]);
+  // 検索でも同じ（空の検索は score 順・同点のデック内は番号順。語で当たった同点も番号順）
+  const c = { version: C.CORPUS_VERSION, entries: list.filter((e) => e.deck === 'slides/b/b.md').map((e) => ({ ...e, title: '配置 ' + e.slide })) };
+  assert.deepEqual(C.searchCorpus(c, '').items.map((i) => i.entry.slide), [1, 2, 3, 10, 11, 19]);
+  assert.deepEqual(C.searchCorpus(c, '配置').items.map((i) => i.entry.slide), [1, 2, 3, 10, 11, 19]);
+});
+
 test('searchCorpus：題名の一致を重く見て、その中では手を入れたスライドが上', () => {
   const r = C.searchCorpus(sample(), '自己紹介');
   assert.deepEqual(r.items.map((i) => i.entry.slide), [2, 1, 3, 6]);
