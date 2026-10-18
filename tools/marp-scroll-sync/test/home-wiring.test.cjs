@@ -82,7 +82,9 @@ test('コマンド marpScrollSync.home でホームが開き、homeReady に一�
   assert.ok(names.indexOf('20260102_T_net') < names.indexOf('20260101_T_intro'), '新しい順');
   assert.ok(d.decks.find(x => x.deckName === '20260101_T_intro').slides >= 2, '枚数（末尾の --- で空の 1 枚が増えることがある）');
   assert.ok(Array.isArray(d.top) && Array.isArray(d.shelves) && Array.isArray(d.recent));
-  assert.ok(typeof d.ms === 'number' && d.ms < 400, '一覧は 0.4 秒以内（実測 ' + d.ms + 'ms）');
+  assert.ok(typeof d.ms === 'number', '一覧を作った時間（ms）が返る');
+  // 速さの予算（DESIGN.md 8.0）は手元でだけ assert する。CI の共有ランナーでは測るだけ（ほかの速さの試験と同じ扱い）
+  if (!process.env.CI) assert.ok(d.ms < 400, '一覧は 0.4 秒以内（実測 ' + d.ms + 'ms）');
   // 2 回目は同じパネルを前に出す（作り直さない）
   await vscode.commands.executeCommand('marpScrollSync.home');
   assert.equal(panels.filter(x => x.viewType === 'marpHome').length, 1);
