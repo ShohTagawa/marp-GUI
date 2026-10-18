@@ -70,6 +70,26 @@ function normStyle(style) {
       out[k] = v + 'px';
     }
   }
+  if (style.clipPath === null) out['clip-path'] = null;
+  else if (style.clipPath !== undefined) {
+    if (!Array.isArray(style.clipPath) || style.clipPath.length !== 4) return null;
+    const v = style.clipPath.map(px);
+    if (v.some(x => Number.isNaN(x) || x < 0)) return null;
+    out['clip-path'] = v.every(x => x === 0) ? null : 'inset(' + v.map(x => (x ? x + 'px' : '0')).join(' ') + ')';
+  }
+  if (style.margin === null) for (const s of SIDES) out['margin-' + s] = null;
+  else if (style.margin !== undefined) {
+    if (typeof style.margin !== 'object' || Array.isArray(style.margin)) return null;
+    for (const s of SIDES) {
+      const m = style.margin[s];
+      if (m === null) out['margin-' + s] = null;
+      else if (m !== undefined) {
+        const v = px(m);
+        if (Number.isNaN(v)) return null;
+        out['margin-' + s] = v + 'px';
+      }
+    }
+  }
   return out;
 }
 
