@@ -140,6 +140,11 @@
     }
     return null;
   }
+  function findConverted(sec, t) {
+    var list = sec ? sec.querySelectorAll('img[data-hline="' + t.line + '"]') : [];
+    for (var i = 0; i < list.length; i++) if (basenameOf(list[i].getAttribute('src')) === t.basename) return list[i];
+    return null;
+  }
   function writableAncestor(el) {
     var sec = sectionOfEl(el);
     for (var p = el && el.parentElement; p && sec && p !== sec && sec.contains(p); p = p.parentElement) {
