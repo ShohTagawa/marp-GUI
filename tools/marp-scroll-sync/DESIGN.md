@@ -349,7 +349,7 @@ _lib: alc-agenda | 構成, アジェンダ | 2026-09-20
 
 ### 8.6 未解決（7〜8章）
 
-- （解決済み）test/e2e.test.cjs の「8. 9.」「9b.」「11.」「12.」は 8章の取り決め（📚＝検索つきギャラリー・patch・150ms）に合わせて直した。7〜8章の通し試験は test/e2e-flows.test.cjs（a〜g＋反例 1〜4。0.4 秒の予算を assert で固定）。
+- （解決済み）test/e2e.test.cjs の「8. 9.」「9b.」「11.」「12.」は 8章の取り決め（📚＝検索つきギャラリー・patch・150ms）に合わせて直した。7〜8章の通し試験（a〜g＋反例 1〜4。0.4 秒の予算を assert で固定）は作者の手元のデックを使うので配布していない。配布版の速さの確かめは test/ の各ファイルの「速さ」の試験（layouts・overflow・preview・style-edit・corpus-core・source-map・wiring・home-wiring。環境変数 CI があるときは測るだけで assert しない）。
 - 題名は `slideMeta` が page-title を優先して取る。コピー元の page-title が残ったスライドは誤った題名で当たる（デック側の直し忘れ）。
 - `-b4` のようなフォーク・控えのデックは、フォルダ名が `.bak` でないので索引に載る。除外の規則は未定。
 - VS Code 実機の Webview では未確認：ドラッグでの並べ替え、IME での呼び名入力、Alt+←→、右クリック（既定のコンテキストメニューの抑止）、子プロセスの起動（`ELECTRON_RUN_AS_NODE`）。
