@@ -1099,10 +1099,10 @@
     const css = cssStore.get(key);
     if (css == null) return null;
     try {
-      // replaceSync は @import を受け付けない（無視して警告を出す）。外して、要るものだけ小さな <style> で足す
-      const imports = css.match(/@import\s[^;]+;/g) || [];
+      // replaceSync は @import を受け付けない（無視して警告を出す）。IMPORT_RE で外して、要るものだけ小さな <style> で足す
+      const imports = css.match(IMPORT_RE) || [];
       const sheet = new CSSStyleSheet();
-      sheet.replaceSync(imports.length ? css.replace(/@import\s[^;]+;/g, '') : css);
+      sheet.replaceSync(imports.length ? css.replace(IMPORT_RE, '') : css);
       e = { sheet, imports: imports.join('') };
     } catch (_) { return null; }
     sheetStore.set(key, e);
