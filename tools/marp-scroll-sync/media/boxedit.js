@@ -180,16 +180,42 @@
 
   // ───────── style の読み書き（translate / width / height の 3 つだけ触る） ─────────
   var PROPS = ['translate', 'width', 'height'];
-  function snapshot(el) {
+  var CROP_PROPS = ['clip-path', 'margin-top', 'margin-right', 'margin-bottom', 'margin-left'];
+  var SIDES = ['top', 'right', 'bottom', 'left'];
+  function snapshot(el, props) {
     var s = {};
-    PROPS.forEach(function (p) { s[p] = [el.style.getPropertyValue(p), el.style.getPropertyPriority(p)]; });
+    (props || PROPS).forEach(function (p) { s[p] = [el.style.getPropertyValue(p), el.style.getPropertyPriority(p)]; });
     return s;
   }
-  function restore(el, s) {
-    PROPS.forEach(function (p) { if (s[p][0]) el.style.setProperty(p, s[p][0], s[p][1]); else el.style.removeProperty(p); });
+  function restore(el, s, props) {
+    (props || PROPS).forEach(function (p) { if (s[p][0]) el.style.setProperty(p, s[p][0], s[p][1]); else el.style.removeProperty(p); });
     if (el.getAttribute('style') === '') el.removeAttribute('style');
   }
-  function sameSnap(a, b) { return PROPS.every(function (p) { return a[p][0] === b[p][0] && a[p][1] === b[p][1]; }); }
+  function sameSnap(a, b, props) { return (props || PROPS).every(function (p) { return a[p][0] === b[p][0] && a[p][1] === b[p][1]; }); }
+  /** inset(上 右 下 左) を [上,右,下,左]（px）に。px と 0 以外（% や round）は読まない＝null */
+  function parseInset(v) {
+    var m = /^\s*inset\(\s*([^)]*?)\s*\)\s*$/.exec(String(v || ''));
+    if (!m || /round/.test(m[1])) return null;
+    var a = m[1].split(/\s+/).map(function (x) { return /^-?[\d.]+(px)?$/.test(x) ? parseFloat(x) : NaN; });
+    if (!a.length || a.length > 4 || a.some(function (x) { return !isFinite(x); })) return null;
+    var t = a[0], r = a.length > 1 ? a[1] : t, b = a.length > 2 ? a[2] : t, l = a.length > 3 ? a[3] : r;
+    return [t, r, b, l];
+  }
+  /** いま見えている範囲の切り量（トリミング中はその値。画像だけ） */
+  function insetOf(el) {
+    if (crop && crop.el === el) return crop.cut;
+    return tagOf(el) === 'img' ? parseInset(el.style.getPropertyValue('clip-path')) : null;
+  }
+  function anyCut(c) { return !!(c && (c[0] || c[1] || c[2] || c[3])); }
+  /** 画面上の枠。切ってある画像は見えている範囲（枠と札は見た目に合わせる） */
+  function visRect(el) {
+    var r = el.getBoundingClientRect(), c = insetOf(el);
+    if (!anyCut(c)) return r;
+    var m = metrics(el), k = m ? m.k : 1;
+    var l = r.left + c[3] * k, t = r.top + c[0] * k;
+    var w = Math.max(0, r.width - (c[1] + c[3]) * k), hh = Math.max(0, r.height - (c[0] + c[2]) * k);
+    return { left: l, top: t, width: w, height: hh, right: l + w, bottom: t + hh };
+  }
   function setPx(el, prop, v, imp) { el.style.setProperty(prop, v, imp ? 'important' : ''); }
   function writeTranslate(el, x, y, imp) {
     if (!x && !y) el.style.removeProperty('translate'); else setPx(el, 'translate', x + 'px ' + y + 'px', imp);
