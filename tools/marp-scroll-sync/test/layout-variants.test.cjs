@@ -88,6 +88,51 @@ test('analyzeSlide：素の構造でないもの', () => {
   function pick(a) { return [a.plain, a.reason]; }
 });
 
+test('analyzeSlide：包み（.body）は透過し、出典の行（attr / cite / src-row）は数えない', () => {
+  const pick = (a) => [a.plain, a.reason, a.wrapped];
+  const of = (md) => clsOf(lv.variantsFor(lv.analyzeSlide(md)));
+  // .body の中の素の Markdown で判定する
+  const wrapped = '## 題\n\n<div class="body">\n\n- **一**\n  説明\n- **二**\n  説明\n- **三**\n  説明\n\n</div>\n\n<div class="takeaway">帯</div>\n';
+  assert.deepStrictEqual(pick(lv.analyzeSlide(wrapped)), [true, null, true]);
+  assert.deepStrictEqual(of(wrapped), [null, 'lay-boxed', 'lay-cards3', 'lay-keyrow']);
+  assert.strictEqual(lv.analyzeSlide(wrapped.replace('class="body"', 'class="body vcenter"')).plain, true, '縦配分の語は可');
+  // 透過しない包み：ほかのクラス・style・中が Markdown として読まれない書き方（開きタグの次が空行でない）・入れ子の div
+  assert.deepStrictEqual(pick(lv.analyzeSlide(wrapped.replace('class="body"', 'class="body figwrap"'))), [false, 'div', false]);
+  assert.deepStrictEqual(pick(lv.analyzeSlide(wrapped.replace('class="body"', 'class="body" style="width:900px"'))), [false, 'div', false]);
+  assert.strictEqual(lv.analyzeSlide('## 題\n\n<div class="body">\n- a\n- b\n</div>\n').plain, false, '空行なし＝中は HTML のまま');
+  assert.strictEqual(lv.analyzeSlide('## 題\n\n<div class="body">\n\n<div class="tcols">\n\n- a\n\n</div>\n\n</div>\n').plain, false, '中に div があれば不可');
+  assert.strictEqual(lv.analyzeSlide('## 題\n\n<div class="body">\n\n<div class="body">\n\n- a\n- b\n\n</div>\n\n</div>\n').plain, false, '二重の包みは透過しない');
+  // 出典の行
+  const fig = '## 図\n\n![](./src/a.png)\n<div class="attr">出典：<a href="https://example.org">例</a></div>\n';
+  assert.deepStrictEqual(pick(lv.analyzeSlide(fig)), [true, null, false], '画像の直後の行の attr（空行なし）も図として数える');
+  assert.deepStrictEqual(of(fig), [null, 'lay-fig-top', 'lay-fig-only'], '出典は文に数えない');
+  assert.deepStrictEqual(of('## 題\n\n- a\n- b\n- c\n\n<div class="cite">著者（2024）. 書名.</div>\n'), [null, 'lay-boxed', 'lay-cards3', 'lay-keyrow', 'lay-points']);
+  const srcRow = '## 題\n\n- a\n- b\n\n<div class="src-row"><p class="note">注記</p>\n<div class="chips"><a class="fill tight" href="https://example.org">PDF</a></div>\n</div>\n\n<div class="takeaway">帯</div>\n';
+  const a = lv.analyzeSlide(srcRow);
+  assert.deepStrictEqual([a.plain, a.items, a.hasTakeaway], [true, 2, true], '入れ子の div を持つ src-row も丸ごと読み飛ばす');
+  // .body の中の attr
+  assert.deepStrictEqual(of('## 図\n\n<div class="body">\n\n![](./src/a.png)\n\n<div class="attr">出典：例</div>\n\n- 説明\n\n</div>\n'), [null, 'lay-fig-right', 'lay-fig-left', 'lay-fig-top']);
+  const t = lv.browserTable();
+  assert.deepStrictEqual([t.sideClasses, t.wrapClass, t.wrapExtra], [lv.SIDE_CLASSES, 'body', ['vtop', 'vcenter', 'vspread']]);
+});
+
+test('analyzeSlide：スライド内の <style> は数えない・HTML の <p> は段落、<p><img></p> は図（ブラウザ側と同じ）', () => {
+  const pick = (a) => [a.plain, a.reason, a.figures, a.paragraphs, a.lists, a.items];
+  const of = (md) => clsOf(lv.variantsFor(lv.analyzeSlide(md)));
+  // <style scoped> はブラウザ側でも section 直下の style として飛ばされる。原稿側も数えない
+  const styled = '## 題\n\n<style scoped>\n  ul { color: red; }\n</style>\n\n- a\n- b\n- c\n';
+  assert.deepStrictEqual(pick(lv.analyzeSlide(styled)), [true, null, 0, 0, 1, 3]);
+  assert.deepStrictEqual(of(styled), of('## 題\n\n- a\n- b\n- c\n'));
+  // HTML で書いた段落は段落として数える
+  assert.deepStrictEqual(pick(lv.analyzeSlide('## 題\n\n<p class="lead">大きな一文です。</p>\n')), [true, null, 0, 1, 0, 0]);
+  // 画像のトリミング（Markdown の画像 → <p><img style="…"></p> への書き換え）の前後で、配置案は変わらない
+  const md = '## 図\n\n![w:400 図](./src/a.png)\n\n- 説明\n';
+  const html = '## 図\n\n<p><img src="./src/a.png" alt="図" style="width: 400px; clip-path: inset(0 0 0 30px); margin-left: -30px"></p>\n\n- 説明\n';
+  assert.deepStrictEqual(pick(lv.analyzeSlide(html)), [true, null, 1, 0, 1, 1]);
+  assert.deepStrictEqual(of(html), of(md));
+  assert.deepStrictEqual(of(html), [null, 'lay-fig-right', 'lay-fig-left', 'lay-fig-top']);
+});
+
 test('variantsFor：本の規則で絞る', () => {
   const of = (md) => clsOf(lv.variantsFor(lv.analyzeSlide(md)));
   assert.deepStrictEqual(of(THREE), [null, 'lay-boxed', 'lay-cards3', 'lay-keyrow']);
