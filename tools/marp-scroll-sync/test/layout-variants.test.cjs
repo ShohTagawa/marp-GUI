@@ -40,16 +40,22 @@ test('表：8〜14 個・名前は lay-*・テーマ §14 に CSS がある', ()
   assert.ok(!/\.lay-[a-z]/.test(css.slice(0, css.indexOf('14. 配置クラス'))));
 });
 
-test('why のページ番号は docs/tsutawaru-rules.md に在るものだけ', (t) => {
-  if (!fs.existsSync(path.join(REPO, 'docs', 'tsutawaru-rules.md'))) return t.skip('docs/tsutawaru-rules.md が無い（配布版）');
-  const rules = fs.readFileSync(path.join(REPO, 'docs', 'tsutawaru-rules.md'), 'utf8');
+test('why のページ番号は docs/design-rules.md（英語・日本語の両方）に在るものだけ', () => {
+  const doc = fs.readFileSync(path.join(REPO, 'docs', 'design-rules.md'), 'utf8');
+  // 英語の節が先、日本語の節（# デザインのルール）が後ろ。どちらにも載っていること
+  const cut = doc.search(/^# デザインのルール/m);
+  assert.ok(cut > 0, 'docs/design-rules.md に日本語の節（# デザインのルール）がある');
+  const parts = { en: doc.slice(0, cut), ja: doc.slice(cut) };
+  let pages = 0;
   for (const v of lv.LAYOUTS.concat([lv.BASE])) {
     for (const m of v.why.matchAll(/p\.(\d+)/g)) {
-      const n = m[1];
-      const ok = new RegExp('p\\.' + n + '(?!\\d)').test(rules) || new RegExp('\\|\\s*' + n + '\\s*\\|').test(rules);
-      assert.ok(ok, `${v.cls}: p.${n} が tsutawaru-rules.md に無い`);
+      pages++;
+      for (const [lang, text] of Object.entries(parts)) {
+        assert.ok(new RegExp('p\\.' + m[1] + '(?!\\d)').test(text), `${v.cls}: p.${m[1]} が docs/design-rules.md（${lang}）に無い`);
+      }
     }
   }
+  assert.ok(pages > 0, 'why にページ番号が1つ以上ある');
 });
 
 test('analyzeSlide：素の構造を読む', () => {
