@@ -205,10 +205,10 @@ theme/academic.css のあるフォルダ（marp-GUI）を開いたとき、Marp 
 ```html
 <!--
 _class: summary
-_lib: alc-agenda | 構成, アジェンダ | 2026-09-20
+_lib: day-agenda | 構成, アジェンダ | 2026-09-20
 -->
 ```
-`_class` の無いスライドに印を付けると `_class:` の行も足す（値は、デック全体の `class` 指定があればそれ、無ければ空）。ライブラリから入れたコピーには `_lib` の代わりに `_from: alc-agenda` が入る。
+`_class` の無いスライドに印を付けると `_class:` の行も足す（値は、デック全体の `class` 指定があればそれ、無ければ空）。ライブラリから入れたコピーには `_lib` の代わりに `_from: day-agenda` が入る。
 `_class` の行を消して `_lib` だけにすると、その行が**発表者ノートに出る**（Marp は、知っているキーが1つも無いコメントをノートとして扱うため）。エディタに注意が出る。
 
 **箱の位置と大きさ**：開始タグの `style` 属性に `translate` / `width` / `height` だけ（Markdown の画像は alt の `w:` / `h:`）。消せば元に戻る。
