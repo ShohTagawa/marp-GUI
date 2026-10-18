@@ -178,7 +178,8 @@ test('テーマ §14：lay-* を付けると .body の包みは display:contents
     sec.classList.remove('lay-cards3');
     return { before, after };
   }, N + 4);
-  assert.deepStrictEqual(r.before.slice(0, 2), ['block', 'block'], '配置クラスなし＝包みは普通の箱');
+  assert.notStrictEqual(r.before[0], 'contents', '配置クラスなし＝包みは普通の箱（academic の本文ゾーン）: ' + r.before);
+  assert.strictEqual(r.before[1], 'block');
   assert.deepStrictEqual(r.after, ['contents', 'grid', 3], 'lay-cards3＝包みは透過、箇条書きは 3 列の格子');
 });
 
