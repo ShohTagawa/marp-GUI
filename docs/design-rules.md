@@ -114,7 +114,7 @@ node tools/tsutawaru-lint.mjs <file.md|dir>... [--summary] [--lang ja|en]
 
 | Rule (our wording) | Lint | Handbook page(s) | Source | Used in |
 |---|---|---|---|---|
-| When a page will not keep the rules, it usually holds too much or unrefined content: change the figures, cut text, split the page, or make low-priority items smaller. | rule 3 | p.202 | handbook | lint; theme §11 (notes, references) |
+| When a page will not keep the rules, it usually holds too much or unrefined content: change the figures, cut text, split the page, or make low-priority items smaller. | rule 3 | p.202 | handbook | lint; theme (notes, references, §11) |
 | Common faults are too little whitespace, poor alignment, poor fonts, tight line spacing and no contrast; line spacing of about 1.5 times the font size. | — | p.203 | handbook | theme §2 |
 | Cover: a small lead-in, a large bold title and the details at the bottom, left-aligned; do not mix centred and left-aligned text or break lines at odd places. | — | p.204 | handbook | theme `cover-left` |
 | Bullet slides: make subheadings stand out by weight at the body size, group per item, and drop marks from simple lists; four items can become a 2 × 2 grid of filled cards. | rule 2 | p.205 | handbook | lint; theme `.blist`, `.grid2`; `lay-cards2`, standard |
