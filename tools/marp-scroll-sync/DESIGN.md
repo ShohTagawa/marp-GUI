@@ -31,7 +31,7 @@ tools/marp-scroll-sync/
   media/overflow.js         ブラウザ側：はみ出し検知 window.ssDetectOverflow（任意の部品。テストとプレビューで同じ物）。7.2
   media/layouts.js / .css   ブラウザ側：右クリックの配置案ポップアップ window.ssLayouts（任意の部品。window.ssPreview だけに頼る）。8.3
   media/boxedit.js / .css   ブラウザ側：Alt で箱を動かす・大きさを変える window.ssBoxEdit（任意の部品。window.ssPreview だけに頼る）。9章
-  lib/style-edit.cjs        箱の位置と大きさを、開始タグの style 属性（Markdown の画像は alt）へ書く編集を計算する（純粋）。9.2 / 9.3
+  lib/style-edit.cjs        箱の位置と大きさ・画像のトリミングを、開始タグの style 属性（Markdown の画像は alt。トリミングは <p><img> に書き換えて）へ書く編集を計算する（純粋）。9.2 / 9.3 / 9.6
   media/preview.css         プレビュー専用 UI の CSS（すべて ss- 接頭辞。デックの CSS と衝突させない）
   test/*.test.cjs           node --test。ブラウザが要るものは puppeteer-core（リポジトリ直下の node_modules）＋手元の Chrome
 tools/marp-library.mjs      CLI：台帳生成・サムネイル・候補出し・挿入（Claude からも使う）。library-core を import
