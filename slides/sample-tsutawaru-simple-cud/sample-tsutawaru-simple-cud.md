@@ -200,7 +200,7 @@ Sample deck for marp-GUI. It describes the theme itself. The colour comparison w
 
 - Key words use <span class="hl">the main colour and bold</span>
 - The marker is <span class="mark">a yellow fill and bold</span>
-- "<span class="ng">Not allowed</span>" adds the word itself to colour and bold
+- “<span class="ng">Not allowed</span>” adds the word itself to colour and bold
 
 <div class="takeaway">Weight and words still work when colours look alike</div>
 
