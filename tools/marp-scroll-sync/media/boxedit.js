@@ -909,7 +909,8 @@
     // 書き戻せなかった：原稿は変わらず再描画も来ない。見た目だけ残らないよう直前の確定を元へ戻す
     var c = lastCommit;
     lastCommit = null;
-    if (c.el.isConnected) { restore(c.el, c.before); refreshSel(); }
+    pendingConvert = null;
+    if (c.el.isConnected) { restore(c.el, c.before, c.props); refreshSel(); }
   });
 
   window.ssBoxEdit = {
