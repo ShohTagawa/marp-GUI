@@ -810,7 +810,7 @@ test('frontmatter style: つまみの判定は 引用符・url( )・{ の改行�
   expectKnob(['  :root', '  {', '    --y: 1;', '  }'], 4, '{ が次の行');
   expectKnob(['  :ROOT {', '    --y: 1;', '  }'], 3, '大文字');
   expectKnob(['  :root, section {', '    --y: 1;', '  }'], 3, 'セレクタの並記');
-  expectKnob(['  :root{--a:1;--b:2}'], 1, '1行で閉じる（ALC デックの形）');
+  expectKnob(['  :root{--a:1;--b:2}'], 1, '1行で閉じる（つまみを1行に詰めて書いたデックの形）');
   expectKnob(['  /* a', '     b { */', '  /* c } */', '', '  :root {', '    --y: 1;', '  }'], 7, '前に複数行のコメント');
   expectKnob(['\t:root {', '\t\t--y: 1;', '\t}'].concat([]), 3, 'タブの字下げ');
 
