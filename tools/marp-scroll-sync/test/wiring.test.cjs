@@ -560,7 +560,7 @@ test('corpus-vscode：索引の裏作成は多重起動しない／終わった�
   stub.disposeContext(c);
 });
 
-// ---------- 通し試験（e2e-flows）で見つけた不具合の再発防止 ----------
+// ---------- 通し試験（作者の手元の、配布しない試験）で見つけた不具合の再発防止 ----------
 test('サムネイルの html：タグの中の on*= と javascript: の URL を外す（Webview の CSP は unsafe-inline なので、入れると動く）', async () => {
   makeRepo();
   const C_REL = 'slides/20260803_Test_c/20260803_Test_c.md';
