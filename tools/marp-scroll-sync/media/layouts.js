@@ -57,7 +57,7 @@
   /** section の直下を読み、lib/layout-variants.cjs の analyzeSlide と同じ形の事実を返す */
   function analyze(section) {
     var a = { plain: true, reason: null, lists: 0, items: 0, ordered: false, hasStrongHead: false, headBreak: false, nested: false,
-      figures: 0, hasFigure: false, hasTable: false, paragraphs: 0, textChars: 0, maxItemChars: 0, hasTakeaway: false, layout: null };
+      figures: 0, hasFigure: false, hasTable: false, paragraphs: 0, textChars: 0, maxItemChars: 0, hasTakeaway: false, wrapped: false, layout: null };
     if (!section) { a.plain = false; a.reason = 'empty'; return a; }
     var cl = Array.prototype.slice.call(section.classList || []);
     cl.forEach(function (c) { if (LAY_RE.test(c)) a.layout = c; });
