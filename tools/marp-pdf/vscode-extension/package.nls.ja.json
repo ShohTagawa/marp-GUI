@@ -1,0 +1,10 @@
+{
+  "displayName": "Marp GUI（PDF＋プレゼン）",
+  "description": "開いている Marp .md を、📄 ボタンで落ちない分割ベクターPDF化／▶ ボタンで Chrome 全画面プレゼン。tools/ 配下の Node スクリプトを呼ぶだけのローカル拡張（mac / Windows 共通・マーケット非経由・依存ゼロ）。",
+  "command.present": "Marp: プレゼン（このスライドを Chrome で全画面）",
+  "command.exportPdf": "Marp: ベクターPDF出力（このスライド）",
+  "config.title": "Marp GUI PDF",
+  "config.chunkSize": "1チャンクのページ数。0でスクリプト既定(20)。PDFが落ちるなら 12 など小さくする。",
+  "config.chromePath": "Chrome/Edge 実行ファイルのパス。空なら OS ごとの標準インストール先を自動検出（mac: /Applications、Windows: Program Files）。",
+  "config.nodePath": "node 実行ファイルのパス。空なら PATH から探す（nvm 等で見つからないときだけ指定）。"
+}
