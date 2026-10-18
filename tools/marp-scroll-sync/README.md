@@ -216,6 +216,11 @@ _lib: day-agenda | 構成, アジェンダ | 2026-09-20
 <img src="./src/slido-qr.png" alt="…" style="width: 180px; height: 180px; translate: 40px 0px">
 ```
 
+**画像のトリミング**：開始タグの `style` 属性に `clip-path: inset(上 右 下 左)` と、切った辺だけの `margin-top` などを書く（値は元の余白から切った量を引いたもの）。元の `margin` 宣言は残すので、トリミングを外せば原稿は元に戻る。Markdown の画像は、画像だけの段落を `<p><img …></p>` に書き換えてから書く（alt の `w:` / `h:` は `width` / `height` へ、題名 `"…"` は `title` へ移す）。
+```html
+<p><img src="./src/fig.png" alt="図" style="width: 420px; clip-path: inset(40px 0 60px 0); margin-top: -40px; margin-bottom: -60px"></p>
+```
+
 **区画ラベル**：開始タグと**同じ行**の行末にだけ書く。単独行のコメントは発表者ノートに入るので書かない。
 ```html
 <div class="left"> <!-- ◀ 左パネル -->
