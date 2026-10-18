@@ -140,6 +140,7 @@ function analyzeSlide(slideText) {
   const lists = [];        // [{ ordered, items:[{ first, rest:[] }] }]
   let cur = null;          // いまの箇条書き
   let para = null;         // いまの段落（行の配列）
+  let wrapDepth = 0;       // 透過する包み（.body）の中にいるか
   const paras = [];
   const closePara = () => { if (para) { paras.push(para.join(' ')); para = null; } };
   const notPlain = (why) => { if (a.plain) { a.plain = false; a.reason = why; } };
