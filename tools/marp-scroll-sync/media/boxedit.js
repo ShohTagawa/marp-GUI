@@ -329,6 +329,7 @@
   }
   function select(el, keepStack) {
     flushKeys();
+    if (crop) commitCrop(false);   // 別の箱へ移る＝トリミングの確定
     if (!el) { deselect(); return false; }
     var t = targetOf(el);
     var svg = slideSvgOf(el);
