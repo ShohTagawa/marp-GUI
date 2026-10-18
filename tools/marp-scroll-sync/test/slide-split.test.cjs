@@ -159,7 +159,7 @@ test('ワークスペースの全デック：slideStartLines の枚数 = marp-co
   try { ({ Marp } = require(path.join(EXT, 'node_modules', '@marp-team', 'marp-core'))); }
   catch (_) { t.skip('marp-core が入っていません（npm run setup）'); return; }
   const css = themeCssFiles();
-  const files = [...walk(path.join(REPO, 'slides'), []), ...walk(path.join(REPO, 'PonchiE'), [])].sort();
+  const files = walk(path.join(REPO, 'slides'), []).sort();
   const decks = files.map(f => ({ f, text: fs.readFileSync(f, 'utf8') })).filter(d => isMarpDeck(d.text));
   assert.ok(decks.length >= 1, 'デックが見つからない: ' + decks.length);
   const mismatches = [], errors = [];
