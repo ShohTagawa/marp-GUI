@@ -406,6 +406,6 @@ function planSetLayout(text, index, cls) {
 }
 
 module.exports = {
-  LAYOUTS, BASE, PATTERN_CLASSES, LAY_RE, NOT_PLAIN_TEXT,
+  LAYOUTS, BASE, PATTERN_CLASSES, LAY_RE, NOT_PLAIN_TEXT, SIDE_CLASSES, WRAP_CLASS, WRAP_EXTRA,
   analyzeSlide, variantsFor, matches, planSetLayout, browserTable, readClassDirective,
 };
