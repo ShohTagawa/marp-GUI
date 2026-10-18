@@ -110,8 +110,9 @@ section > header .hdr-left {
 section.cover-hero { --hdr-left-w: fit-content; }
 
 section .page-title {
-  /* 「中心位置」で指定する。左端合わせの計算（--pt-left）は不要になる */
-  left: var(--pt-center);
+  /* left は帯の「中心位置」（translateX(-50%) で左へ戻す）。
+     --pt-center を書いたデック＝その位置（従来）／書かないデック＝題字帯に噛み合わせた帯の中心 */
+  left: var(--pt-center, calc(var(--pt-left) + var(--pt-width) / 2));
   transform: translateX(-50%);
   width: var(--pt-width, fit-content);
   max-width: var(--pt-max);
