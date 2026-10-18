@@ -248,6 +248,83 @@ test('mdimg：alt のキーワードだけを差し替える・足す・消す',
 
 
 
+test('トリミング：clip-path: inset と margin-*（辺ごと）を書く・全部 0 で消す・他の宣言と順序を保つ', () => {
+  const src = wrap('<div class="fig">\n<img src="./src/a.png" alt="図" style="color: red; margin: 0 auto">\n<img src="./src/b.png">\n</div>');
+  const range = rangeOf(src, 1);
+  const before = render(src);
+  const tA = { kind: 'html', hline: lineOfStr(src, '<img src="./src/a'), nth: 0, tag: 'img' };
+  const tB = { kind: 'html', hline: lineOfStr(src, '<img src="./src/b'), nth: 0, tag: 'img' };
+  // 元の margin 宣言（0 auto）は残し、切った辺だけ longhand で詰める
+  let p = planStyleEdit(src, range, tA, { clipPath: [40, 0, 60.4, 0], margin: { top: -40, bottom: -60 } });
+  assert.ok(p.ok, p.reason);
+  let tag = assertRoundTrip(src, before, tA, p, 'crop A');
+  assert.strictEqual(styleOf(tag), 'color: red; margin: 0 auto; clip-path: inset(40px 0 60px 0); margin-top: -40px; margin-bottom: -60px');
+  const src2 = SM.applyEdits(src, p.edits);
+  // 切り直しても宣言は増えない。左を足すと margin-left が末尾に足される
+  p = planStyleEdit(src2, range, tA, { clipPath: [10, 0, 60, 5], margin: { top: -10, bottom: -60, left: -5 } });
+  const src3 = SM.applyEdits(src2, p.edits);
+  assert.ok(src3.includes('style="color: red; margin: 0 auto; clip-path: inset(10px 0 60px 5px); margin-top: -10px; margin-bottom: -60px; margin-left: -5px"'), src3);
+  assert.strictEqual(src3.split('clip-path').length, 2);
+  // 全部 0 なら clip-path を消す。margin は null の辺だけ消す（元の margin: 0 auto は残る）
+  p = planStyleEdit(src3, range, tA, { clipPath: [0, 0, 0, 0], margin: { top: null, bottom: null, left: null } });
+  assert.strictEqual(SM.applyEdits(src3, p.edits), src, '外すと元の原稿に戻る');
+  p = planStyleEdit(src3, range, tA, { clipPath: null, margin: null });
+  assert.strictEqual(SM.applyEdits(src3, p.edits), src, 'margin:null は 4 辺とも消す');
+  // style の無い要素：足して外すと元へ。!important
+  p = planStyleEdit(src, range, tB, { clipPath: [0, 30, 0, 0], margin: { right: -30 }, important: true });
+  tag = assertRoundTrip(src, before, tB, p, 'crop B');
+  assert.strictEqual(styleOf(tag), 'clip-path: inset(0 30px 0 0) !important; margin-right: -30px !important');
+  const srcB = SM.applyEdits(src, p.edits);
+  p = planStyleEdit(srcB, range, tB, { clipPath: [0, 0, 0, 0], margin: { right: null } });
+  assert.strictEqual(SM.applyEdits(srcB, p.edits), src);
+  // 移動・大きさと同時でも順序を保つ（translate / width / height が先）
+  assert.strictEqual(mergeStyleValue('color: red', { translate: '1px 2px', width: '9px', 'clip-path': 'inset(1px 0 0 0)', 'margin-top': '-1px' }, false),
+    'color: red; translate: 1px 2px; width: 9px; clip-path: inset(1px 0 0 0); margin-top: -1px');
+  // おかしな値は書かない
+  for (const bad of [{ clipPath: [1, 2, 3] }, { clipPath: [-1, 0, 0, 0] }, { clipPath: 'inset(1px)' }, { margin: [1, 2, 3, 4] }, { margin: { top: 'x' } }]) {
+    assert.strictEqual(planStyleEdit(src, range, tA, bad).reason, 'bad-style', JSON.stringify(bad));
+  }
+});
+
+test('トリミング：Markdown の画像は <p><img …></p> に書き換えてから書く（alt の w: / h: は width / height へ）', () => {
+  const body = '<div class="page-title">図</div>\n\n![w:420 h:300 地球 の図](./src/fig\\_1.png "題")\n\n![w:50% 横長](<./src/b c.png>)\n\n説明 ![w:100](./src/in.png) の図\n\n![w:100 sepia](./src/f.png)';
+  for (const eol of ['\n', '\r\n']) {
+    const src = wrap(body).split('\n').join(eol);
+    const range = rangeOf(src, 1);
+    const before = render(src);
+    const L = lineOfStr(src, '![w:420');
+    const crop = { clipPath: [40, 0, 60, 0], margin: { top: -40, bottom: -60 } };
+    const p = planStyleEdit(src, range, { kind: 'mdimg', line: L, nth: 0, src: 'fig_1.png' }, crop);
+    assert.ok(p.ok, p.reason);
+    assert.strictEqual(p.converted, true);
+    assert.strictEqual(p.edits.length, 1, '1 回の編集（⌘Z 1 回）');
+    const out = SM.applyEdits(src, p.edits);
+    const want = '<p><img src="./src/fig_1.png" alt="地球 の図" title="題" style="width: 420px; height: 300px; clip-path: inset(40px 0 60px 0); margin-top: -40px; margin-bottom: -60px"></p>';
+    assert.strictEqual(out.split(eol)[L], want);
+    // 描き直し：枚数・ノートは変わらず、<img> は data-hline つき（以後プレビューで選べる）で style が効く
+    const after = render(out);
+    assert.deepStrictEqual(after.comments, before.comments);
+    assert.strictEqual(slideRanges(out).length, slideRanges(src).length);
+    const tg = htmlTargets(after.html, range).filter(t => t.hline === L);
+    assert.deepStrictEqual(tg.map(t => t.tag + t.nth), ['p0', 'img1']);
+    assert.match(after.html, /<img [^>]*src="\.\/src\/fig_1\.png"[^>]*style="width: 420px; height: 300px; clip-path: inset\(40px 0 60px 0\); margin-top: -40px; margin-bottom: -60px"/);
+    // 書き換えた後は html の対象として外せる（大きさは残る）
+    const back = planStyleEdit(out, range, { kind: 'html', hline: L, nth: 1, tag: 'img' }, { clipPath: [0, 0, 0, 0], margin: { top: null, bottom: null } });
+    assert.ok(SM.applyEdits(out, back.edits).includes('<p><img src="./src/fig_1.png" alt="地球 の図" title="題" style="width: 420px; height: 300px"></p>'));
+    // 単位つき・山かっこの src
+    const L2 = lineOfStr(src, '![w:50%');
+    const p2 = planStyleEdit(src, range, { kind: 'mdimg', line: L2, nth: 0, src: 'b%20c.png' }, { clipPath: [0, 0, 0, 12], margin: { left: -12 } });
+    assert.strictEqual(SM.applyEdits(src, p2.edits).split(eol)[L2], '<p><img src="./src/b c.png" alt="横長" style="width: 50%; clip-path: inset(0 0 0 12px); margin-left: -12px"></p>');
+    // 文と同じ段落・フィルタつきは書かない。トリミングを外すだけ（clipPath:null）なら何もしない
+    assert.strictEqual(planStyleEdit(src, range, { kind: 'mdimg', line: lineOfStr(src, '説明 '), nth: 0, src: 'in.png' }, crop).reason, 'mdimg-inline');
+    assert.strictEqual(planStyleEdit(src, range, { kind: 'mdimg', line: lineOfStr(src, '![w:100 sepia'), nth: 0, src: 'f.png' }, crop).reason, 'mdimg-keywords');
+    const none = planStyleEdit(src, range, { kind: 'mdimg', line: L, nth: 0, src: 'fig_1.png' }, { clipPath: null, margin: null });
+    assert.ok(none.ok); assert.deepStrictEqual(none.edits, []);
+    // 位置はこれまでどおり書けない
+    assert.strictEqual(planStyleEdit(src, range, { kind: 'mdimg', line: L, nth: 0, src: 'fig_1.png' }, Object.assign({ translate: [3, 0] }, crop)).reason, 'mdimg-move');
+  }
+});
+
 // ---------------------------------------------------------------------------
 // 見本デック（読むだけ）
 // ---------------------------------------------------------------------------
