@@ -6,5 +6,7 @@
   "config.title": "Marp GUI PDF",
   "config.chunkSize": "Pages printed per chunk. 0 uses the script default (20). If PDF export fails, use a smaller value such as 12.",
   "config.chromePath": "Path to the Chrome/Edge executable. Empty = auto-detect the standard install location for the OS (macOS: /Applications, Windows: Program Files).",
-  "config.nodePath": "Path to the node executable. Empty = search PATH (set it only when node cannot be found, e.g. with nvm)."
+  "config.nodePath": "Path to the node executable. Empty = search PATH (set it only when node cannot be found, e.g. with nvm). User settings only: a folder's own settings cannot change it.",
+  "capabilities.untrustedWorkspaces": "Runs the Node scripts under tools/ of the opened folder, so it works only in folders you trust.",
+  "capabilities.virtualWorkspaces": "Runs local Node scripts, so it does not work on virtual file systems."
 }
