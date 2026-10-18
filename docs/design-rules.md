@@ -98,7 +98,7 @@ node tools/tsutawaru-lint.mjs <file.md|dir>... [--summary] [--lang ja|en]
 | Put related items close together so that they read as a group. | — | p.154 | handbook | `lay-fig-top` |
 | Leave about one line between a figure and its caption. | — | p.157 | handbook | theme §9 (captions) |
 | The jump ratio (heading size over body size) sets the hierarchy; make low-priority text clearly smaller. | — | p.160 | handbook | theme |
-| Emphasise fewer places to make the contrast clear; mark a heading with weight and a short rule rather than a frame. | — | p.161 | handbook | theme (headings, bold) |
+| Emphasise fewer places to make the contrast clear; mark a heading with weight and a short rule rather than a frame. | — | p.161 | handbook | theme §3, §6 (headings, bold) |
 | Horizontal text is read from top left to bottom right; show order with boxes, arrows or numbers. | — | p.166, p.167 | handbook | `lay-fig-left`, `lay-steps` |
 | Keep boxes to a minimum; when boxes are used, align them, space them evenly and keep their corners modest. | rules 1, 2 | p.174, p.175 | handbook | lint; theme §5; `lay-boxed`, `lay-keyrow`, `lay-cards3` |
 | Wide slides make lines too long: put a figure beside the text, so that the text takes about one half to two thirds of the width. | — | p.179 | handbook | theme (line length, `.tcols`); `lay-fig-right`, `lay-fig-left` |
