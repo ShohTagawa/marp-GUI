@@ -124,7 +124,7 @@ test('slideMeta: 複数行ディレクティブの _class（複数クラス）�
   assert.strictEqual(slideMeta(lines, 4, 5).marked, false);
 });
 
-// ---------------------------------------------------------------- 実デック全数（marp-core の実描画枚数と突き合わせ）
+// ---------------------------------------------------------------- slides/ のデック全数（marp-core の実描画枚数と突き合わせ）
 
 function walk(dir, out) {
   let ents;
