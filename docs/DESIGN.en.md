@@ -68,7 +68,7 @@ Size/colour wraps a one-line selection in `<span class="ss-tune" style="font-siz
 
 ## 7. Box editing
 
-With Alt held, `media/boxedit.js` outlines the HTML element under the pointer; Alt+click selects it with eight handles. Drag moves, handles resize (aspect ratio kept for `img`, `svg`, `video`, `canvas`), arrows move 1 px (Shift: 10 px), Alt+↑/↓ select the parent/child, `0` resets; moves snap within 6 px to centre lines and sibling edges unless Cmd/Ctrl is held. During a drag only the Webview DOM changes; on release one `boxCommit` is sent in 1280×720 slide pixels.
+With Alt held, `media/boxedit.js` outlines the HTML element under the pointer; Alt+click selects it. Drag moves, handles resize (aspect ratio kept for images, SVG and video), arrows nudge, Alt+↑/↓ select the parent/child, `0` resets, and moves snap to centre lines and sibling edges. During a drag only the Webview DOM changes; on release one `boxCommit` is sent in 1280×720 slide pixels.
 
 `lib/style-edit.cjs` writes position as the CSS `translate` property (visual only; removed at 0,0) and size as `width`/`height` in the element's `style` attribute, keeping other declarations and their order, with `!important` when the Webview finds the deck's CSS winning. An element is identified by its `data-hline`, its rank among elements on that line and its tag name; opening tags are counted twice (from the slide start and from the preceding blank line) and the edit is written only if both agree. Markdown images can only be resized (`w:`/`h:` in the alt text); Markdown paragraphs, items and headings cannot be box-edited.
 
