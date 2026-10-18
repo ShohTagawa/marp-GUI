@@ -62,7 +62,8 @@
         "marpGui.chromePath": {
           "type": "string",
           "default": "",
-          "description": "%config.chromePath%"
+          "description": "%config.chromePath%",
+          "scope": "machine"
         },
         "marpGui.nodePath": {
           "type": "string",
