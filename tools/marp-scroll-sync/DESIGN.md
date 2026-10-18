@@ -34,6 +34,7 @@ tools/marp-scroll-sync/
   lib/style-edit.cjs        箱の位置と大きさ・画像のトリミングを、開始タグの style 属性（Markdown の画像は alt。トリミングは <p><img> に書き換えて）へ書く編集を計算する（純粋）。9.2 / 9.3 / 9.6
   media/preview.css         プレビュー専用 UI の CSS（すべて ss- 接頭辞。デックの CSS と衝突させない）
   test/*.test.cjs           node --test。ブラウザが要るものは puppeteer-core（リポジトリ直下の node_modules）＋手元の Chrome
+                            （cli-tools.test.cjs だけは拡張の外の tools/lib/marp-env.mjs・present.mjs・marp-pdf 拡張の manifest を見る）
 tools/marp-library.mjs      CLI：台帳生成・サムネイル・候補出し・挿入（Claude からも使う）。library-core を import
 slides/_library/index.json  台帳（生成物）。thumbs/<id>.png。ここに marp:true の md は置かない
 slides/_library/corpus.json 全スライドの索引（生成物。.gitignore）
