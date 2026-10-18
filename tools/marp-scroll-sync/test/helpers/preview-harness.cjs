@@ -89,7 +89,7 @@ const DECK_TSUTAWARU = path.join(REPO_ROOT, 'slides', 'sample-layouts', 'sample-
 
 /**
  * corpusResults メッセージの材料を作る。拡張（7.4）と同じく、デックごとに marp-core で 1 回描いてスライド単位の svg に切る。
- *   opts.decks … 原稿の絶対パスの配列（既定：ALC と tsutawaru）
+ *   opts.decks … 原稿の絶対パスの配列（既定：sample-lecture と sample-layouts）
  *   opts.per   … 1 デックから先頭何枚を使うか（既定 4）
  * 戻り値 { items, css }。items は 7.4 の形。sameTheme は 1 本目のデックを「貼り付け先と同じテーマ」とみなす。
  */
