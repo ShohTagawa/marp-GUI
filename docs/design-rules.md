@@ -121,7 +121,7 @@ node tools/tsutawaru-lint.mjs <file.md|dir>... [--summary] [--lang ja|en]
 | Flowcharts: little colour in fills and outlines, boxes of one size, arrows that do not dominate. | — | p.206 | handbook | theme §8 `.flow`; `lay-flow` |
 | Dense data: rows separated by horizontal rules only, numbers large and right-aligned, units small. | — | p.207 | handbook | theme `.datarow` |
 | Charts and figures in two columns, which halves the line length; one highlighted series; an underline marker for emphasis. | — | p.208 | handbook | theme `.tcols`, `.mark` |
-| Keep a figure, its caption and its explanation together as one group. | — | p.209 | handbook | theme (figures) |
+| Keep a figure, its caption and its explanation together as one group. | — | p.209 | handbook | theme §9 (figures) |
 | Too many boxes is a clear mistake; the alternatives are a fill only, a thin rule only, or a group without any box. | rule 1 | p.212 | handbook | lint; theme §5 |
 | Two columns keep lines short on wide pages. | — | p.214 | handbook | theme `.tcols` |
 | Group by whitespace instead of frames. | — | p.220 | handbook | theme `.group`, `.keyrow` |
