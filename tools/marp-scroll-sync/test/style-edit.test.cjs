@@ -4,7 +4,7 @@
 //
 // いちばん大事なのは「往復」：編集を当てた原稿を marp-core で描き直したとき、
 //   (a) 発表者ノートが増えない (b) 枚数が変わらない (c) 対象の開始タグだけが変わり、ほかは 1 バイトも変わらない。
-// ブラウザは使わない（描画結果の HTML を source-map.cjs の eachOpenTag で読む）。実デックは読むだけ。
+// ブラウザは使わない（描画結果の HTML を source-map.cjs の eachOpenTag で読む）。見本デックは読むだけ。
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert');
@@ -249,7 +249,7 @@ test('mdimg：alt のキーワードだけを差し替える・足す・消す',
 
 
 // ---------------------------------------------------------------------------
-// 実デック（読むだけ）
+// 見本デック（読むだけ）
 // ---------------------------------------------------------------------------
 function realDeck(name, slideIdxs, mustContain) {
   const file = deckPath(name);
