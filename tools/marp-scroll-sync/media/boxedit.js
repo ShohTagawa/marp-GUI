@@ -689,13 +689,16 @@
     var g = startGesture(sel.el);
     if (!g) return;
     drag = { g: g, mode: mode, x0: ev.clientX, y0: ev.clientY, moved: false, pending: null, pid: ev.pointerId,
-      noMove: mode === 'move' && sel.target.kind === 'mdimg' };
+      noMove: mode === 'move' && sel.target.kind === 'mdimg',
+      crop: !!crop, cut0: crop ? crop.cut.slice() : null };
+    if (crop && mode !== 'move') crop.last = mode;   // 矢印キーはこの縁を動かす
     try { selBox.setPointerCapture(ev.pointerId); } catch (_) { /* 無くても window で拾う */ }
     setRoot();
   }
   function cancelDrag() {
     if (!drag) return;
-    restore(drag.g.el, drag.g.before);
+    if (drag.crop) { if (crop) { crop.cut = drag.cut0.slice(); writeCrop(crop); } }
+    else restore(drag.g.el, drag.g.before);
     endDrag();
   }
   function endDrag() {
