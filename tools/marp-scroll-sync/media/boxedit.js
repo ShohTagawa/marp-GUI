@@ -387,7 +387,7 @@
     if (before.width[0] !== after.width[0] || before.width[1] !== after.width[1]) style.width = st.width;
     if (before.height[0] !== after.height[0] || before.height[1] !== after.height[1]) style.height = st.height;
     style.important = !!important;
-    lastCommit = { el: b.el, before: b.s };
+    lastCommit = { el: b.el, before: b.s, props: PROPS };
     P.post({ type: 'boxCommit', index: sel.index, version: P.version(), target: sel.target, style: style });
     stats.commitMs = performance.now() - t0;
     return true;
