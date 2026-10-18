@@ -240,7 +240,7 @@ _lib: alc-agenda | 構成, アジェンダ | 2026-09-20
   - query は空白区切りの AND。NFKC・小文字化した題名・本文・タグ・デック名・型に対する部分一致（日本語なので分かち書きはしない）。題名の一致を重く見る。query が空なら score 順。
 - `corpusPath(repoRoot)` = `slides/_library/corpus.json`（生成物。`.gitignore` に入れる）。`readCorpus` / `writeCorpus`。
 - CLI（tools/marp-library.mjs）：`corpus [--no-churn]`（索引を作り直す）、`search <語…> [--marked] [--sort score|recent] [--theme x] [--top N] [--json]`。`search --no-shelf`（棚を先頭に出さない）。挿入は既存の `insert --from <md> --slide <n> --into <md> --after <n>`（`--keep-typo` は未対応）。`npm run library` は index＋thumbs＋corpus、`npm run corpus` は corpus だけ。
-- 実測（165 デック・4,070 枚）：churn 抜き・cache なし 0.4〜0.5 秒、cache あり 約 0.12 秒、churn つき 約 6.4 秒、検索 1 回 5ms 以下。
+- 実測（作者の手元の、配布しないデック群 165 デック・4,070 枚）：churn 抜き・cache なし 0.4〜0.5 秒、cache あり 約 0.12 秒、churn つき 約 6.4 秒、検索 1 回 5ms 以下。
 
 ### 7.2 テーマをまたぐ挿入（lib/library-core.cjs の adaptSlide）と、はみ出し検知（media/overflow.js）
 
