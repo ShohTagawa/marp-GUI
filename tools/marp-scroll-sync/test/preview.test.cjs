@@ -1801,7 +1801,7 @@ test('編集中の patch は保留して 1 件にまとめ、確定/破棄のあ
 });
 
 test('速さ（8.4）：80 枚のデックで、1 枚の patch の適用が 50ms 以内。render（全体差し替え）との実測比', async (t) => {
-  // 実デックの先頭 10 枚を 8 回くり返して 80 枚にする（図・画像つきの実際の重さで測る）
+  // 見本デックの先頭 10 枚を 8 回くり返して 80 枚にする（図・画像つきの実際の重さで測る）
   const src = H.deckSource(10);
   const fmEnd = src.indexOf('\n---', 3) + 4;
   const body = src.slice(fmEnd).replace(/^\s*\n/, '');
