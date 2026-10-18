@@ -334,19 +334,21 @@ function readDest(s, open, limit) {
     src = s.slice(from, i);
   }
   while (i < limit && /\s/.test(s[i])) i++;
+  let title = null;
   if (s[i] === '"' || s[i] === "'" || s[i] === '(') {
     const close = s[i] === '(' ? ')' : s[i];
     let q = i + 1;
     while (q < limit && (s[q] !== close || escaped(s, q))) q++;
     if (q >= limit) return null;
+    title = s.slice(i + 1, q);
     i = q + 1;
     while (i < limit && /\s/.test(s[i])) i++;
   }
   if (i >= limit || s[i] !== ')') return null;
-  return { src, end: i + 1 };
+  return { src, title, end: i + 1 };
 }
 
-/** 段落 [from, to) の中の Markdown 画像を前から順に。{ altStart, altEnd, src|null（参照形式）} */
+/** 段落 [from, to) の中の Markdown 画像を前から順に。{ start, end, altStart, altEnd, src|null（参照形式）, title } */
 function scanImages(text, from, to, hasRefDef) {
   const out = [];
   let i = from;
