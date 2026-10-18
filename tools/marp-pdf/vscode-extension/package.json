@@ -45,11 +45,6 @@
     "menus": {
       "editor/title": [
         {
-          "command": "marpGui.present",
-          "when": "editorLangId == markdown && marpScrollSync.isMarp",
-          "group": "navigation@98"
-        },
-        {
           "command": "marpGui.exportPdf",
           "when": "editorLangId == markdown && marpScrollSync.isMarp",
           "group": "navigation@99"
