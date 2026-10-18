@@ -41,7 +41,7 @@ marp-GUI の見本デック。テーマそのものを説明する。色の比�
 
 ## 帯の色を、3つの見え方で並べました
 
-<svg viewBox="0 0 1120 345" width="1120" height="345" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="帯の色を、一般色覚・P型・D型の見え方で並べた図。下線は、いちばん近い2色">
+<svg viewBox="0 0 1120 356" width="1120" height="356" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="帯の色を、一般色覚・P型・D型の見え方で並べた図。下線は、いちばん近い2色">
 <text x="150" y="22" font-size="22" font-weight="700" fill="var(--ink, #333333)">tsutawaru-simple</text>
 <text x="660" y="22" font-size="22" font-weight="700" fill="var(--ink, #333333)">tsutawaru-simple-cud</text>
 <text x="0" y="74" font-size="22" font-weight="700" fill="var(--ink, #333333)">一般色覚</text>
