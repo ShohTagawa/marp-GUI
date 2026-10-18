@@ -955,7 +955,7 @@ section.slido.big ul > li > strong:first-child { font-size: 33px; }
 .qr.lg { --qr-size: 250px; }
 
 /* ---- 13-9 出典：.attr（外部の図の下）と .chips / .src-row（出典リンク）------------
-   <div class="attr">出典：…</div>   ← CLAUDE.md が外部図に必須とする行。補足サイズ 19px。
+   <div class="attr">出典：…</div>   ← 外部の図には必ず付ける行（このリポジトリの決まり）。補足サイズ 19px。
    <div class="src-row"><p class="note">注記</p><div class="chips"><a class="fill tight" href="…">指針 PDF</a></div></div>
    チップは3つまで。リンクは色を変えず下線だけ（3色運用）。
    元：実デックの .chips と .src-row。旧版の .attr/.srcline/.src（13〜17px）は採らない。 */
