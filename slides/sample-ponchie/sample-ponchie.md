@@ -89,7 +89,7 @@ footer: ''
 <text x="56" y="372" font-size="20" fill="var(--ink, #1f2937)"><tspan x="56">Theory suggests tens to a</tspan><tspan x="56" dy="26">hundred times as much water</tspan></text>
 <path d="M56 432H384" fill="none" stroke="#FFFFFF" stroke-width="3"/>
 <text x="56" y="474" font-size="28" font-weight="700" fill="var(--accent-dark, #125642)">About 8% lighter</text>
-<text x="56" y="508" font-size="20" fill="var(--ink, #1f2937)"><tspan x="56">The core is less dense than</tspan><tspan x="56" dy="26">pure iron: open for ~70 years</tspan></text>
+<text x="56" y="508" font-size="20" fill="var(--ink, #1f2937)"><tspan x="56">The core is less dense than</tspan><tspan x="56" dy="26">pure iron; unsolved for</tspan><tspan x="56" dy="26">about 70 years</tspan></text>
 <path d="M414 334H430L446 354L430 374H414L430 354Z" fill="var(--accent, #1A7A5E)"/>
 <rect x="452" y="124" width="376" height="460" rx="8" fill="#FFFFFF" stroke="var(--accent-soft, #E4F2EC)" stroke-width="3" filter="url(#pon-en-2-shadow)"/>
 <circle cx="486" cy="160" r="18" fill="var(--accent, #1A7A5E)"/>
