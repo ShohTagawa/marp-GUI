@@ -14,7 +14,7 @@
 // 排他の仕組み：preview.js の click / dblclick / mouseover / mousemove は document、layouts.js の contextmenu と
 //   preview.js の keydown は window の泡の段で聞いている。ここは全部 window の capture で先に受け、
 //   箱の操作に使った分だけ stopImmediatePropagation する（preview.js 側には手を入れない）。
-// 公開：window.ssBoxEdit = { select(el), deselect(), selected(), targetOf(el), flush(), stats }
+// 公開：window.ssBoxEdit = { select(el), deselect(), selected(), targetOf(el), flush(), cropState(), stats }
 (function () {
   'use strict';
   var P = window.ssPreview;
