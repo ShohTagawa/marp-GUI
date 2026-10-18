@@ -90,7 +90,7 @@
 
     // 下端固定の takeaway（absolute のもの）は床を決める。流し込みの takeaway（summary 型など）は床を決めないが、
     // 高さの決まった入れ物（flex で伸びる .sections など）から本文があふれると帯の下へ潜るので、重なりだけ見る
-    // （実測：実デックで QR を大きくすると、注意書きが帯に隠れる）
+    // （実測：作者の手元のデックで QR を大きくすると、注意書きが帯に隠れる）
     var takeaways = [], flowTakeaways = [];
     var tks = section.querySelectorAll('.takeaway');
     for (var i = 0; i < tks.length; i++) {
