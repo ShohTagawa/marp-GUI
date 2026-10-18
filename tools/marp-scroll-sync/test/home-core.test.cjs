@@ -34,6 +34,15 @@ test('mostEdited：直した回数 → 行数 → 新しい順。重複（dupOf�
   assert.ok(!r.items.some(i => i.key.endsWith('C.md#1')), '直していない変換のままは出ない');
 });
 
+test('mostEdited：同点はデックの順、同じデックの中はスライド番号を数として比べる（#2 が #10 より先）', () => {
+  const same = { churn: { touched: 2, lines: 7, last: '2026-06-01' }, score: 1, date: '2026-06-01' };
+  const D = { entries: [19, 10, 2, 11, 1].map(n => E('D', n, Object.assign({}, same))).concat([E('A', 10, Object.assign({}, same)), E('A', 9, Object.assign({}, same))]) };
+  const order = (sort) => home.mostEdited(D, { sort, limit: 10 }).items.map(i => i.key.replace(/^slides\/(.)\/.*#/, '$1#'));
+  for (const sort of ['touched', 'human', 'score', 'recent']) {
+    assert.deepEqual(order(sort), ['A#9', 'A#10', 'D#1', 'D#2', 'D#10', 'D#11', 'D#19'], sort);
+  }
+});
+
 test('mostEdited：sort=score なら ★ が先頭、sort=recent なら最後に直した日の順。offset/limit が効く', () => {
   const s = home.mostEdited(C, { sort: 'score', limit: 2 });
   assert.equal(s.items[0].key, 'slides/A/A.md#3'); assert.equal(s.items[0].marked, true);
