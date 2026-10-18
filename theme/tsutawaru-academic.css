@@ -852,14 +852,14 @@ section.handson-2.flip > .takeaway { grid-column: 1; }
    そのとき、同じ箇条書きの行頭が太字の項目はすべて見出し扱いになる。
    「- **語**：説明」のように同じ行に続けて書く箇条書きは、●つきのまま変わらない。
    文中の太字は ** でなく <b> で書く（li の最初の要素が ** だと見出しと見分けられない）。
-   元：実デック13本の frontmatter。:where() で詳細度を素の li と同じに留める。 */
+   元：既存デック13本の frontmatter。:where() で詳細度を素の li と同じに留める。 */
 section ul:where(:has(> li > strong:first-child + br)) > li:where(:has(> strong:first-child))::before { content: none; }
 section ul:where(:has(> li > strong:first-child + br)) > li:where(:has(> strong:first-child)) { padding-left: 0; margin: 0 0 var(--gap-group); }
 section ul:where(:has(> li > strong:first-child + br)) > li > strong:first-child { display: block; line-height: 1.6; }
 section ul > li > strong:first-child + br { display: none; }
 
 /* ---- 13-2 .boxed：箇条書きの各項目を塗りで囲む（目標・ねらいの1枚だけ。3項目まで）----
-   <div class="boxed"> の中に素の箇条書きを置く。元：実デック3本（同文）。 */
+   <div class="boxed"> の中に素の箇条書きを置く。元：既存デック3本（同文）。 */
 .boxed ul > li {
   background: var(--fill); border-radius: var(--radius);
   padding: 11px 20px; margin: 0 0 11px;
@@ -870,7 +870,7 @@ section ul > li > strong:first-child + br { display: none; }
 
 /* ---- 13-3 .ex：具体例・補足の塗り（1枚に1つまで）------------------------------
    主張は箇条書き、具体例はこの枠、と分ける。<div class="ex">例：…</div>
-   div に限る（カードの中の span.ex は別物）。元：実デック2本（色の直値を変数に直した）。 */
+   div に限る（カードの中の span.ex は別物）。元：既存デック2本（色の直値を変数に直した）。 */
 :where(div).ex {
   background: var(--fill); border-radius: var(--radius);
   padding: .55em .95em; margin: .5em 0 0;
@@ -879,7 +879,7 @@ section ul > li > strong:first-child + br { display: none; }
 :where(div).ex b { color: var(--ink); }
 
 /* ---- 13-4 .grid3：.grid2 の3列版（1段・子は3つまで）---------------------------
-   中身は .fill ＋ .t/.d。図＋キャプションなら .figrow を使う。元：実デック11本の .grid3。 */
+   中身は .fill ＋ .t/.d。図＋キャプションなら .figrow を使う。元：既存デック11本の .grid3。 */
 .grid3 {
   display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px var(--gap-group);
@@ -892,7 +892,7 @@ section ul > li > strong:first-child + br { display: none; }
 
 /* ---- 13-5 .keyrow：名前＋一言の見出し列。上罫だけで囲まない（3つまで）-----------
    <div class="keyrow"><div><p class="t">名前</p><p class="d">一言</p></div>…</div>
-   元：実デックの .apps/.an/.aw（汎用名に改め、テーマの .t/.d を使う）。 */
+   元：既存デックの .apps/.an/.aw（汎用名に改め、テーマの .t/.d を使う）。 */
 .keyrow {
   display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1em var(--gap-group); margin: .3em 0 1.2em;   /* 行の間隔は、4つ以上を入れてしまったときの保険 */
@@ -904,7 +904,7 @@ section ul > li > strong:first-child + br { display: none; }
 /* ---- 13-6 フローの「いまここ」：.fbox.now ＋ .nowtag（1枚に1か所）---------------
    <div class="fbox now"><span class="nowtag">いまここ</span>…</div>
    ラベルが箱の上にはみ出すぶん、フローを自動で下げる。色は --now-bg / --now-ink で変えられる。
-   元：実デック（直値ピンク・999px の丸は採らない）。 */
+   元：既存デック（直値ピンク・999px の丸は採らない）。 */
 section { --now-bg: var(--accent-soft); --now-ink: var(--accent); }
 .flow:where(:has(> .fbox.now)) { margin-top: 1.45em; }
 .flow > .fbox.now {
@@ -922,7 +922,7 @@ section { --now-bg: var(--accent-soft); --now-ink: var(--accent); }
 /* ---- 13-7 会場への設問スライド：<!-- _class: slido -->（大きくするなら slido big）----
    設問は素の箇条書き「- **設問文<span class="qtag">択一</span>**」で書く（補足は次の行に続ける）。
    1枚2〜3問まで。全画面型（message / qa と同じ扱い）なので文字サイズ3種の例外。
-   元：実デック3本（同文。qtag の丸みだけ --radius に直した）。 */
+   元：既存デック3本（同文。qtag の丸みだけ --radius に直した）。 */
 section.slido { font-size: 25px; --measure: 42em; }   /* 設問文は全幅で折る */
 section.slido h1, section.slido h2 { font-size: 38px; }
 section.slido ul > li::before { content: none; }
@@ -947,7 +947,7 @@ section.slido.big ul > li > strong:first-child { font-size: 33px; }
 /* ---- 13-8 QR を右に置く：.tcols.qr-right ＋ .qr ------------------------------
    <div class="tcols qr-right"><div>…本文…</div><div class="qr"><img …><div class="cap">参加コード</div></div></div>
    QR に枠は付けない（白地の上）。URL・コードは .cap（19px）。
-   元：実デックの style 直書き（13〜17px の旧版は採らない）。 */
+   元：既存デックの style 直書き（13〜17px の旧版は採らない）。 */
 .tcols.qr-right { grid-template-columns: 2.6fr 1fr; align-items: center; }
 .qr { align-self: center; text-align: center; }
 .qr img { height: var(--qr-size); width: auto; display: block; margin: 0 auto; }
@@ -958,7 +958,7 @@ section.slido.big ul > li > strong:first-child { font-size: 33px; }
    <div class="attr">出典：…</div>   ← 外部の図には必ず付ける行（このリポジトリの決まり）。補足サイズ 19px。
    <div class="src-row"><p class="note">注記</p><div class="chips"><a class="fill tight" href="…">指針 PDF</a></div></div>
    チップは3つまで。リンクは色を変えず下線だけ（3色運用）。
-   元：実デックの .chips と .src-row。旧版の .attr/.srcline/.src（13〜17px）は採らない。 */
+   元：既存デックの .chips と .src-row。旧版の .attr/.srcline/.src（13〜17px）は採らない。 */
 .attr {
   font-size: 19px; color: var(--ink-weak); line-height: 1.55; letter-spacing: 0.03em;
   margin: .4em 0 0; max-width: none;
@@ -973,17 +973,17 @@ section.slido.big ul > li > strong:first-child { font-size: 33px; }
 .src-row .chips { flex: 0 0 auto; flex-wrap: nowrap; margin: 0; }
 
 /* ---- 13-10 .ng：表の中の「不可」「原則不可」の語 --------------------------------
-   色だけに頼らず、語そのものを必ず書く（p.198）。元：実デック3本（同文）。 */
+   色だけに頼らず、語そのものを必ず書く（p.198）。元：既存デック3本（同文）。 */
 .ng { color: var(--caution); font-weight: 700; }
 
 /* ---- 13-11 .mono：等幅（コマンド・アドレス・コードだけ。塗りなし。td にも付く）------
-   元：実デック7本（同文）。等幅に字間が乗ると桁がずれるので 0 にする。 */
+   元：既存デック7本（同文）。等幅に字間が乗ると桁がずれるので 0 にする。 */
 .mono { font-family: var(--font-mono); letter-spacing: 0; }
 
 /* ---- 13-12 表紙の副題 .title-sub と、長い題 .title-big.long ---------------------
    .title-big（88px）は日本語の長い題が入らず、13デックが 54〜68px に下げていた。
    既定は変えず、長い題だけ class="title-big long"（64px・1行18字まで）にする。
-   元：実デックの雛形（副題は灰色＝色数を増やさない）。 */
+   元：既存デックの雛形（副題は灰色＝色数を増やさない）。 */
 section:where(.cover-hero) .title-sub {
   font-size: 26px; font-weight: 700; color: var(--ink-weak); margin-top: 12px;
 }
@@ -997,7 +997,7 @@ section.cover-hero .title-big.long { font-size: 64px; }
    ---------------------------------------------------------------------------- */
 
 /* ---- 13-14 不具合の修正：.prompt の中の .ph が、図の仮置き .ph（灰色の箱）になる ----
-   元：実デックがデック側で打ち消していた。 */
+   元：既存デックがデック側で打ち消していた。 */
 .prompt .ph {
   display: inline; min-height: 0; background: none;
   font-size: inherit; border-radius: 0;
