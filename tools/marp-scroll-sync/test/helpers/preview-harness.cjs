@@ -201,13 +201,17 @@ function loadPuppeteer() {
   try { return require(require.resolve('puppeteer-core', { paths: [REPO_ROOT] })); } catch (_) { return null; }
 }
 
-/** Chrome を起こす。Chrome か puppeteer-core が無ければ null（テストは skip） */
+/**
+ * Chrome を起こす。Chrome か puppeteer-core が無ければ null（テストは skip）
+ * --allow-file-access-from-files は付けない（tools/marp-present/present.mjs・tools/marp-pdf/chunk-print.mjs と同じ。
+ * file:// のページの <img> は無くても読める。付けると、ページのスクリプトが手元の別のファイルを読めてしまう）。
+ */
 async function launch() {
   const puppeteer = loadPuppeteer();
   const chrome = findChrome();
   if (!puppeteer || !chrome) return null;
   return puppeteer.launch({ executablePath: chrome, headless: true,
-    args: ['--allow-file-access-from-files', '--font-render-hinting=none', '--no-first-run'] });
+    args: ['--font-render-hinting=none', '--no-first-run'] });
 }
 
 /** HTML を outDir に書き、その幅で開いたページを返す */
