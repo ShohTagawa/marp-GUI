@@ -21,7 +21,7 @@
 //       3 つとも無ければ（Windows など）OS の言語（Intl）で決める。
 // 色：端末（TTY）に出すときだけ ANSI の色を付ける。NO_COLOR（空でない値）で消し、FORCE_COLOR で強制する。
 
-import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync, lstatSync, existsSync } from 'node:fs';
 import { join, relative, isAbsolute } from 'node:path';
 
 /* ------------------------------------------------------------------ *
