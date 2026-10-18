@@ -49,7 +49,7 @@ function bodyOf(text, i) {
   return d.lines.slice(s.startLine, s.endLine).join('\n').trim();
 }
 function bodies(text) {
-  const d = splitDeck(text); // 1回だけ分割する（実デックのループで bodyOf を枚数ぶん呼ぶと遅い）
+  const d = splitDeck(text); // 1回だけ分割する（見本デックのループで bodyOf を枚数ぶん呼ぶと遅い）
   return d.slides.map(s => d.lines.slice(s.startLine, s.endLine).join('\n').trim());
 }
 
