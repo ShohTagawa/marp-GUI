@@ -175,15 +175,19 @@ Sample deck for marp-GUI in the base theme academic. The lecture is fictional; e
 
 ---
 
-<!-- _class: wrap -->
+<!-- _class: wrap vcenter -->
 
 <div class="page-title">Wrap-up</div>
 
 ## What to take away
 
+<div class="body">
+
 - Map the term in three phases before it starts
 - Plan on Monday, review on Friday
 - When a plan slips, move goals instead of starting over
+
+</div>
 
 ---
 
