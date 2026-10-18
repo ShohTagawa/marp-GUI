@@ -4,3 +4,10 @@ slides/*/out/
 slides/_library/index.json
 slides/_library/corpus.json
 slides/_library/thumbs/
+# ツールがデックの .md の隣に書く一時ファイル（どの深さのデックでも）
+#   .marp-present.html     … tools/marp-present/present.mjs（発表用 HTML）
+#   .marp-pdfbuild-*.html  … tools/marp-pdf/build-pdf.mjs（PDF 用の中間 HTML。終わると消す）
+.marp-present.html
+.marp-pdfbuild-*.html
+# ベンチマークの出力（tools/marp-scroll-sync/bench/out/）
+**/bench/out/
