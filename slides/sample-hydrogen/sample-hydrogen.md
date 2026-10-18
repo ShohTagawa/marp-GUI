@@ -76,7 +76,10 @@ Sample deck for marp-GUI. Text and numbers follow the source article; every figu
 
 ---
 
-<!-- _class: lay-cards3 -->
+<!--
+_class: lay-cards3
+_lib: core-density | sample, cards | 2026-10-18
+-->
 
 ## The core contains elements lighter than iron
 
@@ -91,7 +94,10 @@ Sample deck for marp-GUI. Text and numbers follow the source article; every figu
 
 ---
 
-<!-- _class: lay-keyrow -->
+<!--
+_class: lay-keyrow
+_lib: prior-studies | sample, keyrow | 2026-10-18
+-->
 
 ## Previous studies reached opposite results
 
