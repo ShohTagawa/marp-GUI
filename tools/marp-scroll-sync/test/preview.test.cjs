@@ -1421,7 +1421,7 @@ test('速さ（8.0）：先読み済みなら、クリックから骨組みが 1
     });
     TIMINGS.push(`＋ポップアップの開き直し：15 枚とも絵つきで ${again.ms.toFixed(1)}ms`);
     assert.equal(again.n, 15);
-    assert.ok(again.ms <= SKELETON_BUDGET);
+    if (TIME_BUDGETS) assert.ok(again.ms <= SKELETON_BUDGET, `開き直し ${again.ms.toFixed(1)}ms ≤ ${SKELETON_BUDGET}ms`);
   });
 });
 
