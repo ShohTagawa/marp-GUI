@@ -172,16 +172,46 @@ function analyzeSlide(slideText) {
       const clsAttr = (line.match(/^<[^>]*\bclass\s*=\s*["']([^"']*)["']/) || [])[1] || '';
       const has = (name) => clsAttr.split(/\s+/).includes(name);
       const skipTo = (close) => { while (i < lines.length && !new RegExp(close, 'i').test(lines[i])) i++; };
+      // 開きと閉じの数が釣り合うところまで読み飛ばす（.src-row の中の .chips のような入れ子の div も）
+      const skipBalanced = (tg) => {
+        const open = new RegExp('<' + tg + '\\b', 'gi'), close = new RegExp('</' + tg + '\\s*>', 'gi');
+        let depth = 0;
+        for (; i < lines.length; i++) {
+          depth += (lines[i].match(open) || []).length - (lines[i].match(close) || []).length;
+          if (depth <= 0) return;
+        }
+      };
+      const isClose = line[1] === '/';
+      // スライド内の <style>（scoped も）は配置に関わらない（ブラウザ側も section 直下の style を数えない）
+      if (t === 'style' && !isClose) { closePara(); cur = null; skipTo('</style>'); continue; }
       if (t === 'svg') { closePara(); cur = null; a.figures++; skipTo('</svg>'); continue; }
       if (t === 'figure') { closePara(); cur = null; a.figures++; skipTo('</figure>'); continue; }
       if (t === 'img' && /^<img\b[^>]*>$/i.test(line)) { closePara(); cur = null; a.figures++; continue; }
-      if ((t === 'div' || t === 'p') && (has('page-title') || has('takeaway') || has('note'))) {
+      if (!isClose && (t === 'div' || t === 'p') && SIDE_CLASSES.some(has)) {
         closePara(); cur = null;
         if (has('takeaway')) a.hasTakeaway = true;
-        skipTo('</' + t + '>');
+        skipBalanced(t);
         continue;
       }
+      // 透過する包み（.body）：開きタグだけの行で、次の行が空行（中を Markdown として読ませる書き方）のときだけ
+      if (!isClose && t === 'div' && has(WRAP_CLASS) && wrapDepth === 0 && /^<div\s+class\s*=\s*["'][^"']*["']\s*>$/i.test(line)
+        && clsAttr.split(/\s+/).filter(Boolean).every((c) => c === WRAP_CLASS || WRAP_EXTRA.includes(c))
+        && (lines[i + 1] === undefined || lines[i + 1].trim() === '')) {
+        closePara(); cur = null; wrapDepth++; a.wrapped = true;
+        continue;
+      }
+      if (isClose && t === 'div' && wrapDepth > 0 && /^<\/div\s*>$/i.test(line)) { closePara(); cur = null; wrapDepth--; continue; }
       if (t === 'table') { closePara(); cur = null; a.hasTable = true; skipTo('</table>'); continue; }
+      // HTML で書いた段落（<p class="lead"> など）は段落として数える（ブラウザ側も p は段落）
+      if (t === 'p' && !isClose) {
+        closePara(); cur = null;
+        const from = i;
+        skipBalanced('p');
+        const body = lines.slice(from, i + 1).join(' ');
+        if (/^<p\b[^>]*>\s*<img\b[^>]*>\s*<\/p>$/i.test(body.trim())) a.figures++;
+        else { const s = stripInline(body); if (s) paras.push(s); }
+        continue;
+      }
       if (/^(b|strong|span|em|i|a|code|mark|u|br|small|sub|sup|kbd)$/.test(t)) { /* 文中のタグ＝段落として下で数える */ }
       else { closePara(); cur = null; notPlain('div'); continue; }
     }
