@@ -317,7 +317,7 @@ function lintSlide(text, startLine, out, push) {
   }
   const boxes = (boxSrc.match(BOX_CLASS) || []).length + gridUnits;
   out.boxes += boxes;
-  if (boxes >= RULES.BOX_WARN) push('warn', startLine, 'boxes', boxes);
+  if (boxes >= RULES.BOX_WARN) push('warn', slideLine, 'boxes', boxes);
 
   // ---- 1枚の文字数（p.202） ----
   const chars = visibleText(text).length;
