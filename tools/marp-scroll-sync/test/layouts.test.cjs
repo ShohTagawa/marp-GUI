@@ -40,6 +40,19 @@ const EXTRA = [
   '<div class="page-title">over</div>\n\n## はみ出すスライド\n\n![w:760 図](' + FIG + ')\n\n'
     + Array.from({ length: 12 }, (_, i) => `- 箇条書きの ${i + 1} 行目です`).join('\n') + '\n\n<div class="takeaway">帯</div>\n',  // N+3: 標準と lay-steps では収まるが、いま付いている lay-boxed でははみ出す（5 つの手順・takeaway つき）
   '<!-- _class: lay-boxed -->\n\n<div class="page-title">steps</div>\n\n## 5つの手順\n\n' + Array.from({ length: 5 }, (_, i) => `${i + 1}. **手順${i + 1}をします**\n   説明を1行で書きます。`).join('\n') + '\n\n<div class="takeaway">帯</div>\n',
+  // N+4〜: 包み（.body）と出典の行（判定は原稿と同じになること。突き合わせのテストで見る）
+  '## 包み\n\n<div class="body">\n\n- **一**\n  説明\n- **二**\n  説明\n- **三**\n  説明\n\n</div>\n\n<div class="takeaway">帯</div>\n',
+  '## 包み vcenter\n\n<div class="body vcenter">\n\n- a\n- b\n- c\n\n</div>\n',
+  '## 透過しない包み\n\n<div class="body figwrap">\n\n- a\n- b\n- c\n\n</div>\n',
+  '## 中が HTML の包み\n\n<div class="body">\n- a\n- b\n</div>\n',
+  '## 図と出典\n\n![w:600 図](' + FIG + ')\n<div class="attr">出典：<a href="https://example.org">例</a></div>\n\n- 図の説明です\n',
+  '## 包みの中の出典\n\n<div class="body">\n\n![w:600 図](' + FIG + ')\n\n<div class="attr">出典：例</div>\n\n</div>\n',
+  '## 注記の行\n\n- a\n- b\n\n<div class="src-row"><p class="note">注記</p>\n<div class="chips"><a class="fill tight" href="https://example.org">PDF</a></div>\n</div>\n\n<div class="cite">著者（2024）. 書名.</div>\n',
+  // N+11: lay-fig-right ＋ page-title ＋ スライド内の <style>（page-title の上限幅が配置クラスに消されないこと。<style> は数えない）
+  '<!-- _class: lay-fig-right -->\n\n<style scoped>\nsection { --pt-max: 30%; }\n</style>\n\n<div class="page-title">とても長いページタイトルが題字帯の末尾を隠さない</div>\n\n## 図と文\n\n![w:600 図](' + FIG + ')\n\n- 図の説明です\n- もう一行\n',
+  // N+12: トリミングで Markdown の画像を書き換えた後の形（<p><img style>）。配置案は書き換える前（N+13）と同じ
+  '## 書き換えた図\n\n<p><img src="' + FIG + '" alt="図" style="width: 600px; clip-path: inset(0 0 0 30px); margin-left: -30px"></p>\n\n- 図の説明です\n',
+  '## 書き換える前の図\n\n![w:600 図](' + FIG + ')\n\n- 図の説明です\n',
 ];
 function build(md) {
   const built = H.buildPreviewHtml({ md });
