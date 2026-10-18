@@ -322,7 +322,7 @@ function slideLabels(text) {
 // ---------------------------------------------------------------------------
 
 // クラス名 → 日本語。上から順に最初に当たったものを使う（1つの div に複数クラスがあるとき）。
-// 実デックの「行頭の <div class>」の出現数（2026-09 時点・148デック）と theme/*.css で決めた：
+// 作者の手元のデック（配布しない）の「行頭の <div class>」の出現数（2026-09 時点・148デック）と theme/*.css で決めた：
 //   page-title 3379 / box-accent 1173 / box-info 1048 / takeaway 1011 / stepbox 741 / cite 697 / box-warn 618 /
 //   pcard 439 / subhead 330 / split-body 302 / left・right 296 / sec-box 295 / goal-box 255 / fig-area 223 /
 //   caption 193 / body 184 / fbox 177 / title-hero 169 / tcols 163 / cardrow 128 / sections 121 / flowrow 74
