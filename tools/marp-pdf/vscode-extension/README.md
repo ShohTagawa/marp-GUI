@@ -16,4 +16,9 @@
 | `marpGui.chromePath` | 空（自動） | Chrome/Edge の実行ファイルを固定したいとき |
 | `marpGui.nodePath` | 空（PATH） | nvm 等で `node` が見つからないときだけ |
 
+`marpGui.chromePath` と `marpGui.nodePath` はユーザー設定でだけ指定できます（`"scope": "machine"`）。
+受け取ったフォルダの `.vscode/settings.json` が、起動する実行ファイルを差し替えられないようにするためです。
+この拡張は開いたフォルダの `tools/` 配下のスクリプトを実行するので、信頼していないフォルダ（制限モード）と
+仮想ファイルシステムの上では動きません（`capabilities`）。
+
 登録はリポジトリ直下の `npm run setup`（インストーラー）が行います（`~/.vscode/extensions/marp-gui.pdf` へのリンク）。
