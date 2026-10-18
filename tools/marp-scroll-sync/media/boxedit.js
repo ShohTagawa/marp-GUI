@@ -28,6 +28,12 @@
   var MSG_MD = 'この箱は原稿で直してください（Markdown の要素）';
   var MSG_SVG = 'この箱は原稿で直してください（SVG の中の図形）';
   var MSG_MDIMG = 'Markdown の画像は大きさだけ変えられます';
+  var MSG_CROP_IMG = 'トリミングできるのは画像（<img>）だけです';
+  var MSG_CROP_INLINE = '文と同じ段落にある Markdown の画像はトリミングできません（画像だけの段落にしてください）';
+  var MSG_CROP_FILTER = 'フィルタ（sepia など）の付いた Markdown の画像はトリミングできません。原稿で <img> に書き換えてください';
+  var MSG_CROP_EDGE = '矢印で動かす縁は、先にハンドルをつかんで選んでください';
+  var MSG_CONVERTED = 'Markdown の画像を <img> に書き換えました';
+  var MSG_AUTO = '左右の中央寄せ（margin: auto）を、今の位置の数値にしました';
 
   var stats = { hoverMs: 0, frameMs: 0, frameMaxMs: 0, commitMs: 0, frames: 0 };
 
