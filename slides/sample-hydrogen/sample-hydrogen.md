@@ -177,7 +177,7 @@ Uptake of hydrogen into the core may be the main mechanism that “regulated” 
 
 ## References
 
-- Source: Tagawa S. "Chikyū chūshinkaku no suiso" [Hydrogen in the Earth's core]. Isotope News 2022;(780):26–30 [in Japanese].
+- Source: Tagawa S. “Chikyū chūshinkaku no suiso” [Hydrogen in the Earth's core]. Isotope News 2022;(780):26–30 [in Japanese].
 - References of the source, as printed on its p.30:
 
 <div class="tcols">
