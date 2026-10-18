@@ -179,7 +179,9 @@ export function marpCliEntry(root = ROOT) {
 }
 
 /**
- * marp-cli を同期実行する。--no-stdin / --html は必ず付ける（CLAUDE.md の必須ルール）。
+ * marp-cli を同期実行する。--no-stdin / --html は必ず付ける（このプロジェクトの決まり）。
+ *   --no-stdin が無いと、VS Code のボタンやタスクなど非対話の実行で marp が標準入力を待って固まる。
+ *   --html が無いと、原稿のインライン SVG や <div> がエスケープされ、ソースの文字列のまま描画される。
  * @param {string[]} args  marp-cli への追加引数
  */
 export function runMarp(args, { root = ROOT, cwd = root, inherit = false } = {}) {
