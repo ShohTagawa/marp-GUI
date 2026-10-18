@@ -113,7 +113,7 @@ slides/_library/shelf.json  棚（呼び名と並び順。git で追跡する）
 ```html
 <!--
 _class: summary
-_lib: alc-agenda | 構成, アジェンダ | 2026-09-20
+_lib: day-agenda | 構成, アジェンダ | 2026-09-20
 -->
 ```
 
@@ -128,11 +128,11 @@ _lib: alc-agenda | 構成, アジェンダ | 2026-09-20
 
 ```json
 { "generatedAt": "…", "entries": [ {
-  "id": "alc-agenda", "tags": ["構成"], "markedAt": "2026-09-20",
+  "id": "day-agenda", "tags": ["構成"], "markedAt": "2026-09-20",
   "deck": "slides/2026…/2026….md", "slide": 3, "title": "今回の構成", "pattern": "summary",
   "theme": "academic", "palette": { "accent": "#C8611C", "accentDark": "…", "accentSoft": "…", "sectionBg": "…" },
   "assets": ["./src/slido-qr.png"], "deckClasses": ["agenda", "agenda-row"], "cssBytes": 912,
-  "thumb": "slides/_library/thumbs/alc-agenda.png"
+  "thumb": "slides/_library/thumbs/day-agenda.png"
 } ] }
 ```
 
