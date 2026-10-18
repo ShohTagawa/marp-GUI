@@ -600,7 +600,7 @@ test('searchCorpus：棚の呼び名と棚名にも当たり、棚のスライ�
 
 // ───────────────────────── CLI ─────────────────────────
 
-test('CLI：corpus / search / shelf / candidates（--root の合成リポジトリ。実リポジトリには書かない）', needGit, (t) => {
+test('CLI：corpus / search / shelf / candidates（--root の合成リポジトリ。このリポジトリには書かない）', needGit, (t) => {
   const { root, A } = makeRepo(true);
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   const run = (...a) => execFileSync(process.execPath, [CLI, '--root', root, ...a], { encoding: 'utf8', cwd: root, env: { ...process.env, GIT }, stdio: ['ignore', 'pipe', 'pipe'] });
