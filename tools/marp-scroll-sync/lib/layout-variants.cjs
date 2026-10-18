@@ -71,6 +71,19 @@ const BASE = { cls: null, label: '標準', group: 'base', why: '配置クラス�
 
 const ORDER_HEAD = /^(?:[①-⑳]|(?:step|ステップ|手順)\s*[0-90-9]+|[0-90-9]+\s*[.．)）:：])/i;
 
+/**
+ * 配置を変えても、そのまま下（または図の下）に残るだけの行。判定では数えない（.note と同じ扱い）。
+ * page-title・takeaway は位置が決まっている物、attr・cite・src-row は出典・注記の行。
+ */
+const SIDE_CLASSES = ['page-title', 'takeaway', 'note', 'attr', 'cite', 'src-row'];
+/**
+ * 透過する包み：<div class="body">（academic の本文ゾーン）。中身の素の Markdown で判定する。
+ * lay-* を付けると CSS（§14）がこの包みを display:contents にして、中身を section の直下と同じに並べる。
+ * 縦配分の語（vtop/vcenter/vspread）は付いていてもよい。ほかのクラスや style="" が付いた包みは透過しない。
+ */
+const WRAP_CLASS = 'body';
+const WRAP_EXTRA = ['vtop', 'vcenter', 'vspread'];
+
 // ───────────────────────── 原稿（Markdown）を読む ─────────────────────────
 
 const stripInline = (s) => String(s)
