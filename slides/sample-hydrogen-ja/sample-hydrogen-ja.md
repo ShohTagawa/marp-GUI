@@ -125,7 +125,7 @@ marp-GUI の見本デック。本文と数値は出典の記事どおり。図�
 
 <!-- _class: lay-fig-left -->
 
-## 20 µm の試料から、水の量を測ります
+## 20 マイクロメートルの試料から、水の量を測ります
 
 <svg viewBox="0 0 600 450" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="3つの段階：約20マイクロメートル角の試料の断面、各画素が検出器として働く結像型 SIMS、断面の水濃度分布が分かる同位体像"><rect x="0" y="0" width="600" height="116" rx="3" fill="var(--fill, #F1F1F1)"/><rect x="22" y="23" width="70" height="70" fill="var(--accent, #A6192E)" fill-opacity="0.25"/><circle cx="57" cy="58" r="15" fill="var(--accent-dark, #7D1322)"/><text x="114" y="50" font-size="22" font-weight="700" fill="var(--ink, #262626)">試料の断面</text><text x="114" y="84" font-size="20" fill="var(--ink, #262626)">約 20 µm 角</text><path d="M276 126H324L300 152Z" fill="var(--accent, #A6192E)"/><rect x="0" y="162" width="600" height="116" rx="3" fill="var(--fill, #F1F1F1)"/><path d="M22 185H92V255H22ZM39.5 185V255M57 185V255M74.5 185V255M22 202.5H92M22 220H92M22 237.5H92" fill="none" stroke="var(--ink, #262626)" stroke-width="2"/><text x="114" y="212" font-size="22" font-weight="700" fill="var(--ink, #262626)">結像型 SIMS</text><text x="114" y="246" font-size="20" fill="var(--ink, #262626)">各画素が検出器として働く</text><path d="M276 288H324L300 314Z" fill="var(--accent, #A6192E)"/><rect x="0" y="324" width="600" height="116" rx="3" fill="var(--fill, #F1F1F1)"/><rect x="22" y="347" width="70" height="70" fill="var(--accent, #A6192E)" fill-opacity="0.25"/><path d="M22 347H92V417H22ZM39.5 347V417M57 347V417M74.5 347V417M22 364.5H92M22 382H92M22 399.5H92" fill="none" stroke="var(--ink, #262626)" stroke-width="2"/><text x="114" y="374" font-size="22" font-weight="700" fill="var(--ink, #262626)">同位体像</text><text x="114" y="408" font-size="20" fill="var(--ink, #262626)">断面の水濃度分布が分かる</text></svg>
 
