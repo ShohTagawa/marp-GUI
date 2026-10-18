@@ -63,10 +63,10 @@ marp-GUI の見本デック。テーマそのものを説明する。図はす�
 <text x="0" y="24" font-size="22" font-weight="700" fill="var(--ink, #333333)">原稿（Markdown）</text>
 <rect x="0" y="40" width="380" height="270" rx="3" fill="var(--fill, #F1F1F1)"/>
 <text x="20" y="88" font-size="18" fill="var(--ink, #333333)" style="font-family:Menlo,Consolas,monospace;letter-spacing:0">&lt;!-- _class: <tspan font-weight="700" fill="var(--accent-dark, #004D80)" style="font-family:Menlo,Consolas,monospace">lay-cards3</tspan> --&gt;</text>
-<text x="20" y="144" font-size="18" fill="var(--ink, #333333)" style="letter-spacing:0">## 3つの要点</text>
-<text x="20" y="192" font-size="18" fill="var(--ink, #333333)" style="letter-spacing:0">- **帯**</text>
-<text x="20" y="236" font-size="18" fill="var(--ink, #333333)" style="letter-spacing:0">- **色**</text>
-<text x="20" y="280" font-size="18" fill="var(--ink, #333333)" style="letter-spacing:0">- **余白**</text>
+<text x="20" y="144" font-size="18" fill="var(--ink, #333333)" style="font-family:Menlo,Consolas,monospace;letter-spacing:0">## 3つの要点</text>
+<text x="20" y="192" font-size="18" fill="var(--ink, #333333)" style="font-family:Menlo,Consolas,monospace;letter-spacing:0">- **帯**</text>
+<text x="20" y="236" font-size="18" fill="var(--ink, #333333)" style="font-family:Menlo,Consolas,monospace;letter-spacing:0">- **色**</text>
+<text x="20" y="280" font-size="18" fill="var(--ink, #333333)" style="font-family:Menlo,Consolas,monospace;letter-spacing:0">- **余白**</text>
 <path d="M398 147H452" fill="none" stroke="var(--accent, #0076BA)" stroke-width="8" marker-end="url(#simple-ja-f4-ah)"/>
 <text x="480" y="24" font-size="22" font-weight="700" fill="var(--ink, #333333)">スライド</text>
 <rect x="480" y="40" width="380" height="214" fill="#ffffff" stroke="var(--ink-weak, #6E6E6E)" stroke-width="2"/>
