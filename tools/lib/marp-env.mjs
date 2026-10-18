@@ -253,7 +253,8 @@ export function openInBrowser(url, { chromeArgs = [] } = {}) {
     return chrome;
   }
   if (IS_WIN) {
-    const child = spawn('cmd', ['/c', 'start', '""', url.replace(/&/g, '^&')], { detached: true, stdio: 'ignore', windowsHide: true });
+    // cmd.exe を通るので、cmd が意味を持つ文字を %XX にしてから渡す（cmdSafeUrl）
+    const child = spawn('cmd', ['/c', 'start', '""', cmdSafeUrl(url)], { detached: true, stdio: 'ignore', windowsHide: true });
     child.unref();
   } else if (IS_MAC) {
     spawn('open', [url], { detached: true, stdio: 'ignore' }).unref();
