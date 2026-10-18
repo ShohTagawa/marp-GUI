@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "shelves": [
+    {
+      "name": "Sample",
+      "items": [
+        {
+          "label": "Core density (three cards)",
+          "deck": "slides/sample-hydrogen/sample-hydrogen.md",
+          "id": "core-density",
+          "slide": 5,
+          "title": "The core contains elements lighter than iron"
+        },
+        {
+          "label": "Prior studies (key row)",
+          "deck": "slides/sample-hydrogen/sample-hydrogen.md",
+          "id": "prior-studies",
+          "slide": 6,
+          "title": "Previous studies reached opposite results"
+        },
+        {
+          "label": "核の密度（3枚のカード）",
+          "deck": "slides/sample-hydrogen-ja/sample-hydrogen-ja.md",
+          "id": "core-density-ja",
+          "slide": 5,
+          "title": "核には、鉄より軽い元素が入っています"
+        },
+        {
+          "label": "先行研究（見出しの列）",
+          "deck": "slides/sample-hydrogen-ja/sample-hydrogen-ja.md",
+          "id": "prior-studies-ja",
+          "slide": 6,
+          "title": "先行研究は、正反対の結果でした"
+        }
+      ]
+    }
+  ]
+}
