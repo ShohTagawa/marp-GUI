@@ -80,7 +80,7 @@ node tools/tsutawaru-lint.mjs <file.md|dir>... [--summary] [--lang ja|en]
 | Use one box shape throughout a document; avoid ellipses. | — | p.97 | handbook | theme §5 |
 | Keep rounding small and identical everywhere, and do not let scaling distort it; square corners avoid the problem. | rule 6 | p.98, p.99 | handbook | theme (radius 3 px); lint |
 | Colour a shape with a fill or with an outline, not both. | — | p.100 | handbook | theme (takeaway, tags, quotes) |
-| Arrows play a supporting role: keep them plain and small, with one head size and one shaft width; a line with a head, or a triangle, works. | — | p.102, p.103 | handbook | theme (flow arrows) |
+| Arrows play a supporting role: keep them plain and small, with one head size and one shaft width; a line with a head, or a triangle, works. | — | p.102, p.103 | handbook | theme §8 (arrows) |
 | Remove shadows, gradients, outlines and 3-D effects. | — | p.104 | handbook | theme (cover, boxes, decoration) |
 | Leave padding inside a box: about one character, or half a character for a short phrase. | — | p.106, p.107 | handbook | theme `.fill`, `.tight` |
 | Simplify a diagram by cutting elements. | — | p.110 | handbook | theme; `lay-fig-only` |
