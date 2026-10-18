@@ -458,6 +458,9 @@ function planMdImg(text, lineOff, s, e, target, st, rawStyle) {
   if (im.src === null) return fail('mdimg-ref', line);
   if (!srcMatches(im.src, target.src)) return fail('src-mismatch', line);
 
+  // トリミングは alt に書けない：<img> に書き換えてから書く
+  if (CROP_PROPS.some(p => st[p] !== undefined && st[p] !== null)) return mdImgToHtml(text, lineOff, line, endLine, im, st, !!rawStyle.important);
+
   const alt = text.slice(im.altStart, im.altEnd);
   let now = alt;
   if (st.width !== undefined) now = editAlt(now, KW.width, 'w', st.width);
