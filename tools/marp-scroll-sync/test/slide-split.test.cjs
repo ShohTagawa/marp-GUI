@@ -114,7 +114,7 @@ test('slideMeta: classes / title / marked', () => {
 
 test('slideMeta: 複数行ディレクティブの _class（複数クラス）と _lib の印', () => {
   assert.strictEqual(LIB_KEY, '_lib');
-  const lines = ['<!--', '_class: split vcenter', '_lib: alc-agenda | 構成, アジェンダ | 2026-09-20', '-->', '', '## **太字**の`見出し`'];
+  const lines = ['<!--', '_class: split vcenter', '_lib: day-agenda | 構成, アジェンダ | 2026-09-20', '-->', '', '## **太字**の`見出し`'];
   assert.deepStrictEqual(slideMeta(lines, 0, lines.length), { classes: ['split', 'vcenter'], title: '太字の見出し', marked: true });
   // 1行形式の印（単独。ノートに混入する書き方だが、印としては拾う）
   assert.strictEqual(slideMeta(['<!-- _lib: x | | 2026-09-20 -->'], 0, 1).marked, true);
