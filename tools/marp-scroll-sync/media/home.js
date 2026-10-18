@@ -80,9 +80,9 @@
     const css = cssStore.get(key);
     if (css == null) return null;
     try {
-      const imports = css.match(/@import\s[^;]+;/g) || [];
+      const imports = css.match(IMPORT_RE) || [];
       const sheet = new CSSStyleSheet();
-      sheet.replaceSync(imports.length ? css.replace(/@import\s[^;]+;/g, '') : css);
+      sheet.replaceSync(imports.length ? css.replace(IMPORT_RE, '') : css);
       e = { sheet, imports: imports.join('') };
     } catch (_) { return null; }
     sheetStore.set(key, e);
