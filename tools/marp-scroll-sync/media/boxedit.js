@@ -46,8 +46,11 @@
   var selTag = h('div', 'ss-box-tag ss-box-tag-sel');
   var guideV = h('div', 'ss-box-guide ss-box-guide-v');
   var guideH = h('div', 'ss-box-guide ss-box-guide-h');
+  var ghost = h('img', 'ss-box-ghost');          // トリミング中：切られる部分に元の画像を暗く重ねる
+  var cropBtn = h('div', 'ss-box-cropbtn');      // 札の右の「✂ 切る」／トリミング中は「✓ 確定」
+  ghost.alt = '';
   DIRS.forEach(function (d) { var k = h('div', 'ss-box-handle ss-box-h-' + d); k.setAttribute('data-dir', d); selBox.appendChild(k); });
-  [hoverBox, hoverTag, guideV, guideH, selBox, selTag].forEach(function (e) { e.style.display = 'none'; layer.appendChild(e); });
+  [hoverBox, hoverTag, guideV, guideH, ghost, selBox, selTag, cropBtn].forEach(function (e) { e.style.display = 'none'; layer.appendChild(e); });
   document.body.appendChild(layer);
 
   // ───────── 状態 ─────────
