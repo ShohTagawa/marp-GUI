@@ -14,7 +14,7 @@ footer: ''
 
 <div class="pre">Sample deck for tsutawaru-simple</div>
 
-# No header band:<br>a hatched band and white space
+# A hatched band<br>instead of a header band
 
 <div class="meta">marp-GUI sample deck<br>theme/tsutawaru-simple.css</div>
 
