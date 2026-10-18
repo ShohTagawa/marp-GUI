@@ -1228,7 +1228,7 @@ for (const width of [700, 1400]) {
       await shot('8c-popup-naming');
       await page.keyboard.press('Escape');
       await page.keyboard.press('Escape');
-      // 検索ギャラリー（実デック 2 本。3 枚を選んだ状態。先頭に棚）
+      // 検索ギャラリー（見本デック 2 本。3 枚を選んだ状態。先頭に棚）
       await openGal(page, 2);
       await answer(page, await lastSearch(page), fx, { total: 40 });
       for (const i of [1, 7, 3]) await page.click(`.ss-gal-grid > .ss-gal-pick[data-key="${fx.items[i].key}"] .ss-gal-name`);
