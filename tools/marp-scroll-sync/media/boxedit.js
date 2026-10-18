@@ -64,6 +64,8 @@
   var swallow = 0;          // この時刻までの mouseup / click / dblclick を握りつぶす
   var rafId = 0;
   var altAt = 0;
+  var crop = null;          // トリミング中 { el, before, prev, cut:[上,右,下,左], base, fall, autoX, last, important, full }
+  var pendingConvert = null; // Markdown の画像を <img> へ書き換える確定を送った { index }
 
   // ───────── 要素の判定 ─────────
   function tagOf(el) { return el && el.tagName ? String(el.tagName).toLowerCase() : ''; }
