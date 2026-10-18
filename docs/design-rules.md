@@ -103,8 +103,8 @@ node tools/tsutawaru-lint.mjs <file.md|dir>... [--summary] [--lang ja|en]
 | Keep boxes to a minimum; when boxes are used, align them, space them evenly and keep their corners modest. | rules 1, 2 | p.174, p.175 | handbook | lint; theme §5; `lay-boxed`, `lay-keyrow`, `lay-cards3` |
 | Wide slides make lines too long: put a figure beside the text, so that the text takes about one half to two thirds of the width. | — | p.179 | handbook | theme (line length, `.tcols`); `lay-fig-right`, `lay-fig-left` |
 | One message per slide. | — | p.181 | handbook | theme `.lead`, `slido` |
-| Avoid over-saturated standard colours; reduce the colours with related hues and grey (grey does not count as a colour). | — | p.184, p.185 | handbook | theme (palette) |
-| One meaning per colour; at most four colours (background, text, main, accent), or three when main and accent are the same. | — | p.190, p.192 | handbook | theme (palette) |
+| Avoid over-saturated standard colours; reduce the colours with related hues and grey (grey does not count as a colour). | — | p.184, p.185 | handbook | theme §1 (palette) |
+| One meaning per colour; at most four colours (background, text, main, accent), or three when main and accent are the same. | — | p.190, p.192 | handbook | theme §1 (palette) |
 | Dark grey text reads better than pure black. | — | p.193, p.198 | handbook | theme (text colour) |
 | For colour-vision diversity, avoid red against green; orange and blue are safer. | — | p.195 | handbook | theme (fourth colour, caution colour) |
 | Use a single accent colour. | — | p.196 | handbook | theme `.hl` |
