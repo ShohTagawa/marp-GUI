@@ -125,18 +125,47 @@ function rootPkg(root) {
   return JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
 }
 
+/** PDF・PNG・プレゼンの書き出しに要る Node パッケージ（package.json の dependencies） */
+const RUNTIME_DEPS = ['@marp-team/marp-cli', 'pdf-lib'];
+
+/** ルートの node_modules に無い実行時パッケージの名前を返す（全部あれば空配列） */
+export function missingNodeModules(root = ROOT) {
+  return RUNTIME_DEPS.filter((d) => !fs.existsSync(path.join(root, 'node_modules', ...d.split('/'), 'package.json')));
+}
+
+/** パッケージが足りないときの案内（日本語＋英語） */
+function missingDepsMessage(root, missing) {
+  const list = missing.join(', ');
+  return [
+    `[marp-GUI] 必要な Node パッケージが入っていません: ${list}`,
+    `  marp-GUI のフォルダ（${root}）で「npm install」を実行してから、もう一度試してください。`,
+    '  （インストーラー install-mac.command / install-windows.bat をダブルクリックしても入ります）',
+    `[marp-GUI] Required Node packages are not installed: ${list}`,
+    `  Run "npm install" in the marp-GUI folder (${root}), then try again.`,
+    '  (Double-clicking the installer install-mac.command / install-windows.bat also installs them.)',
+  ].join('\n');
+}
+
 /**
- * ルートの node_modules に marp-cli が入っているか。無ければ `npm install` を実行する。
- * 初回クローン直後や別PCでも、ボタン一発で動くようにするための自動セットアップ。
+ * ルートの node_modules に marp-cli と pdf-lib が入っているかを確かめる。
+ * 入っていなければ、npm install を促す案内（日本語＋英語）を stderr に出して終了コード 1 で終わる。
+ * 以前はここで npm install を自動で走らせていたが、書き出しのコマンドが黙ってネットワークに出るのを
+ * やめた（入れるのは npm install かインストーラー＝tools/setup.mjs の役目）。
+ * CLI（build-pdf.mjs / marp-png.mjs / present.mjs / marp-library.mjs）用。プロセスを終わらせたくない
+ * 呼び出し元は { exit: false } を渡すと、同じ案内を message に持つ例外（code = 'MARP_GUI_DEPS_MISSING'）になる。
+ * @returns {false} 揃っているとき（戻り値は以前の「npm install を走らせたか」との互換のため）
  */
-export function ensureNodeModules(root = ROOT, { quiet = false } = {}) {
-  const marker = path.join(root, 'node_modules', '@marp-team', 'marp-cli', 'package.json');
-  const pdflib = path.join(root, 'node_modules', 'pdf-lib', 'package.json');
-  if (fs.existsSync(marker) && fs.existsSync(pdflib)) return false;
-  if (!quiet) console.log('[setup] node_modules が未整備のため npm install を実行します（初回のみ・1〜2分）');
-  const r = shellSync('npm', ['install', '--no-audit', '--no-fund'], { cwd: root, stdio: quiet ? 'ignore' : 'inherit' });
-  if (r.status !== 0) throw new Error('npm install に失敗しました。ネットワーク・node/npm の導入を確認してください。');
-  return true;
+export function ensureNodeModules(root = ROOT, { exit = true } = {}) {
+  const missing = missingNodeModules(root);
+  if (!missing.length) return false;
+  const msg = missingDepsMessage(root, missing);
+  if (!exit) {
+    const err = new Error(msg);
+    err.code = 'MARP_GUI_DEPS_MISSING';
+    throw err;
+  }
+  console.error(msg);
+  process.exit(1);
 }
 
 /** marp-cli 本体（marp-cli.js）の絶対パス。ローカル node_modules を使う。 */
