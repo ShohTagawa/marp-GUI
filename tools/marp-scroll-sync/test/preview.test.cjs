@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright (c) 2026 Shoh Tagawa
-// media/preview.js（プレビューのブラウザ側 UI）のテスト。puppeteer-core＋手元の Chrome で、実デックを描画して操作する。
+// media/preview.js（プレビューのブラウザ側 UI）のテスト。puppeteer-core＋手元の Chrome で、見本デック（slides/ の sample-*）を描画して操作する。
 //   node --test tools/marp-scroll-sync/test/preview.test.cjs
 // Chrome か puppeteer-core が無い環境では全部 skip。
 // スクリーンショットは環境変数 SS_SHOT_DIR（無ければ os.tmpdir() の下）に書く。目視確認用で、合否には使わない。
