@@ -89,7 +89,7 @@ A finished slide is marked with `_lib: <id> | tags | date` beside `_class` (a `_
 1. header, footer, theme colours and logo come from the destination's front matter and are not touched;
 2. `./src/…` assets are copied (same content reused; a name clash gets `-2` and references are rewritten); `../assets/…` paths are fixed for folder depth;
 3. deck-specific CSS rules of classes the slide uses are carried: skipped if identical, put in `<style scoped>` if the destination defines the class differently, else appended to the destination's `style:`;
-4. hex colours equal to one of the source's four palette variables become `var(--accent, #original)` in attributes and CSS, unless original colours are kept;
+4. hex colours equal to one of the source's four palette variables (`--accent`, `--accent-dark`, `--accent-soft`, `--section-bg`) become that variable with the original as fallback, e.g. `var(--accent, #original)`, in attributes and CSS, unless original colours are kept;
 5. a theme mismatch is warned about, listing classes missing in the destination; optionally (`keepTypo`) the source theme's body sizes and spacing are carried in a marked `<style scoped>` block;
 6. `_lib` becomes `_from: <id>` in the copy.
 
