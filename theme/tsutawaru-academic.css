@@ -546,7 +546,7 @@ section.cover-left .meta {
 }
 
 /* takeaway：塗りだけ・枠なし・丸みは統一値・左揃え（p.100/p.98/p.70）。
-   サイズ28pxは CLAUDE.md の不変則どおり据え置き。
+   サイズ28pxは据え置き（このリポジトリの決まり：takeaway の文字は縮めない）。
 
    位置は「絶対配置」で固定する。academic は in-flow（flexの最下部押し込み）
    だったため、パターンや前後の要素で帯の位置が微妙に揺れた。tsutawaru では
