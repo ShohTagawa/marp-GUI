@@ -440,7 +440,7 @@ for (const p of DECKS) {
     report.push({ name, lines: lines.length, slides: starts.length, open3: vis.length, allFolded: allFolded.length, vis, text: lines, labels, panel: F.panelLabels(text), folded: new Set(act.fold) });
   });
 
-  test(`実デック ${name}: パネルラベルを書いても描画とノートが変わらない`, { skip: text === null && 'デックが無い' }, () => {
+  test(`見本デック ${name}: パネルラベルを書いても描画とノートが変わらない`, { skip: text === null && 'デックが無い' }, () => {
     const edits = F.planWritePanelLabels(text);
     assert.ok(edits.length > 0);
     const written = applyEdits(text, edits);
