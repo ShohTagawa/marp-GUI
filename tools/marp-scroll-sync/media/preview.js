@@ -402,7 +402,7 @@
     const ss = slides();
     cur = Math.max(0, Math.min(ss.length - 1, i));
     ss.forEach((s, idx) => s.classList.toggle('current-slide', idx === cur));
-    badge.textContent = ss.length ? 'Slide ' + (cur + 1) + '/' + ss.length : 'Slide –';
+    setBadge(ss);
     refreshSwatches();
     layout();
   }
