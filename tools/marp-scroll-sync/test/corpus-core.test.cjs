@@ -261,9 +261,33 @@ test('buildCorpus：git が無くても（リポジトリでなくても）落�
   assert.equal(c.head, null);
   assert.equal(byKey(c, A, 1).churn, null);
   assert.equal(typeof byKey(c, A, 1).score, 'number');
-  const noMap = fs.rmSync(path.join(root, 'docs'), { recursive: true, force: true });
-  assert.equal(noMap, undefined);
-  assert.equal(byKey(C.buildCorpus(root, { withChurn: false }), A, 1).group, null, '添削マップが読めなければ group は null');
+  const withMap = C.buildCorpus(root, { withChurn: false });
+  fs.rmSync(path.join(root, ...C.GROUPS_FILE.split('/')), { force: true });
+  const noMap = C.buildCorpus(root, { withChurn: false });
+  assert.equal(byKey(noMap, A, 1).group, null, '手本デックの一覧が無ければ group は null');
+  // 一覧が無いときの score は、群の加点（A＝+0.4・B＝+0.2）を引いた値と同じ。群に入らないデックは変わらない
+  for (const e of withMap.entries) {
+    const bonus = e.group === 'A' ? 0.4 : e.group === 'B' ? 0.2 : 0;
+    const same = noMap.entries.find((x) => x.key === e.key);
+    assert.equal(same.group, null, e.key);
+    assert.equal(Math.round((e.score - bonus) * 100) / 100, same.score, e.key);
+  }
+  assert.ok(withMap.entries.some((e) => e.group === 'A') && withMap.entries.some((e) => e.group === 'B'));
+});
+
+test('byScore：同点は新しいデック → デックのパス → スライド番号（数として #2 が #10 より先）', () => {
+  const list = [];
+  for (const n of [1, 10, 11, 2, 19, 3]) list.push(ent({ slide: n, deck: 'slides/b/b.md', date: null, score: 0 }));
+  list.push(ent({ slide: 5, deck: 'slides/a/a.md', date: null, score: 0 }));
+  list.push(ent({ slide: 9, deck: 'slides/c/c.md', date: '2026-02-01', score: 0 }));
+  list.push(ent({ slide: 4, deck: 'slides/z/z.md', date: null, score: 1 }));
+  assert.deepEqual(list.slice().sort(C.byScore).map((e) => e.key), [
+    'slides/z/z.md#4', 'slides/c/c.md#9', 'slides/a/a.md#5',
+    'slides/b/b.md#1', 'slides/b/b.md#2', 'slides/b/b.md#3', 'slides/b/b.md#10', 'slides/b/b.md#11', 'slides/b/b.md#19',
+  ]);
+  // 検索でも同じ（空の検索は score 順。同点のデック内は番号順）
+  const c = { version: C.CORPUS_VERSION, entries: list.filter((e) => e.deck === 'slides/b/b.md') };
+  assert.deepEqual(C.searchCorpus(c, '').items.map((i) => i.entry.slide), [1, 2, 3, 10, 11, 19]);
 });
 
 test('readCorpus / writeCorpus：往復できる。壊れた・版違いの索引は null', (t) => {
