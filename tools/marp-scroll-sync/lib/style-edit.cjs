@@ -470,6 +470,47 @@ function planMdImg(text, lineOff, s, e, target, st, rawStyle) {
   return { ok: true, edits: [{ start: im.altStart, end: im.altEnd, text: now }], line: imgLine };
 }
 
+// Marp の画像フィルタ。<img> にすると style の filter に移す必要があり、取りこぼすと見た目が変わるので書き換えない
+const FILTER_KW = /^(?:blur|brightness|contrast|drop-shadow|grayscale|hue-rotate|invert|opacity|saturate|sepia)(?::|$)/;
+const unescMd = (s) => s.replace(/\\([!-/:-@[-`{-~])/g, '$1');
+const attrEsc = (s) => s.replace(/"/g, '&quot;');
+
+/** w:640 → 640px（単位があればそのまま。Marp と同じ解釈） */
+function kwLength(word) {
+  const v = word.slice(word.indexOf(':') + 1);
+  return /^(?:\d*\.)?\d+$/.test(v) ? v + 'px' : v;
+}
+
+/**
+ * Markdown の画像 1 つだけの段落を <p><img src alt style></p> に書き換え、style にトリミング（と大きさ）を書く。
+ *   <p> で包むのは、テーマの p:has(> img:only-child) や p の余白を元のまま効かせるため（html_block になり data-hline も付く）。
+ *   alt の w: / h: は style の width / height に移す。フィルタのキーワードがあれば書かない。
+ */
+function mdImgToHtml(text, lineOff, line, endLine, im, st, important) {
+  const before = text.slice(lineOff[line], im.start), after = text.slice(im.end, lineOff[endLine]);
+  // 文と同じ段落にある画像はインラインの HTML になり data-hline が付かない（以後プレビューで選べない）ので書かない
+  if (!/^ {0,3}$/.test(before) || /\S/.test(after)) return fail('mdimg-inline', line);
+  const size = {};
+  for (const p of PROPS) size[p] = undefined;
+  const words = [];
+  for (const w of text.slice(im.altStart, im.altEnd).split(/\s+/).filter(Boolean)) {
+    if (KW.width.test(w)) { size.width = kwLength(w); continue; }
+    if (KW.height.test(w)) { size.height = kwLength(w); continue; }
+    if (FILTER_KW.test(w)) return fail('mdimg-keywords', line);
+    words.push(unescMd(w));
+  }
+  if (st.width !== undefined) size.width = st.width;
+  if (st.height !== undefined) size.height = st.height;
+  const crop = {};
+  for (const p of PROPS) crop[p] = CROP_PROPS.includes(p) ? st[p] : undefined;
+  const style = mergeStyleValue(mergeStyleValue('', size, false), crop, important);
+  let tag = '<img src="' + attrEsc(unescMd(im.src)) + '" alt="' + attrEsc(words.join(' ')) + '"';
+  if (im.title) tag += ' title="' + attrEsc(unescMd(im.title)) + '"';
+  if (style) tag += ' style="' + style + '"';
+  tag += '>';
+  return { ok: true, edits: [{ start: im.start, end: im.end, text: '<p>' + tag + '</p>' }], line, converted: true };
+}
+
 // ---------------------------------------------------------------------------
 // 4. 入口
 // ---------------------------------------------------------------------------
@@ -477,8 +518,10 @@ function planMdImg(text, lineOff, s, e, target, st, rawStyle) {
 /**
  * planStyleEdit(sourceText, slideRange, target, style) → { ok, edits:[{start,end,text}], line, reason? }
  *   target = { kind:'html', hline, nth, tag } | { kind:'mdimg', line, nth, src }
- *   style  = { translate:[x,y]|null|undefined, width:number|null|undefined, height:…, important?:boolean }
+ *   style  = { translate:[x,y]|null|undefined, width:number|null|undefined, height:…, important?:boolean,
+ *              clipPath:[上,右,下,左]|null|undefined, margin:{ top, right, bottom, left }|null|undefined }
  * オフセットは UTF-16（JS の文字列の添字）。変える所が無ければ ok:true で edits は空。
+ * Markdown の画像にトリミングを書いたときは <img> へ書き換え、結果に converted:true を付ける。
  */
 function planStyleEdit(sourceText, slideRange, target, style) {
   let line = 0;
