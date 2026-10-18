@@ -118,7 +118,7 @@ node tools/tsutawaru-lint.mjs <file.md|dir>... [--summary] [--lang ja|en]
 | Common faults are too little whitespace, poor alignment, poor fonts, tight line spacing and no contrast; line spacing of about 1.5 times the font size. | — | p.203 | handbook | theme §2 |
 | Cover: a small lead-in, a large bold title and the details at the bottom, left-aligned; do not mix centred and left-aligned text or break lines at odd places. | — | p.204 | handbook | theme `cover-left` |
 | Bullet slides: make subheadings stand out by weight at the body size, group per item, and drop marks from simple lists; four items can become a 2 × 2 grid of filled cards. | rule 2 | p.205 | handbook | lint; theme `.blist`, `.grid2`; `lay-cards2`, standard |
-| Flowcharts: little colour in fills and outlines, boxes of one size, arrows that do not dominate. | — | p.206 | handbook | theme `.flow`; `lay-flow` |
+| Flowcharts: little colour in fills and outlines, boxes of one size, arrows that do not dominate. | — | p.206 | handbook | theme §8 `.flow`; `lay-flow` |
 | Dense data: rows separated by horizontal rules only, numbers large and right-aligned, units small. | — | p.207 | handbook | theme `.datarow` |
 | Charts and figures in two columns, which halves the line length; one highlighted series; an underline marker for emphasis. | — | p.208 | handbook | theme `.tcols`, `.mark` |
 | Keep a figure, its caption and its explanation together as one group. | — | p.209 | handbook | theme (figures) |
