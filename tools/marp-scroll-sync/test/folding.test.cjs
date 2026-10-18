@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Shoh Tagawa
 // lib/folding.cjs（純粋）と lib/folding-vscode.cjs（vscode スタブ上）のテスト。
 //   node --test tools/marp-scroll-sync/test/folding.test.cjs
-// 実デックは読むだけ（slides/ の原本は書き換えない）。畳んだ表示の模擬は FOLDED_VIEW_OUT に書き出す。
+// 見本デック（slides/ の sample-*）は読むだけ（原本は書き換えない）。畳んだ表示の模擬は FOLDED_VIEW_OUT に書き出す。
 'use strict';
 
 const test = require('node:test');
