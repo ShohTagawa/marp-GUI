@@ -481,8 +481,8 @@ function moveSlide(text, index, delta) {
 /**
  * 新規スライドの最小骨格。theme/academic.css に実在するクラスだけを使う
  * （page-title / fig-area / placeholder / caption / takeaway / split-body / left / right / chapter-num と
- *   section.fig / split / message / divider）。部品テーマ（非同梱）・tsutawaru-academic は academic を @import するので、どのテーマでも崩れない。
- * 箇条書きは3点（1枚で見比べるのは3つまで＝CLAUDE.md）。text は区切り --- を含まず、改行は LF。
+ *   section.fig / split / message / divider）。tsutawaru-academic など academic を @import するテーマでも崩れない。
+ * 箇条書きは3点（1枚で見比べるのは3つまで＝このリポジトリの決まり）。text は区切り --- を含まず、改行は LF。
  */
 function newSlideTemplates() {
   const T = (id, label, description, rows) => ({ id, label, description, text: rows.join('\n') + '\n' });
