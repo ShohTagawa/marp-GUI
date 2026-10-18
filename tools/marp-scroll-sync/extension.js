@@ -762,6 +762,9 @@ async function handleEditCommit(doc, m) {
 const BOX_REASON_TEXT = {
   'mdimg-move': 'Markdown の画像は大きさだけ変えられます（動かすには <img> で書いてください）',
   'mdimg-ref': '参照形式の画像です。原稿の該当行で直してください',
+  // トリミング（DESIGN 9.6）：Markdown の画像を <p><img> に書き換えられないとき。プレビュー側（boxedit.js）も先に断る
+  'mdimg-inline': '文と同じ段落にある Markdown の画像はトリミングできません（画像だけの段落にしてください）',
+  'mdimg-keywords': 'フィルタ（sepia など）の付いた Markdown の画像はトリミングできません。原稿で <img> に書き換えてください',
   'quote': 'style の値に引用符が混じっています。原稿の該当行で直してください',
 };
 const BOX_REASON_DEFAULT = 'この箱は原稿の位置を確定できませんでした。原稿の該当行で直してください（原稿は変えていません）';
