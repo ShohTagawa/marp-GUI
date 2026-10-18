@@ -115,8 +115,15 @@ export function findChrome() {
  * npm / code など「Windows では .cmd シム」なコマンドを同期実行する。
  * Windows の .cmd は shell 経由でないと起動できない（Node 22+）。shell:true に args 配列を渡すと
  * DEP0190 警告が出るので、1本のコマンド文字列にして渡す（引数は空白を含まない前提）。
+ * シェルを通るので、渡せるのは固定の語（英数字と - _ . = : / ）だけ。ほかの文字があれば例外を投げる。
  */
 export function shellSync(cmd, args, opts = {}) {
+  // ファイル名・原稿の語句は渡さない（渡すなら spawnSync を使う）
+  const bad = [cmd, ...args].find((a) => !/^[\w.=:/-]+$/.test(String(a)));
+  if (bad !== undefined) {
+    throw new Error(`shellSync に渡せない文字があります（シェルを通るため）: ${bad}\n` +
+      `shellSync refuses this argument because it would go through a shell: ${bad}`);
+  }
   if (IS_WIN) return spawnSync([cmd, ...args].join(' '), { ...opts, shell: true });
   return spawnSync(cmd, args, opts);
 }
