@@ -780,6 +780,19 @@
     // 選択中は、スライド送り（j/k・PageUp/Down）や ＋ポップアップ（+ / i）・配置案（L）に流さない
     if (k.length === 1 || k === 'PageUp' || k === 'PageDown' || k === 'Home' || k === 'End') stop(ev, false);
   }, true);
+  // トリミング中のキー：Enter（と C）＝確定、Esc＝取り消し、0＝トリミングを外して確定、矢印＝直前に触った縁
+  function cropKey(ev, k) {
+    if (k === 'Escape') { stop(ev, true); if (drag) cancelDrag(); else cancelCrop(); return; }
+    if (ev.metaKey || ev.ctrlKey) return;
+    if (k === 'Enter' || ((k === 'c' || k === 'C') && !ev.altKey)) { stop(ev, true); if (!drag) commitCrop(false); return; }
+    if (k === '0' && !ev.altKey) { stop(ev, true); if (!drag) commitCrop(true); return; }
+    if (k === 'ArrowLeft' || k === 'ArrowRight' || k === 'ArrowUp' || k === 'ArrowDown') {
+      stop(ev, true);
+      if (!drag && !ev.altKey) nudgeCrop(k, ev.shiftKey ? 10 : 1);
+      return;
+    }
+    if (k.length === 1 || k === 'PageUp' || k === 'PageDown' || k === 'Home' || k === 'End') stop(ev, false);
+  }
   window.addEventListener('keyup', function (ev) { if (ev.key === 'Alt') setAlt(false); }, true);
   window.addEventListener('blur', function () { setAlt(false); if (drag) finishDrag(); });
 
