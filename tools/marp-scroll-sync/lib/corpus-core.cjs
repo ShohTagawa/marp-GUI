@@ -94,7 +94,7 @@ function repoHistory(repoRoot, bin) {
 
 // ───────────────────────── 添削量（churn） ─────────────────────────
 
-/** Claude 名義のコミットか（tools/git-attrib/hook.mjs が付ける author）。追加の目印は CLAUDE_AUTHORS に足す */
+/** AI 名義のコミットか（Claude Code が既定で付ける author のメール）。人の手直しと分けて数えるため。追加の目印は CLAUDE_AUTHORS に足す */
 const CLAUDE_AUTHORS = [/noreply@anthropic\.com$/i];
 const isClaudeVersion = (v) => !!(v && typeof v.email === 'string' && CLAUDE_AUTHORS.some((re) => re.test(v.email)));
 
