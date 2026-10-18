@@ -263,11 +263,11 @@
     var cls = '';
     var cn = typeof el.className === 'string' ? el.className : (el.getAttribute('class') || '');
     cn.split(/\s+/).forEach(function (c) { if (c && !/^ss-/.test(c)) cls += '.' + c; });
-    var r = slideRect(el, m);
-    return tagOf(el) + cls + '  ' + Math.round(r.w) + '×' + Math.round(r.h) + (extra || '');
+    var r = visRect(el);
+    return tagOf(el) + cls + '  ' + Math.round(r.width / m.k) + '×' + Math.round(r.height / m.k) + (extra || '');
   }
   function place(box, tag, el, text) {
-    var r = el.getBoundingClientRect();
+    var r = visRect(el);
     box.style.display = 'block';
     box.style.left = r.left + 'px'; box.style.top = r.top + 'px';
     box.style.width = r.width + 'px'; box.style.height = r.height + 'px';
