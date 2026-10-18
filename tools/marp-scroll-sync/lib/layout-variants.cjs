@@ -114,7 +114,8 @@ function readClassDirective(slideText) {
 
 /**
  * スライド 1 枚分の原稿を読み、配置案の判定に要る事実だけを返す。
- *   plain      … section の直下が 見出し・箇条書き・段落・図・page-title・takeaway・note だけ（div で組んでいない）
+ *   plain      … section の直下が 見出し・箇条書き・段落・図・page-title・takeaway・note・出典の行（attr/cite/src-row）だけ
+ *                （div で組んでいない）。<div class="body"> の包みは透過して、その中身で判定する（wrapped:true）
  *   reason     … plain でない理由：'div'（レイアウト用のタグがある）／'pattern'（split・fig などの型）／'code'／'empty'
  *   lists      … 直下の箇条書きの数 ／ items … 箇条書きが 1 つのときの項目数（それ以外は 0）
  *   ordered / hasStrongHead / headBreak（太字の見出し＋改行＋説明の形）／ nested
