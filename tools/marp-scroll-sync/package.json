@@ -1,9 +1,15 @@
 {
   "name": "marp-scroll-sync",
-  "displayName": "Marp Scroll Sync (marp-GUI)",
-  "description": "Marp の同期プレビュー：カーソル位置のスライドへ自動スクロール、プレビュー上での直接編集、スライド操作、完成スライドの再利用、スライド単位の折りたたみ、ホーム画面（最近・棚・手を入れた順・検索 → 開く）",
-  "version": "0.3.0",
+  "displayName": "%displayName%",
+  "description": "%description%",
+  "version": "0.4.0",
   "publisher": "marp-gui-local",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ShohTagawa/marp-GUI",
+    "directory": "tools/marp-scroll-sync"
+  },
   "engines": {
     "vscode": "^1.80.0"
   },
@@ -20,120 +26,120 @@
     "commands": [
       {
         "command": "marpScrollSync.home",
-        "title": "Marp: ホーム（最近・棚・手を入れた順・検索 → 開く）",
-        "category": "Marp Sync",
+        "title": "%command.home%",
+        "category": "%category%",
         "icon": "$(home)"
       },
       {
         "command": "marpScrollSync.openPreview",
-        "title": "Marp: Open Synced Preview (side)",
-        "category": "Marp Sync"
+        "title": "%command.openPreview%",
+        "category": "%category%"
       },
       {
         "command": "marpScrollSync.present",
-        "title": "Marp: Present (current slide, --html)",
-        "category": "Marp Sync",
+        "title": "%command.present%",
+        "category": "%category%",
         "icon": "$(play)"
       },
       {
         "command": "marpScrollSync.gotoSlide",
-        "title": "Marp: Go to Slide by number…",
-        "category": "Marp Sync"
+        "title": "%command.gotoSlide%",
+        "category": "%category%"
       },
       {
         "command": "marpScrollSync.incFont",
-        "title": "Marp: 選択文字を +1px",
-        "category": "Marp Sync"
+        "title": "%command.incFont%",
+        "category": "%category%"
       },
       {
         "command": "marpScrollSync.decFont",
-        "title": "Marp: 選択文字を −1px",
-        "category": "Marp Sync"
+        "title": "%command.decFont%",
+        "category": "%category%"
       },
       {
         "command": "marpScrollSync.setColor",
-        "title": "Marp: 選択文字の色を変える…",
-        "category": "Marp Sync"
+        "title": "%command.setColor%",
+        "category": "%category%"
       },
       {
         "command": "marpScrollSync.clearTune",
-        "title": "Marp: 選択文字のサイズ/色をリセット",
-        "category": "Marp Sync"
+        "title": "%command.clearTune%",
+        "category": "%category%"
       },
       {
         "command": "marpScrollSync.newSlide",
-        "title": "Marp: 新しいスライドを次に入れる…",
-        "category": "Marp Sync"
+        "title": "%command.newSlide%",
+        "category": "%category%"
       },
       {
         "command": "marpScrollSync.duplicateSlide",
-        "title": "Marp: このスライドを複製",
-        "category": "Marp Sync"
+        "title": "%command.duplicateSlide%",
+        "category": "%category%"
       },
       {
         "command": "marpScrollSync.moveSlideUp",
-        "title": "Marp: このスライドを前へ",
-        "category": "Marp Sync"
+        "title": "%command.moveSlideUp%",
+        "category": "%category%"
       },
       {
         "command": "marpScrollSync.moveSlideDown",
-        "title": "Marp: このスライドを後ろへ",
-        "category": "Marp Sync"
+        "title": "%command.moveSlideDown%",
+        "category": "%category%"
       },
       {
         "command": "marpScrollSync.deleteSlide",
-        "title": "Marp: このスライドを削除…",
-        "category": "Marp Sync"
+        "title": "%command.deleteSlide%",
+        "category": "%category%"
       },
       {
         "command": "marpScrollSync.markSlide",
-        "title": "Marp: このスライドに「完成」の印を付ける／外す（ライブラリ）",
-        "category": "Marp Sync"
+        "title": "%command.markSlide%",
+        "category": "%category%"
       },
       {
         "command": "marpScrollSync.insertFromLibrary",
-        "title": "Marp: ライブラリから完成スライドを挿入…",
-        "category": "Marp Sync"
+        "title": "%command.insertFromLibrary%",
+        "category": "%category%"
       },
       {
         "command": "marpScrollSync.searchSlides",
-        "title": "Marp: 既存のスライドを検索して挿入…",
-        "category": "Marp Sync"
+        "title": "%command.searchSlides%",
+        "category": "%category%"
       },
       {
         "command": "marpScrollSync.changeLayout",
-        "title": "Marp: このスライドの配置を変える…",
-        "category": "Marp Sync"
+        "title": "%command.changeLayout%",
+        "category": "%category%"
       },
       {
         "command": "marpScrollSync.rebuildCorpus",
-        "title": "Marp: スライド検索の索引を作り直す",
-        "category": "Marp Sync"
+        "title": "%command.rebuildCorpus%",
+        "category": "%category%"
       },
       {
         "command": "marpScrollSync.rebuildLibrary",
-        "title": "Marp: ライブラリの台帳とサムネイルを作り直す",
-        "category": "Marp Sync"
+        "title": "%command.rebuildLibrary%",
+        "category": "%category%"
       },
       {
         "command": "marpScrollSync.toggleAutoFold",
-        "title": "Marp: スライドの自動折りたたみ オン／オフ",
-        "category": "Marp Sync"
+        "title": "%command.toggleAutoFold%",
+        "category": "%category%"
       },
       {
         "command": "marpScrollSync.foldOtherSlides",
-        "title": "Marp: 今のスライド以外を畳む",
-        "category": "Marp Sync"
+        "title": "%command.foldOtherSlides%",
+        "category": "%category%"
       },
       {
         "command": "marpScrollSync.unfoldAllSlides",
-        "title": "Marp: すべてのスライドを開く",
-        "category": "Marp Sync"
+        "title": "%command.unfoldAllSlides%",
+        "category": "%category%"
       },
       {
         "command": "marpScrollSync.writePanelLabels",
-        "title": "Marp: このスライドのパネル名をコメントとして原稿に書く",
-        "category": "Marp Sync"
+        "title": "%command.writePanelLabels%",
+        "category": "%category%"
       }
     ],
     "menus": {
@@ -186,12 +192,12 @@
       }
     ],
     "configuration": {
-      "title": "Marp Scroll Sync",
+      "title": "%config.title%",
       "properties": {
         "marpScrollSync.autoFold": {
           "type": "boolean",
           "default": true,
-          "description": "Marp の原稿を開いたら、カーソルのあるスライド以外を畳む。スライドを移ると前のスライドを畳み、今のスライドを開く。"
+          "description": "%config.autoFold%"
         },
         "marpScrollSync.autoFoldKinds": {
           "type": "array",
@@ -207,37 +213,37 @@
             "style",
             "svg"
           ],
-          "description": "開いているスライドの中でも畳んだままにするもの（style＝frontmatter の style: と <style>、svg＝インライン SVG、notes＝発表者ノート）。"
+          "description": "%config.autoFoldKinds%"
         },
         "marpScrollSync.slideLabels": {
           "type": "boolean",
           "default": true,
-          "description": "各スライドの区切り行に「番号｜型｜題名 ★」を表示する（原稿には書かない）。"
+          "description": "%config.slideLabels%"
         },
         "marpScrollSync.panelLabels": {
           "type": "boolean",
           "default": true,
-          "description": "<div class=\"left\"> などの行末に「◀ 左パネル」のような区画名を薄く表示する（原稿には書かない）。"
+          "description": "%config.panelLabels%"
         },
         "marpScrollSync.adaptivePaste": {
           "type": "boolean",
           "default": true,
-          "description": "別のデックからコピーしたスライドを貼るとき、「貼り付け先に合わせて貼り付け」（素材のコピー・デック固有CSSの同梱・配色の追従）を選べるようにする。"
+          "description": "%config.adaptivePaste%"
         },
         "marpScrollSync.saveAfterEdit": {
           "type": "boolean",
           "default": true,
-          "description": "プレビューの直接編集・箱の移動・スライド操作・挿入・印・配置案・サイズ/色など、この拡張が原稿に書いたあと、すぐファイルを保存する（未保存のまま置くと、外で原稿を書き換える Claude Code などとぶつかる）。取り消しは Cmd+Z（Ctrl+Z）でそのまま効く。"
+          "description": "%config.saveAfterEdit%"
         },
         "marpScrollSync.home.onStartup": {
           "type": "boolean",
           "default": true,
-          "description": "theme/academic.css のあるフォルダ（marp-GUI）を開いたとき、Marp の原稿がまだ表示されていなければホーム（最近・棚・手を入れた順・検索）を出す。"
+          "description": "%config.home.onStartup%"
         },
         "marpScrollSync.home.openPreview": {
           "type": "boolean",
           "default": true,
-          "description": "ホームのカードを押して原稿を開いたとき、同期プレビューも横に開く。"
+          "description": "%config.home.openPreview%"
         }
       }
     }
