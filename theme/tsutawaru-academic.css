@@ -1077,17 +1077,20 @@ section:is(.lay-cards2, .lay-cards3) > .body > :is(ul, ol) > li {
 }
 
 /* ---- 14-3 lay-keyrow：名前＋一言を横に並べる。上の罫1本だけで囲まない（.keyrow と同じ・3つまで）---- */
-section.lay-keyrow > :is(ul, ol) {
+section.lay-keyrow > :is(ul, ol),
+section.lay-keyrow > .body > :is(ul, ol) {
   list-style: none; padding-left: 0;
   display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr);
   gap: 1em var(--gap-group); margin: .3em 0 1.2em;
   word-break: auto-phrase;
 }
-section.lay-keyrow > :is(ul, ol) > li {
+section.lay-keyrow > :is(ul, ol) > li,
+section.lay-keyrow > .body > :is(ul, ol) > li {
   border-top: 3px solid var(--accent); padding: .45em 0 0; margin: 0; min-width: 0;
   color: var(--ink-weak); line-height: 1.5;
 }
-section.lay-keyrow > :is(ul, ol) > li > strong:first-child { color: var(--ink); }
+section.lay-keyrow > :is(ul, ol) > li > strong:first-child,
+section.lay-keyrow > .body > :is(ul, ol) > li > strong:first-child { color: var(--ink); }
 
 /* ---- 14-4 lay-flow：左から右への流れ（.flow ＋ .fbox ＋ .arw と同じ。4つまで）------------
    白地・細い枠・直角・等幅・等高。矢印は小さな黒い三角で、大きさは全部同じ。 */
