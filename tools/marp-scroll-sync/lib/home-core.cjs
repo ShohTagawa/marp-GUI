@@ -37,7 +37,7 @@ const byScore = (a, b) => (b.score || 0) - (a.score || 0) || String(b.date || ''
 const hT = (e) => (e.churn && e.churn.human ? e.churn.human.touched || 0 : (e.churn && e.churn.touched || 0));
 const byHuman = (a, b) => hT(b) - hT(a) || byTouched(a, b);
 const byRecent = (a, b) => String(b.churn && b.churn.last || b.date || '').localeCompare(String(a.churn && a.churn.last || a.date || ''))
-  || (b.churn && b.churn.touched || 0) - (a.churn && a.churn.touched || 0) || a.key.localeCompare(b.key);
+  || (b.churn && b.churn.touched || 0) - (a.churn && a.churn.touched || 0) || byPlace(a, b);
 
 /**
  * 手を入れたスライド。sort：'touched'（直した回数。既定）／'human'（人の版の回数）／'score'（★と添削量の点数）／'recent'（最後に直した日）。
