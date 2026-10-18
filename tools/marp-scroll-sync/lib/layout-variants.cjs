@@ -131,7 +131,7 @@ function analyzeSlide(slideText) {
     plain: true, reason: null, title: '', headings: 0,
     lists: 0, items: 0, ordered: false, hasStrongHead: false, headBreak: false, nested: false,
     figures: 0, hasFigure: false, hasTable: false, hasCode: false,
-    paragraphs: 0, textChars: 0, maxItemChars: 0, hasTakeaway: false,
+    paragraphs: 0, textChars: 0, maxItemChars: 0, hasTakeaway: false, wrapped: false,
     classes, layout,
   };
   if (classes.some((c) => PATTERN_CLASSES.includes(c))) { a.plain = false; a.reason = 'pattern'; }
