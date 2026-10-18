@@ -62,7 +62,7 @@ Selecting text in the preview (`tuneSelect`, `planRangeSelect`) selects the same
 
 ## 6. Slide operations and size/colour
 
-Buttons above the current slide (new, duplicate, up, down, delete, mark, library) send `slideOp`; the same commands act on the slide under the cursor without the preview. `slide-ops.cjs` keeps the blank lines around `---`, keeps line endings, drops `_lib` from copies, and recounts slides with `slideStartLines`; if the count is not the expected one, nothing is written. Separator forms on which the splitter could disagree with Marp (`***`, `___`, indented `---`, `headingDivider`, `---` right after a paragraph or list) are refused. Delete asks for confirmation. New slides come from six templates using classes of `theme/academic.css`.
+Buttons above the current slide (new, duplicate, up, down, delete, mark, library) send `slideOp`; the same commands act on the slide under the cursor without the preview. `slide-ops.cjs` keeps the blank lines around `---` and the line endings, drops `_lib` from copies, and recounts the slides of the result; if the count is unexpected, nothing is written. Separator forms on which the splitter could disagree with Marp (`***`, `___`, indented `---`, `headingDivider`) are refused. New slides come from six templates.
 
 Size/colour wraps a one-line selection in `<span class="ss-tune" style="font-size:Npx !important; color:… !important">` or updates an existing span (never nesting), ±1 px from the measured size. Theme swatches write `var(--accent)`/`var(--accent-dark)` so the colour follows the deck the slide is later pasted into.
 
