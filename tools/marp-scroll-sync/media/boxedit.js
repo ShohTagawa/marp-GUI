@@ -760,12 +760,14 @@
     if (ev.key === 'Alt') { if (!typingTarget(ev.target)) setAlt(true); return; }
     if (!sel || editing() || typingTarget(ev.target)) return;
     var k = ev.key;
+    if (crop) { cropKey(ev, k); return; }
     if (k === 'Escape') {
       stop(ev, true);
       if (drag) cancelDrag(); else deselect();
       return;
     }
     if (ev.metaKey || ev.ctrlKey) return;   // Cmd+Z などは preview.js（原稿の取り消し）へ流す
+    if ((k === 'c' || k === 'C') && !ev.altKey) { stop(ev, true); if (!drag) enterCrop(); return; }   // トリミングへ（断る理由は enterCrop が出す）
     if (ev.altKey && (k === 'ArrowUp' || k === 'ArrowDown')) { stop(ev, true); if (!drag) { if (k === 'ArrowUp') goParent(); else goChild(); } return; }
     if (k === 'ArrowLeft' || k === 'ArrowRight' || k === 'ArrowUp' || k === 'ArrowDown') {
       stop(ev, true);
