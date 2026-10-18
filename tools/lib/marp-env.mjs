@@ -230,6 +230,17 @@ export function themeSetArgs(root = ROOT) {
 }
 
 /**
+ * Windows の `cmd /c start "" <url>` に渡す URL。start は cmd.exe を通るので、cmd が意味を持つ文字
+ * （& | < > ^ ( ) ! " と、後ろが 16 進 2 桁でない %）を URL の書き方（%XX）に直す。
+ * ^ で逃がす方式だと、ファイル名の ^& が「^^&」になって & が生き返る（a^&calc.md でコマンドが走る）。
+ * %XX にしても URL としての意味は同じ（file:// も http:// も、開く側が元の文字に戻す）。
+ * 既にある %XX はそのまま（pathToFileURL が % を %25 にしているので、%名前% の環境変数の展開にもならない）。
+ */
+export function cmdSafeUrl(url) {
+  return String(url).replace(/%(?![0-9A-Fa-f]{2})|[&|<>^()!"]/g, (c) => '%' + c.charCodeAt(0).toString(16).toUpperCase());
+}
+
+/**
  * OS 既定の方法で URL / ファイルを開く（Chrome があれば Chrome を優先）。
  * 呼び出し元をブロックしないよう detached で起動する。
  */
