@@ -137,7 +137,7 @@ const MOCK = `
  * プレビューの HTML を作る。
  *   opts.count … 見本デックの先頭から何枚使うか（既定 10。追加スライドがその後ろに1枚付く）
  *   opts.init  … window.__SS_INIT__ の上書き
- *   opts.md    … 実デックの代わりに描画する md（反例のテスト用。frontmatter から全部を渡す）
+ *   opts.md    … 見本デックの代わりに描画する md（反例のテスト用。frontmatter から全部を渡す）
  * 戻り値 { html, md, lines, slideCount, fixtureIndex, attached }
  */
 function buildPreviewHtml(opts) {
