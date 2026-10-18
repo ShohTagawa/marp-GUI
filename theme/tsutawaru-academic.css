@@ -1217,16 +1217,20 @@ section.lay-lead > .body > :is(h1, h2) { margin-bottom: 0; }
    大きさを変えたいデックは style: で  section.lay-points { --points-size: 30px; }  のように上書きする。
    見出し（h2）と要点の帯は有っても無くてもよく、要点はその間の縦の中央に置く。 */
 section.lay-points { --points-size: 34px; }
-section.lay-points > :is(ul, ol) {
+section.lay-points > :is(ul, ol),
+section.lay-points > .body > :is(ul, ol) {
   font-size: var(--points-size); line-height: 1.7;
   max-width: none;
   margin-top: auto;
   margin-bottom: auto !important;   /* academic の「最後の子は margin-bottom:0 !important」に勝たせて、縦の中央に置く */
   word-break: auto-phrase;
 }
-section.lay-points > :is(ul, ol) > li { margin: 0 0 .5em; }
-section.lay-points > :is(ul, ol) > li:last-child { margin-bottom: 0; }
-section.lay-points > :is(h1, h2) { margin-bottom: 0; }
+section.lay-points > :is(ul, ol) > li,
+section.lay-points > .body > :is(ul, ol) > li { margin: 0 0 .5em; }
+section.lay-points > :is(ul, ol) > li:last-child,
+section.lay-points > .body > :is(ul, ol) > li:last-child { margin-bottom: 0; }
+section.lay-points > :is(h1, h2),
+section.lay-points > .body > :is(h1, h2) { margin-bottom: 0; }
 
 /* ---- 14-10 lay-fig-only：図1枚だけを中央に大きく。文は置かず、下の要点の帯だけ ---------------
    見出し（有れば）→ 図。図は残りの高さ・幅いっぱいまで（縦横比は保つ）で、縦横とも中央。
