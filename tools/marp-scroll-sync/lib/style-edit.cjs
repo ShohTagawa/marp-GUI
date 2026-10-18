@@ -7,14 +7,18 @@
 //     数え方は source-map.cjs の injectHlines と同じトークナイザ（eachOpenTag）。
 //     html_block の途中の行からは数え始めない（手前のコメントや <style> の中かもしれない）。スライドの先頭からと、
 //     直前の空行からの 2 通りで数え、同じタグに行き着いたときだけ書く。
-//   - 書くのは style 属性の translate / width / height だけ。ほかの宣言は字句も順序も保つ。
+//   - 書くのは style 属性の translate / width / height と、トリミングの clip-path / margin-*（辺ごと）だけ。
+//     ほかの宣言は字句も順序も保つ。
 //   - Markdown の画像は alt の Marp キーワード（w: / h:）だけ。位置は書けない。
+//     トリミングは alt では書けないので、段落ごと <p><img …></p> に書き換えてから書く（1 回の編集）。
 //   - 例外は投げない。少しでも怪しければ { ok:false, reason, line }。
 'use strict';
 
 const { eachOpenTag, lineOffsets } = require('./source-map.cjs');
 
-const PROPS = ['translate', 'width', 'height'];
+const SIDES = ['top', 'right', 'bottom', 'left'];
+const CROP_PROPS = ['clip-path', 'margin-top', 'margin-right', 'margin-bottom', 'margin-left'];
+const PROPS = ['translate', 'width', 'height'].concat(CROP_PROPS);
 
 function fail(reason, line) {
   return { ok: false, edits: [], line: Number.isFinite(line) ? line : 0, reason };
