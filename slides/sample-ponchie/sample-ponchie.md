@@ -111,9 +111,9 @@ footer: ''
 <text x="936" y="168" font-size="24" font-weight="700" fill="var(--ink, #1f2937)">What it implies</text>
 <text x="896" y="248" font-size="56" font-weight="700" fill="var(--accent-dark, #125642)">30–70×</text>
 <text x="896" y="284" font-size="20" fill="var(--ink, #1f2937)"><tspan x="896">Hydrogen in the core,</tspan><tspan x="896" dy="26">compared with that in</tspan><tspan x="896" dy="26">today's oceans</tspan></text>
-<path d="M896 382H1224" fill="none" stroke="#FFFFFF" stroke-width="3"/>
-<text x="896" y="420" font-size="20" fill="var(--ink, #1f2937)"><tspan x="896">Uptake into the core may</tspan><tspan x="896" dy="26">have “regulated” the</tspan><tspan x="896" dy="26">amount of ocean water</tspan></text>
-<text x="896" y="540" font-size="18" fill="var(--muted, #6b7280)">A model estimate</text>
+<text x="896" y="368" font-size="18" fill="var(--muted, #6b7280)">(a model estimate)</text>
+<path d="M896 398H1224" fill="none" stroke="#FFFFFF" stroke-width="3"/>
+<text x="896" y="436" font-size="20" fill="var(--ink, #1f2937)"><tspan x="896">Uptake into the core may</tspan><tspan x="896" dy="26">have “regulated” the</tspan><tspan x="896" dy="26">amount of ocean water</tspan></text>
 <rect x="32" y="606" width="1216" height="64" rx="8" fill="url(#pon-en-2-band)"/>
 <text x="640" y="647" font-size="26" font-weight="700" text-anchor="middle" fill="#FFFFFF">Did the forming core set the size of the ocean?</text>
 <text x="32" y="704" font-size="18" fill="var(--muted, #6b7280)">Based on Tagawa S. (2022) Isotope News (780):26–30 [in Japanese]. All figures drawn for this page.</text>
