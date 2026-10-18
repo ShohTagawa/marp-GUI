@@ -792,7 +792,7 @@ async function handleBoxCommit(doc, m) {
   const finalText = applyEditsChecked(text, plan.edits || []);
   if (finalText == null) { postEditResult(false, BOX_REASON_DEFAULT); return; }
   if (finalText === text) { clearTimeout(renderTimer); doRender(doc); return; }   // 書くものが無い。表示を原稿どおりに戻す
-  // 箱の編集はスライドの枚数も並びも変えない（開始タグの style か画像の alt だけ）。変わるなら書かない
+  // 箱の編集はスライドの枚数も並びも変えない（開始タグの style か画像の alt、トリミングでは画像の段落を <p><img> に）。変わるなら書かない
   if (slideStartLines(finalText).length !== starts.length) { postEditResult(false, BOX_REASON_DEFAULT); return; }
   const v0 = doc.version;
   if (!(await replaceMinimal(doc, text, finalText))) { postEditResult(false, REASON_TEXT.stale); return; }
