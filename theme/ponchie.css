@@ -1,0 +1,57 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+/* Copyright (c) 2026 Shoh Tagawa */
+/* @theme ponchie */
+/* Marp theme for single-sheet conceptual infographics (ポンチ絵 = a one-page overview figure). */
+/* The whole slide is ONE full-bleed <svg>. This theme only resets the page  */
+/* and sizes the SVG; all visual design lives inside the SVG itself.          */
+/*                                                                            */
+/* How to write a page (see slides/sample-ponchie/):                          */
+/*   - one <svg viewBox="0 0 1280 720" role="img" aria-label="…"> per slide;   */
+/*   - put the opening <svg …> tag alone on its own line and leave no blank   */
+/*     line inside the SVG, so Markdown keeps it as one HTML block (the       */
+/*     preview can then map each <text> back to its source line);             */
+/*   - colours through var(--accent, …) / var(--warn, …) / var(--ink, …) so    */
+/*     a deck can recolour every page from its front matter;                   */
+/*   - no layout classes (lay-*): this theme defines none.                     */
+/*                                                                            */
+/* The BIZ UDPGothic web font (SIL OFL 1.1) is loaded from Google Fonts at    */
+/* render time; no font file is bundled.                                      */
+
+@import "default";
+@import url('https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&display=swap');
+
+:root {
+  --accent: #1A7A5E;       /* primary */
+  --accent-dark: #125642;  /* gradient end / deep */
+  --accent-soft: #E4F2EC;  /* light tint */
+  --warn: #E07B39;         /* problem / attention (warm) */
+  --warn-soft: #FBEDE2;
+  --ink: #1f2937;          /* body text */
+  --muted: #6b7280;
+  --font-jp: "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Yu Gothic Medium", "Noto Sans JP", "Meiryo", sans-serif;
+}
+
+section {
+  margin: 0;
+  padding: 0;
+  width: 1280px;
+  height: 720px;
+  background: #ffffff;
+  font-family: var(--font-jp);
+  display: block;
+  overflow: hidden;
+}
+
+/* Hide the header/footer band machinery entirely. */
+section header, section footer { display: none !important; }
+section::after { display: none; }   /* page number */
+
+/* The single hero SVG fills the slide. */
+section > svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* SVG text should inherit the Japanese font stack. */
+svg text { font-family: var(--font-jp); }
