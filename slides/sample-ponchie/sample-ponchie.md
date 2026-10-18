@@ -33,7 +33,7 @@ footer: ''
 <text x="128" y="476" font-size="20" fill="var(--ink, #1f2937)"><tspan x="128">Last week's</tspan><tspan x="128" dy="26">quiz</tspan></text>
 <path d="M306 340H322L338 360L322 380H306L322 360Z" fill="var(--accent, #1A7A5E)"/>
 <circle cx="640" cy="360" r="64" fill="var(--accent-soft, #E4F2EC)"/>
-<text x="640" y="368" font-size="22" font-weight="700" text-anchor="middle" fill="var(--accent-dark, #125642)">Every week</text>
+<text x="640" y="354" font-size="22" font-weight="700" text-anchor="middle" fill="var(--accent-dark, #125642)"><tspan x="640">Every</tspan><tspan x="640" dy="28">week</tspan></text>
 <rect x="540" y="129" width="200" height="92" rx="8" fill="var(--accent, #1A7A5E)" filter="url(#pon-en-1-shadow)"/>
 <text x="640" y="166" font-size="24" font-weight="700" text-anchor="middle" fill="#FFFFFF">Plan</text>
 <text x="640" y="198" font-size="18" text-anchor="middle" fill="#FFFFFF">Choose goals</text>
