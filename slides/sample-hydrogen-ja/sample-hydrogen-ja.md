@@ -10,6 +10,7 @@ style: |
   :root {
     --measure: 42em;   /* 行長。16:9で右が余るので28em→42emに伸ばす */
   }
+  section { word-break: auto-phrase; }   /* 狭い列で語の途中を折らない（lang: ja が要る） */
 ---
 
 <!-- _class: cover-hero -->
