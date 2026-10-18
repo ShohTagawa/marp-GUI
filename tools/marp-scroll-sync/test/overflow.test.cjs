@@ -280,7 +280,7 @@ test('整った見本デック（sample-layouts）を誤ってはみ出しと言
   const name = 'sample-layouts';
   const dir = path.join(H.REPO_ROOT, 'slides', name);
   const mdPath = path.join(dir, name + '.md');
-  if (!fs.existsSync(mdPath)) return t.skip('実デックがありません');
+  if (!fs.existsSync(mdPath)) return t.skip('見本デックがありません');
   const r0 = H.renderMd(fs.readFileSync(mdPath, 'utf8'));
   // 素材はデックのフォルダから読む（原本は変えない）
   const html = pageHtml(r0, 1000).replace('<head>', '<head><base href="' + pathToFileURL(dir).href + '/">');
