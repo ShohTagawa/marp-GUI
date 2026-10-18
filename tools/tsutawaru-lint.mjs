@@ -322,7 +322,7 @@ function lintSlide(text, startLine, out, push) {
   // ---- 1枚の文字数（p.202） ----
   const chars = visibleText(text).length;
   out.chars.push(chars);
-  if (chars > RULES.CHARS_WARN) push('warn', startLine, 'chars', chars);
+  if (chars > RULES.CHARS_WARN) push('warn', slideLine, 'chars', chars);
 
   const sizes = [];
   let centered = false;
