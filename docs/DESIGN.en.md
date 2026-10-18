@@ -4,7 +4,7 @@ An English summary of [`tools/marp-scroll-sync/DESIGN.md`](../tools/marp-scroll-
 
 ## 1. Purpose
 
-Editing a [Marp](https://marp.app/) deck normally means switching between the Markdown source and a read-only preview. `marp-scroll-sync` adds a synced preview to VS Code on which routine edits are made directly: text is edited in place and written back; slides are added, duplicated, moved and deleted; boxes are moved and resized; a slide's layout is switched among thumbnail variants; finished slides are found again across all decks of the repository (ranked by how often they were revised in git) and inserted into another deck with their assets, CSS and colours adapted. The source is kept readable by folding every slide except the current one. The Markdown file remains the single source of truth.
+`marp-scroll-sync` adds to VS Code a synced [Marp](https://marp.app/) preview on which routine edits are made directly: text is edited in place and written back; slides are added, duplicated, moved and deleted; boxes are moved and resized; layouts are switched among thumbnail variants; slides of all decks in the repository are searched (ranked by how often they were revised in git) and inserted into another deck with assets, CSS and colours adapted. Folding keeps the source readable. The Markdown file remains the single source of truth.
 
 ## 2. Four invariants
 
