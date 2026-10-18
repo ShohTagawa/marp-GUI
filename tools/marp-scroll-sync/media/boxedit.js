@@ -712,9 +712,10 @@
   function finishDrag() {
     if (!drag) return;
     if (drag.pending) { if (rafId) { cancelAnimationFrame(rafId); rafId = 0; } frame(); }
-    var g = drag.g, moved = drag.moved, noMove = drag.noMove;
+    var g = drag.g, moved = drag.moved, noMove = drag.noMove, wasCrop = drag.crop;
     endDrag();
     swallow = Date.now() + 120;   // 離した直後に来る click を原稿の逆引きへ流さない
+    if (wasCrop) return;
     if (moved && noMove) { try { P.toast(MSG_MDIMG); } catch (_) {} return; }
     if (moved) commit(g.el, g.before, g.important);
   }
