@@ -310,6 +310,9 @@ function browserTable() {
     patternClasses: PATTERN_CLASSES.slice(),
     orderHead: ORDER_HEAD.source,
     notPlainText: NOT_PLAIN_TEXT,
+    sideClasses: SIDE_CLASSES.slice(),
+    wrapClass: WRAP_CLASS,
+    wrapExtra: WRAP_EXTRA.slice(),
   };
 }
 
