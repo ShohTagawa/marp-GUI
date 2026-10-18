@@ -319,7 +319,7 @@ _lib: alc-agenda | 構成, アジェンダ | 2026-09-20
 
 ### 8.3 配置案：右クリックで「別の配置にしたらどう見えるか」を並べる
 
-パターンごとにコードを書き分けない。**同じ Markdown のまま、`_class` に 1 語足すだけで配置が変わる CSS**（配置クラス `lay-*`）を `theme/tsutawaru-academic.css` の §14 に用意する。根拠は『伝わるデザインの基本』（docs/tsutawaru-rules.md・docs/tsutawaru-guide.md）。
+パターンごとにコードを書き分けない。**同じ Markdown のまま、`_class` に 1 語足すだけで配置が変わる CSS**（配置クラス `lay-*`）を `theme/tsutawaru-academic.css` の §14 に用意する。根拠は『伝わるデザインの基本』（ページ番号と要約は docs/design-rules.md）。
 
 - 対象は「素の構造」のスライド：section の直下が h1/h2、ul/ol、p、img/figure/インライン svg、`.page-title`、`.takeaway`、`.note` などだけ（レイアウト用の div で包んでいない）。包んであるスライドでは、使える配置案は出さず、その旨を 1 行で示す。
 - 配置クラスの例（実装担当が本の規則と実測で決める。8〜12 個。どれも既存デックで未使用の名前にする）：`lay-list`（見出し＋説明の箇条書き＝既定）／`lay-boxed`（項目を塗りで囲む）／`lay-cards2`（2×2）／`lay-cards3`（3 列）／`lay-keyrow`（上罫だけの 3 列）／`lay-flow`（左→右の箱と矢印）／`lay-steps`（番号つきの縦の手順）／`lay-fig-right`・`lay-fig-left`（図と文の 2 カラム）／`lay-fig-top`（図を上に大きく）／`lay-lead`（1 文を大きく）。2026-09-26 追加：`lay-points`（要点だけ 2〜5 行を 34px で縦の中央に。`headBreak:false`＝見出し＋説明の形でない項目だけ）／`lay-fig-only`（図 1 枚だけを中央に。`text:false`＝文が無いときだけ）。試験の EXTRA スライドの番号は見本デックの枚数 N からの相対で書く。
