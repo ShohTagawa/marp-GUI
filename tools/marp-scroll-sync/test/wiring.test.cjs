@@ -251,7 +251,8 @@ test('corpusSearch → corpusResults：サムネイルは svg 1 枚・<script> �
   const r2 = last(S, 'corpusResults');
   assert.strictEqual(r2.reqId, 2); assert.strictEqual(r2.items[0].slide, 3);
   assert.deepStrictEqual(r2.css, {}, '持っている css は送り直さない');
-  assert.ok(warm < 30, `キャッシュ済みの応答は 30ms 以内（実測 ${warm}ms）`);
+  // 速さは手元でだけ assert する（CI の共有ランナーでは測って出すだけ。ほかの速さの試験と同じ扱い）
+  if (!process.env.CI) assert.ok(warm < 30, `キャッシュ済みの応答は 30ms 以内（実測 ${warm}ms）`);
   console.log(`# corpusSearch（合成 3 デック）：初回 ${cold}ms／キャッシュ済み ${warm}ms`);
 
   // 未保存の原稿（textOf）：開いている A の 2 枚目を書き換えると、サムネイルにも映る
