@@ -1068,8 +1068,10 @@ section:is(.lay-cards2, .lay-cards3) > .body > :is(ul, ol) {
   align-items: stretch;
   word-break: auto-phrase;
 }
-section.lay-cards3 > :is(ul, ol) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-section:is(.lay-cards2, .lay-cards3) > :is(ul, ol) > li {
+section.lay-cards3 > :is(ul, ol),
+section.lay-cards3 > .body > :is(ul, ol) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+section:is(.lay-cards2, .lay-cards3) > :is(ul, ol) > li,
+section:is(.lay-cards2, .lay-cards3) > .body > :is(ul, ol) > li {
   background: var(--fill); border-radius: var(--radius);
   padding: .8em 1em; margin: 0; min-width: 0;
 }
