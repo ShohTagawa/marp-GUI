@@ -41,19 +41,28 @@ const deckName = path.basename(mdAbs, '.md');
 
 // 画像の相対参照(../assets/… や ./src/…)を壊さないため、HTMLは md と同じ階層に置く。
 // (marp は HTML 出力時に相対パスをそのまま残すので、out/ など別階層に出すと画像が消える。)
-// 先頭ドット＋ *.html は .gitignore 済みなのでコミットされない。
+// .marp-present.html はリポジトリの .gitignore に入れてあるので、コミットされない（どの深さでも）。
 const html = path.join(deckDir, '.marp-present.html');
 
 try {
   console.log(`[1/2] marp: 発表用HTML(bespoke)を描画  → ${deckName}`);
   // --allow-local-files は付けない：HTML出力には不要で、marp の Puppeteer 経路を起こす。
-  //   画像は Chrome 側の --allow-file-access-from-files（下の起動オプション）で file:// から読める。
   runMarp([mdAbs, ...themeSetArgs(ROOT), '-o', html]);
 
   const url = pathToFileURL(html).href + (page > 1 ? `#${page}` : '');
   if (open) {
     console.log('[2/2] ブラウザで開く  (F=全画面 / P=発表者ビュー / ←→=ページ送り / O=一覧)');
-    const used = openInBrowser(url, { chromeArgs: ['--new-window', '--allow-file-access-from-files'] });
+    // 【安全のため付けないフラグ】--allow-file-access-from-files
+    //   file:// のページが、同じ PC の別のファイルをスクリプトで読めるようになる。HTML は --html で
+    //   描画するので、他人から受け取ったデックに <script> が入っていると、手元のファイルを読んで
+    //   外へ送れてしまう（tools/marp-pdf/chunk-print.mjs で外したのと同じ理由）。
+    //   無くても画像・動画・インライン SVG は file:// からそのまま表示され、発表者ビューも動く
+    //   （<img> の読み込みはこのフラグと関係なく、発表者ビューとの同期は localStorage と postMessage）。
+    // [Flag intentionally NOT used] --allow-file-access-from-files lets a file:// page read other
+    //   local files from script. Decks are rendered with --html, so a received deck's <script> could
+    //   read local files and send them out (same reason as in tools/marp-pdf/chunk-print.mjs).
+    //   Images, videos, inline SVG and the presenter view work without it.
+    const used = openInBrowser(url, { chromeArgs: ['--new-window'] });
     console.log(`      browser: ${used}`);
   } else {
     console.log('[2/2] --no-open のため開きません');
