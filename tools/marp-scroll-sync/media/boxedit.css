@@ -29,3 +29,10 @@
 html.ss-box-alt, html.ss-box-alt *, html.ss-box-drag, html.ss-box-drag * { -webkit-user-select:none !important; user-select:none !important; }
 html.ss-box-alt div.marpit section, html.ss-box-alt div.marpit section * { cursor:crosshair !important; }
 html.ss-box-alt .ss-hover, html.ss-box-on .ss-hover { outline-color:transparent !important; }
+/* トリミング（DESIGN 9.6）：切られる部分は元の画像を暗く重ねて見せる。✂ ボタンは札の右。ハンドルは黒（PowerPoint の切り取りと同じ見た目） */
+.ss-box-ghost { position:fixed; box-sizing:border-box; pointer-events:none; opacity:.6; filter:brightness(.45); background:rgba(0,0,0,.35); }
+.ss-box-cropbtn { position:fixed; padding:1px 8px; border-radius:3px; white-space:nowrap; color:#1463c8; background:#fff; border:1px solid #1463c8;
+  font-weight:700; cursor:pointer; pointer-events:auto; box-shadow:0 1px 4px rgba(0,0,0,.35); }
+.ss-box-cropbtn:hover { background:#e8f1ff; }
+.ss-box-sel.ss-box-cropping { border-color:#ff9f1a; cursor:default; }
+.ss-box-sel.ss-box-cropping .ss-box-handle { background:#222; border-color:#ff9f1a; }
