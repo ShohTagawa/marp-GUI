@@ -888,7 +888,15 @@
     if (keyBatch) { clearTimeout(keyBatch.timer); keyBatch = null; }
     var svg = P.slides()[sel.index], sec = svg && P.sectionOf(svg);
     var el = sel.target ? findByTarget(sec, sel.target) : null;
-    if (!el) { sel = null; selBox.style.display = 'none'; selTag.style.display = 'none'; setRoot(); return; }
+    // Markdown の画像を <img> に書き換えた直後：同じ行の <img>（data-hline つき）を選び直す
+    if (!el && sel.target && sel.target.kind === 'mdimg') el = findConverted(sec, sel.target);
+    var conv = pendingConvert && pendingConvert.index === sel.index;
+    pendingConvert = null;
+    if (!el) { sel = null; selBox.style.display = 'none'; selTag.style.display = 'none'; cropBtn.style.display = 'none'; setRoot(); return; }
+    if (sel.target.kind === 'mdimg' && el.hasAttribute('data-hline')) {
+      var nt = targetOf(el);
+      if (!nt.refuse) { sel.target = nt; if (conv) { try { P.toast(MSG_CONVERTED); } catch (_) {} } }
+    }
     sel.el = el; sel.downStack = [];
     setRoot();
     refreshSel();
