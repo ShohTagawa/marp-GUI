@@ -397,7 +397,7 @@ const report = [];
 for (const p of DECKS) {
   const name = path.basename(p);
   const text = readDeck(p);
-  test(`実デック ${name}: 範囲が入れ子を壊さず、slideStartLines と整合する`, { skip: text === null && 'デックが無い' }, () => {
+  test(`見本デック ${name}: 範囲が入れ子を壊さず、slideStartLines と整合する`, { skip: text === null && 'デックが無い' }, () => {
     const lines = text.split(/\r?\n/);
     const ranges = F.foldingRanges(text);
     assertNested(ranges, name);
