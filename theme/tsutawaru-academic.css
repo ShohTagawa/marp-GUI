@@ -1236,14 +1236,32 @@ section.lay-points > .body > :is(h1, h2) { margin-bottom: 0; }
    見出し（有れば）→ 図。図は残りの高さ・幅いっぱいまで（縦横比は保つ）で、縦横とも中央。
    要素を減らして図だけを見せる（p.110 図解は要素を減らしてシンプルに）。
    画像に w:760 のように幅を書いてあれば、その幅が上限になる。 */
-section.lay-fig-only > :is(figure, p:has(> :is(img, svg):only-child)) {
+section.lay-fig-only > :is(figure, p:has(> :is(img, svg):only-child)),
+section.lay-fig-only > .body > :is(figure, p:has(> :is(img, svg):only-child)) {
   flex: 1 1 0; min-height: 0; max-width: none; width: 100%; margin: 0;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
-section.lay-fig-only > :is(figure, p:has(> img:only-child)) > img {
+section.lay-fig-only > :is(figure, p:has(> img:only-child)) > img,
+section.lay-fig-only > .body > :is(figure, p:has(> img:only-child)) > img {
   display: block; max-width: 100%; max-height: 100%; min-height: 0;
   width: auto; height: auto; object-fit: contain; object-position: center;
 }
-section.lay-fig-only > p:has(> svg:only-child) > svg { height: 100%; width: auto; max-width: 100%; min-height: 0; }
-section.lay-fig-only > svg { flex: 1 1 0; min-height: 0; width: auto; max-width: 100%; align-self: center; margin: 0; }
-section.lay-fig-only > :is(h1, h2) { margin-bottom: .3em; }
+section.lay-fig-only > p:has(> svg:only-child) > svg,
+section.lay-fig-only > .body > p:has(> svg:only-child) > svg { height: 100%; width: auto; max-width: 100%; min-height: 0; }
+section.lay-fig-only > svg,
+section.lay-fig-only > .body > svg { flex: 1 1 0; min-height: 0; width: auto; max-width: 100%; align-self: center; margin: 0; }
+section.lay-fig-only > :is(h1, h2),
+section.lay-fig-only > .body > :is(h1, h2) { margin-bottom: .3em; }
+
+/* ---- 14-11 包み（.body）と出典の行（.attr / .cite / .src-row）（2026-10 追加）---------------
+   ・<div class="body">（academic の本文ゾーン）で包んだ素の Markdown にも lay-* が効くように、
+     包みを display:contents にする（中身が section の直下と同じに並ぶ）。14-0〜14-10 の規則は
+     どれも「section.lay-x > …」と「section.lay-x > .body > …」の2つを並べて書いてある
+     （直下の分の詳細度は変えていない＝既存デックの見た目とデック側の上書きはそのまま）。
+     包みに付けた vcenter / vspread は、lay-* を付けている間は効かない（配置は lay-* が決める）。
+   ・出典・注記の行（.attr / .cite / .src-row）には、配置のための規則を足していない。原稿の順のまま
+     本文の流れに残る（lay-fig-right なら文の列の下、lay-fig-top なら文の下）。既存デックが手で書いた
+     lay-fig-* ＋ .attr の見た目を変えないため（図の真下や左右いっぱいに回す案は、既存の見た目が動くので保留）。
+   ・同期プレビュー拡張の配置案も、出典の行は数えず、.body は透過して中身で判定する（lib/layout-variants.cjs の SIDE_CLASSES / WRAP_CLASS）。 */
+section:is(.lay-boxed, .lay-cards2, .lay-cards3, .lay-keyrow, .lay-flow, .lay-steps,
+  .lay-fig-right, .lay-fig-left, .lay-fig-top, .lay-lead, .lay-points, .lay-fig-only) > .body { display: contents; }
