@@ -1,0 +1,340 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+/* Copyright (c) 2026 Shoh Tagawa */
+/* @theme tsutawaru-simple */
+/* ============================================================================
+   tsutawaru-simple — ヘッダー帯のない、白地＋斜線の帯だけのテーマ
+
+   tsutawaru-academic.css を @import して、外枠（ヘッダー・帯・余白・色・字間）だけを
+   組み直した派生テーマ。部品（§13）と配置クラス lay-*（§14）は tsutawaru-academic の
+   ものをそのまま使う。文字・配色・囲みの考え方は tsutawaru-academic と同じで、
+   見た目の違いは「ヘッダー帯の代わりに細い斜線の帯を置き、余白を広くとる」ことだけ。
+
+   ビルド時は3枚とも渡す（npm run png / npm run pdf は theme/*.css を全部渡すので指定不要）：
+     --theme-set theme/academic.css theme/tsutawaru-academic.css theme/tsutawaru-simple.css
+
+   frontmatter は次だけでよい（header: と、ヘッダー幅の調整つまみは要らない）：
+     ---
+     marp: true
+     theme: tsutawaru-simple
+     paginate: true
+     size: 16:9
+     lang: ja
+     footer: ''
+     ---
+
+   スライドごとに変えられるもの（<!-- _class: … -->）：
+     帯の位置  （なし）＝左の細い帯 ／ band-top＝上の帯 ／ band-wide＝左の広い帯＋ラベル ／ band-none＝帯なし
+     色        blue（既定）／ red ／ yellow ／ green ／ gray ／ teal ／ garnet
+               （orange は yellow、sky は teal と同じ色。tsutawaru-simple-cud と語をそろえるための別名）
+     区切り    divider＝色を反転した章扉（academic のまま）
+   _class はグローバルの class を置き換える。色を class: で決めたデックでは、
+   _class にも色の語を書く（例：<!-- _class: red lay-cards3 -->）。
+   デック全体の色を1つに決めるなら、class: ではなく style: の :root で
+   --band / --accent / --accent-dark / --accent-soft を上書きするほうが確実。
+
+   書体：既定は academic と同じ BIZ UDPGothic。LINE Seed JP（SIL OFL 1.1）を選べるように、
+   Google Fonts から読み込む（フォントのファイルは同梱しない。描画のときに fonts.googleapis.com
+   と fonts.gstatic.com に接続する）。
+   ============================================================================ */
+@import "tsutawaru-academic";
+@import url('https://fonts.googleapis.com/css2?family=LINE+Seed+JP:wght@400;700&display=swap');
+
+/* ============================================================================
+   1. 色 — 白地・灰色の文字・帯の色・箇条書きの点
+      文字は真っ黒にせず濃い灰（題 #424242／本文 #333333）。箇条書きの点はオレンジ、
+      下線マーカーは黄、表紙の地は薄い灰緑。
+      帯は細い斜線なので、鮮やかな色でも薄く見える。そこで帯（--band）には鮮やかな値を、
+      面や文字に使う --accent には彩度を落とした落ち着いた値（赤なら #C33A2A）を使う。
+   ============================================================================ */
+:root {
+  --ink: #333333;
+  --text: #333333;
+  --title: #424242;             /* スライドの題 */
+  --title-weak: #5E5E5E;        /* message（大きな1文）の地の色 */
+  --bullet: #FEAE00;            /* 箇条書きの点。帯の色が変わっても同じ */
+  --marker: #FAE232;            /* .mark の下線マーカー */
+  --cover-bg: #E9EFEE;          /* 表紙の地 */
+
+  /* 既定の色＝青 */
+  --band: #0076BA;              /* 帯の斜線 */
+  --accent: #0076BA;            /* メインの色（小見出し・強調・区切りの地） */
+  --accent-dark: #004D80;
+  --accent-soft: #E8F2F8;
+  --divider-bg: var(--accent);  /* 区切り（divider）の地 */
+  --divider-ink: #ffffff;       /* 区切りの文字 */
+
+  /* 行長。ヘッダーの調整つまみが要らないぶん、16:9 で右が余らない 42em を既定にする */
+  --measure: 42em;
+
+  /* 帯と余白（1280×720 のスライドでの値） */
+  --band-w: 40px;               /* 左の細い帯の幅、上の帯の高さ */
+  --band-wide-w: 275px;         /* 左の広い帯の幅（1280 の 21.5%） */
+  --band-gap: 64px;             /* 帯と本文の間 */
+  --pad-t: 52px;                /* 題の上の余白 */
+  --hatch-tile: 8px;            /* 斜線の間隔（横に測った値）。整数にする */
+  --hatch-core: 0.4px;          /* 斜線の芯の半分の太さ（ここまでは帯の色そのまま） */
+  --hatch-edge: 0.85px;         /* 斜線の縁（芯からここまでで地の色になる）。線の太さは約 1.2px */
+
+  /* 書体。LINE Seed JP にするデックは style: に次の1行を書く：
+       :root { --font-jp: var(--font-seed); }                                   */
+  --font-seed: "LINE Seed JP", "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Yu Gothic Medium", "Noto Sans JP", "Meiryo", sans-serif;
+}
+
+/* 色のプリセット。セクションごとに色を変える使い方（例：章ごとに青・赤・黄・緑）。 */
+/* 色覚の多様性に配慮した色にするときは、theme: tsutawaru-simple-cud に替える（色の語はそのまま使える）。 */
+section.blue   { --band: #0076BA; --accent: #0076BA; --accent-dark: #004D80; --accent-soft: #E8F2F8; }
+section.red    { --band: #EE220C; --accent: #C33A2A; --accent-dark: #962B1F; --accent-soft: #FBECEA; }
+section:is(.yellow, .orange) { --band: #E0A100; --accent: #9A6B00; --accent-dark: #6E4C00; --accent-soft: #FCF4DC;
+                 --divider-bg: #E0A100; --divider-ink: #333333; }   /* 黄の地に白い字は読めない */
+section.green  { --band: #187E18; --accent: #017100; --accent-dark: #015200; --accent-soft: #E8F3E8; }
+section.gray   { --band: #4D4D4D; --accent: #424242; --accent-dark: #262626; --accent-soft: #EFEFEF; }
+section:is(.teal, .sky) { --band: #017B76; --accent: #017B76; --accent-dark: #015754; --accent-soft: #E4F2F1; }
+section.garnet { --band: #A6192E; --accent: #A6192E; --accent-dark: #7D1322; --accent-soft: #F6E9EC; }
+
+/* ============================================================================
+   2. ヘッダーは出さない
+      header: を frontmatter に書いたままでも、<div class="page-title"> を本文に
+      書いたままでも、どちらも表示しない（既存デックのテーマを替えて試せる）。
+      --header-h（56px）は変えていない。
+   ============================================================================ */
+section > header,
+section .page-title { display: none !important; }
+
+/* ============================================================================
+   3. 帯と余白
+      帯は section の背景として描く（::before / ::after は使わない。::after はページ番号）。
+      ・斜線は repeating-linear-gradient。線の間は transparent ではなく地の色（--bg）で塗る。
+        transparent を使うと、PDF で帯が粗い画像になり、拡大すると階段状になる
+        （不透明な色だけなら PDF でもベクターのまま出る。このリポジトリの PDF 書き出しで確かめた）。
+      ・斜線の間隔は「横に測って 8px ちょうど」になる値（8 ÷ √2）。
+        半端な値にすると、線ごとに太さがばらつく。
+      ・色の境目は 0.45px ぼかす（ぴったり重ねると、PNG で線が階段状になる）。
+      ・左の帯は「／」、上の帯は「＼」の向き。
+   ============================================================================ */
+:root {
+  --hatch-pitch: calc(var(--hatch-tile) * 0.70710678);
+  --hatch-l: repeating-linear-gradient(135deg,
+      var(--band) 0, var(--band) var(--hatch-core),
+      var(--bg) var(--hatch-edge), var(--bg) calc(var(--hatch-pitch) - var(--hatch-edge)),
+      var(--band) calc(var(--hatch-pitch) - var(--hatch-core)), var(--band) var(--hatch-pitch));
+  --hatch-t: repeating-linear-gradient(45deg,
+      var(--band) 0, var(--band) var(--hatch-core),
+      var(--bg) var(--hatch-edge), var(--bg) calc(var(--hatch-pitch) - var(--hatch-edge)),
+      var(--band) calc(var(--hatch-pitch) - var(--hatch-core)), var(--band) var(--hatch-pitch));
+  --pad-l: calc(var(--band-w) + var(--band-gap));
+  --pad-r: var(--side-pad);
+}
+section {
+  padding: var(--pad-t) var(--pad-r) var(--bottom-pad) var(--pad-l);
+  background-color: var(--bg);
+  background-image: var(--hatch-l);
+  background-repeat: no-repeat;
+  background-position: left top;
+  background-size: var(--band-w) 100%;
+}
+
+/* 上の帯：横に広く使いたいスライド（左右の見比べ・広い表）に */
+section.band-top {
+  --pad-l: var(--side-pad);
+  padding-top: calc(var(--header-h) + 28px);   /* 題の上端を tsutawaru-academic と同じ位置（84px）に */
+  background-image: var(--hatch-t);
+  background-size: 100% var(--band-w);
+}
+
+/* 左の広い帯＋ラベル：題を置かず、図や作例だけを見せるスライドに。
+   ## で書いた題が、帯の中の小さなラベルになる（白い地・メインの色の太字）。 */
+section.band-wide {
+  --pad-l: calc(var(--band-wide-w) + var(--band-gap));
+  background-size: var(--band-wide-w) 100%;
+  justify-content: center !important;          /* 中身を縦の中央に */
+}
+section.band-wide > :is(h1, h2) {
+  position: absolute;
+  left: 24px; top: 50%; transform: translateY(-50%);
+  width: fit-content; max-width: calc(var(--band-wide-w) - 48px);
+  min-height: 0; margin: 0;
+  background: var(--bg);
+  padding: .45em .6em;
+  font-size: 20px; line-height: 1.6; letter-spacing: .06em;
+  color: var(--accent);
+  word-break: auto-phrase;
+}
+
+/* 帯なし */
+section.band-none { --pad-l: var(--side-pad); background-image: none; }
+
+/* 全画面の型・画面を端まで使う型には帯を描かない */
+section.handson-2,
+section.handson-2:has(.takeaway) { background-image: none; }
+
+/* ============================================================================
+   4. 本文の組版
+      行送り 1.75・字間 0.08em。題と本文の間は、題の1文字分ほどあける。
+   ============================================================================ */
+section {
+  line-height: 1.75;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+}
+section h2,
+section h1 {
+  color: var(--title);
+  letter-spacing: 0.08em;
+  margin: 0 0 .9em;
+}
+/* 小見出しは色と太さだけ。左の縦罫は付けない */
+section h3, .sh {
+  color: var(--accent-dark);
+  border-left: none;
+  padding-left: 0;
+  letter-spacing: 0.06em;
+}
+.lead { color: var(--ink); letter-spacing: 0.08em; }
+
+/* 箇条書きの点：大きく、オレンジで、項目の間をあける */
+section ul > li { margin: 0 0 .55em; }
+section ul > li::before {
+  font-size: .6em;
+  line-height: 2.92;            /* .6em × 2.92 ＝ 本文の1行（1.75em）。点が1行目の中央に来る */
+  color: var(--bullet);
+}
+
+/* 下線マーカーは黄色 */
+.mark { background: linear-gradient(transparent 58%, var(--marker) 58%); }
+
+/* 表・補足の字間は本文より詰める（狭い列で折り返しを増やさない） */
+section table th, section table td { letter-spacing: 0.04em; }
+
+/* ============================================================================
+   5. 要点の帯（takeaway）— 塗りを外し、上の細い罫だけにする
+      位置・大きさ（下端から 28px・28px の太字）は tsutawaru-academic のまま。
+      左右は本文の幅に合わせる。
+   ============================================================================ */
+.takeaway {
+  left: var(--pad-l);
+  right: var(--pad-r);
+  background: none;
+  border-top: 1px solid var(--rule);
+  border-radius: 0;
+  padding: .45em 0 0;
+  color: var(--accent-dark);
+  letter-spacing: 0.06em;
+}
+/* 塗りの帯に戻したいとき：<div class="takeaway fill"> */
+.takeaway.fill {
+  background: var(--accent-soft);
+  border-top: none;
+  border-radius: var(--radius);
+  padding: .45em .7em;
+}
+
+/* ============================================================================
+   6. 全画面の型
+   ============================================================================ */
+/* ---- 区切り（divider）：色の反転は残す。地＝メインの色、文字＝白 ---------------- */
+section.divider {
+  background: var(--divider-bg);
+  color: var(--divider-ink);
+}
+section.divider h1 { color: var(--divider-ink); letter-spacing: 0.08em; }
+section.divider h2,
+section.divider .chapter-num { color: var(--divider-ink); opacity: .85; }
+section.divider::after { color: var(--divider-ink); opacity: .6; }
+
+/* ---- 大きな1文（message）：灰色の太字を中央に。強調する行だけ *…* で色を付ける ---- */
+section.message,
+section.qa {
+  --pad-l: calc(var(--band-w) + var(--side-pad));   /* 帯を除いた白地の中央に置く */
+  background-color: var(--bg);
+  background-image: var(--hatch-l);
+  background-repeat: no-repeat;
+  background-position: left top;
+  background-size: var(--band-w) 100%;
+  padding-left: var(--pad-l);
+  padding-right: var(--pad-r);
+}
+section.message h1 {
+  color: var(--title-weak);
+  font-size: 56px; line-height: 1.6;
+  letter-spacing: 0.08em;
+}
+section.message h1 em,
+section.message h1 .hl { color: var(--em); font-weight: 700; }
+section.message h2 { color: var(--ink-weak); letter-spacing: 0.08em; }
+/* 締めの1枚は控えめに（academic の 96px は、帯と余白だけの画面には大きすぎる） */
+section.qa h1 { font-size: 60px; letter-spacing: 0.12em; }
+
+/* ---- 要点だけを大きく（lay-points）：字間を広げ、かたまりごと中央に ---------------
+   字間 0.2em・項目の間 .7em・かたまりは左右の中央。
+   margin-top の !important：header: を書かないデックでは箇条書きが section の最初の子になり、
+   Marp 既定の「最初の子は margin-top:0 !important」で縦の中央寄せが消えるため。 */
+section.lay-points > :is(ul, ol),
+section.lay-points > .body > :is(ul, ol) {
+  width: fit-content;
+  margin-top: auto !important;
+  margin-left: auto; margin-right: auto;
+  letter-spacing: 0.2em;
+}
+section.lay-points > :is(ul, ol) > li,
+section.lay-points > .body > :is(ul, ol) > li { margin: 0 0 .7em; }
+section.lay-lead > p:not(:is(.note, .attr, .cite)):not(:has(> img)),
+section.lay-lead > .body > p:not(:is(.note, .attr, .cite)):not(:has(> img)) { margin-top: auto !important; }
+
+/* ---- 表紙 -------------------------------------------------------------------
+   cover-left＝左揃えの表紙（前置き → 大きな太い題 → 下に所属・氏名・日付）。
+   cover-hero＝tsutawaru-academic の標準（中央の題＋丸い写真）。どちらも地は薄い灰色、帯なし。 */
+section.cover,
+section.cover-hero,
+section.cover-left {
+  --pad-l: var(--side-pad);
+  background: var(--cover-bg);
+  color: var(--ink);
+}
+section.cover-hero {
+  padding-top: 60px;
+  padding-left: var(--side-pad);
+}
+section.cover-hero .title-big { color: #000; letter-spacing: 0.06em; }
+section.cover-hero .title-small { font-weight: 400; letter-spacing: 0.1em; }
+section.cover-hero .title-event { color: var(--accent-dark); }
+
+section.cover-left { padding: 0 110px 96px; }
+section.cover-left .pre {
+  font-size: 28px; font-weight: 400; color: var(--ink);
+  letter-spacing: 0.12em; margin-bottom: 18px;
+}
+section.cover-left h1 {
+  font-size: 52px; line-height: 1.5; color: #000;
+  letter-spacing: 0.08em; margin: 0 0 18px;
+}
+section.cover-left .sub  { font-size: 26px; color: var(--ink-weak); }
+section.cover-left .meta {
+  font-size: 24px; color: var(--ink); line-height: 1.9; letter-spacing: 0.1em;
+}
+/* 吹き出しのラベル（表紙の題の上に置く短い語）：<div class="bubble">sample</div> */
+.bubble {
+  position: relative; align-self: flex-start;
+  background: #fff; color: #000;
+  border: 2px solid #000; border-radius: 10px;
+  padding: .15em 1.6em;
+  font-size: 20px; font-weight: 700; letter-spacing: 0.16em; line-height: 1.6;
+  margin: 0 0 42px;
+}
+/* しっぽ：黒い三角の上に、ひと回り小さい白い三角を重ねて輪郭だけを残す */
+.bubble::before, .bubble::after {
+  content: ""; position: absolute; width: 0; height: 0;
+  border-style: solid; border-color: transparent;
+}
+.bubble::before {
+  left: 34px; top: 100%;
+  border-width: 18px 9px 0; border-top-color: #000;
+}
+.bubble::after {
+  left: 35.25px; top: calc(100% - 2px);
+  border-width: 15.5px 7.75px 0; border-top-color: #fff;
+}
+/* 表紙の右に置く絵：<img class="cover-art" src="./src/fig01-cover.png" alt=""> */
+section.cover-left .cover-art {
+  position: absolute; right: 0; top: 0; height: 100%; width: auto; max-width: 52%;
+  object-fit: cover; object-position: left center;
+}
