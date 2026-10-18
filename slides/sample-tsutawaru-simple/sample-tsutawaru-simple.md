@@ -58,16 +58,16 @@ No vertical rule is drawn. Body text is dark grey rather than black.
 
 ## A figure on its own
 
-<svg viewBox="0 0 860 330" width="860" height="330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A Markdown source with one class word, and the slide it produces: the same three items laid out as three cards">
+<svg viewBox="0 0 860 370" width="860" height="370" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A Markdown source with one class word, and the slide it produces: the same three items laid out as three cards">
 <defs><marker id="simple-en-f4-ah" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="3" markerHeight="3" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--accent, #0076BA)"/></marker></defs>
 <text x="0" y="24" font-size="22" font-weight="700" fill="var(--ink, #333333)">Markdown</text>
-<rect x="0" y="40" width="380" height="290" rx="3" fill="var(--fill, #F1F1F1)"/>
-<text x="20" y="90" font-size="18" fill="var(--ink, #333333)" style="font-family:Menlo,Consolas,monospace;letter-spacing:0">&lt;!-- _class: <tspan font-weight="700" fill="var(--accent-dark, #004D80)" style="font-family:Menlo,Consolas,monospace">lay-cards3</tspan> --&gt;</text>
-<text x="20" y="150" font-size="18" fill="var(--ink, #333333)" style="font-family:Menlo,Consolas,monospace;letter-spacing:0">## Three points</text>
-<text x="20" y="200" font-size="18" fill="var(--ink, #333333)" style="font-family:Menlo,Consolas,monospace;letter-spacing:0">- **Band**</text>
-<text x="20" y="250" font-size="18" fill="var(--ink, #333333)" style="font-family:Menlo,Consolas,monospace;letter-spacing:0">- **Colour**</text>
-<text x="20" y="300" font-size="18" fill="var(--ink, #333333)" style="font-family:Menlo,Consolas,monospace;letter-spacing:0">- **Takeaway**</text>
-<path d="M398 185H452" fill="none" stroke="var(--accent, #0076BA)" stroke-width="8" marker-end="url(#simple-en-f4-ah)"/>
+<rect x="0" y="40" width="380" height="270" rx="3" fill="var(--fill, #F1F1F1)"/>
+<text x="20" y="88" font-size="18" fill="var(--ink, #333333)" style="font-family:Menlo,Consolas,monospace;letter-spacing:0">&lt;!-- _class: <tspan font-weight="700" fill="var(--accent-dark, #004D80)" style="font-family:Menlo,Consolas,monospace">lay-cards3</tspan> --&gt;</text>
+<text x="20" y="144" font-size="18" fill="var(--ink, #333333)" style="font-family:Menlo,Consolas,monospace;letter-spacing:0">## Three points</text>
+<text x="20" y="192" font-size="18" fill="var(--ink, #333333)" style="font-family:Menlo,Consolas,monospace;letter-spacing:0">- **Band**</text>
+<text x="20" y="236" font-size="18" fill="var(--ink, #333333)" style="font-family:Menlo,Consolas,monospace;letter-spacing:0">- **Colour**</text>
+<text x="20" y="280" font-size="18" fill="var(--ink, #333333)" style="font-family:Menlo,Consolas,monospace;letter-spacing:0">- **Space**</text>
+<path d="M398 147H452" fill="none" stroke="var(--accent, #0076BA)" stroke-width="8" marker-end="url(#simple-en-f4-ah)"/>
 <text x="480" y="24" font-size="22" font-weight="700" fill="var(--ink, #333333)">Slide</text>
 <rect x="480" y="40" width="380" height="214" fill="#ffffff" stroke="var(--ink-weak, #6E6E6E)" stroke-width="2"/>
 <rect x="481" y="41" width="12" height="212" fill="var(--band, #0076BA)"/>
@@ -77,9 +77,8 @@ No vertical rule is drawn. Body text is dark grey rather than black.
 <rect x="732" y="110" width="100" height="110" rx="3" fill="var(--accent-soft, #E8F2F8)"/>
 <text x="562" y="140" font-size="18" font-weight="700" text-anchor="middle" fill="var(--accent-dark, #004D80)" style="letter-spacing:0">Band</text>
 <text x="672" y="140" font-size="18" font-weight="700" text-anchor="middle" fill="var(--accent-dark, #004D80)" style="letter-spacing:0">Colour</text>
-<text x="782" y="140" font-size="18" font-weight="700" text-anchor="middle" fill="var(--accent-dark, #004D80)" style="letter-spacing:0">Takeaway</text>
-<text x="480" y="300" font-size="20" fill="var(--ink, #333333)">One word in _class sets the layout;</text>
-<text x="480" y="326" font-size="20" fill="var(--ink, #333333)">the text stays the same.</text>
+<text x="782" y="140" font-size="18" font-weight="700" text-anchor="middle" fill="var(--accent-dark, #004D80)" style="letter-spacing:0">Space</text>
+<text x="0" y="360" font-size="20" fill="var(--ink, #333333)">One word in _class sets the layout; the text stays the same.</text>
 </svg>
 
 ---
