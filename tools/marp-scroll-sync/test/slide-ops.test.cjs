@@ -412,7 +412,7 @@ test('newSlideTemplates: 形・academic.css に実在するクラスだけ', () 
     // _class のクラスは section.<x> として在る
     const dm = t.text.match(/_class:\s*([^\s>]+(?:\s+[^\s>-]+)*)\s*-->/);
     if (dm) for (const c of dm[1].split(/\s+/)) assert.ok(new RegExp('section\\.' + c + '(?![\\w-])').test(css), t.id + ': section.' + c + ' が academic.css に無い');
-    // 箇条書きは3点まで（CLAUDE.md：1枚で見比べるのは3つまで）
+    // 箇条書きは3点まで（このリポジトリの決まり：1枚で見比べるのは3つまで）
     assert.ok((t.text.match(/^- /gm) || []).length <= 3);
   }
   // 呼ぶたびに新しい配列（呼び出し側が書き換えても正本が壊れない）
