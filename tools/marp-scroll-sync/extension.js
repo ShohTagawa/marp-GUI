@@ -769,7 +769,8 @@ const BOX_REASON_TEXT = {
 };
 const BOX_REASON_DEFAULT = 'この箱は原稿の位置を確定できませんでした。原稿の該当行で直してください（原稿は変えていません）';
 
-/** Alt で動かした・大きさを変えた箱を、原稿の style 属性（Markdown の画像は alt の w: / h:）へ書き戻す（DESIGN 9章） */
+/** Alt で動かした・大きさを変えた・切った箱を、原稿の style 属性（Markdown の画像は alt の w: / h:。
+ *  トリミングは <p><img style> に書き換えてから）へ書き戻す（DESIGN 9章） */
 async function handleBoxCommit(doc, m) {
   if (Number.isInteger(m.index) && isPanelDoc(doc)) forceSlides.add(m.index);   // 表示には動かした後の style が残っている。次の描画でこの 1 枚は必ず差し替える
   if (!styleEdit) { postEditResult(false, '箱の編集の部品を読み込めませんでした'); return; }
