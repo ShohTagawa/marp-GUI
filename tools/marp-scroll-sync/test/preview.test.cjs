@@ -1879,7 +1879,7 @@ test('公開 API：window.ssPreview（slides / sectionOf / current / post / vers
   });
 });
 
-// ---------- 通し試験（e2e-flows）で見つけた不具合の再発防止 ----------
+// ---------- 通し試験（作者の手元の、配布しない試験）で見つけた不具合の再発防止 ----------
 test('サムネイル：onerror= などのイベント属性と javascript: の URL は外してから入れる（CSP が unsafe-inline なので、入れると動く）', async (t) => {
   await withPage(t, async (page) => {
     const fx = corpus();
