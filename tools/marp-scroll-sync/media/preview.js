@@ -221,6 +221,7 @@
     ops.style.left = (r.right + window.scrollX) + 'px';   // translateX(-100%) で右端をスライドの右端に合わせる
     ops.style.top = (r.top + window.scrollY - 24) + 'px';
     if (markBtn) markBtn.classList.toggle('ss-on', !!marks[cur]);
+    setBadge(ss);
     if (edit && edit.kind === 'svg') placeSvgInput(edit);
   }
   // ---------- スライドの間の ＋（既存のスライドを探して、その位置に入れる。DESIGN.md 8.1） ----------
