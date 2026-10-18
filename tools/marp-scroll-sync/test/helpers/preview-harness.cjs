@@ -42,7 +42,7 @@ function themeFiles() {
   return names.map(n => path.join(dir, n));
 }
 
-/** 実デックの frontmatter＋先頭 count 枚＋追加スライドの md を返す（原本は変えない） */
+/** 見本デックの frontmatter＋先頭 count 枚＋追加スライドの md を返す（原本は変えない） */
 function deckSource(count) {
   const { splitDeck } = require(path.join(EXT_ROOT, 'lib', 'slide-split.cjs'));
   const text = fs.readFileSync(DECK, 'utf8');
