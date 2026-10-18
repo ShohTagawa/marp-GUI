@@ -380,7 +380,7 @@ function scanImages(text, from, to, hasRefDef) {
       const next = text[altEnd + 1];
       if (next === '(') {
         const dest = readDest(text, altEnd + 1, to);
-        if (dest) { out.push({ altStart: i + 2, altEnd, src: dest.src }); i = dest.end; continue; }
+        if (dest) { out.push({ start: i, end: dest.end, altStart: i + 2, altEnd, src: dest.src, title: dest.title }); i = dest.end; continue; }
       }
       if (next === '[') {
         const r = text.indexOf(']', altEnd + 2);
