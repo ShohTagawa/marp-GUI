@@ -344,7 +344,7 @@ test('searchCorpus：AND・揺れ（全角/半角・大文字小文字・長音�
   assert.deepEqual(C.searchCorpus(c, 'slido 自己紹介').items, []);
   assert.deepEqual(C.searchCorpus(c, '締め').items.map((i) => i.entry.slide), [5]);
   assert.deepEqual(C.searchCorpus(c, 'done-summary').items.map((i) => i.entry.slide), [5]);
-  assert.deepEqual(C.searchCorpus(c, 'edtech').items.map((i) => i.entry.slide), [2]);
+  assert.deepEqual(C.searchCorpus(c, 'seminar').items.map((i) => i.entry.slide), [2]);
 });
 
 test('searchCorpus：絞り込み・並び・重複のまとめ・ページ送り・空の検索', () => {
