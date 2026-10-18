@@ -881,7 +881,8 @@
   if (typeof P.onRender === 'function') P.onRender(function () {
     lastCommit = null;   // 戻す相手（古い DOM）はもう無いかもしれない
     hideHover();
-    if (!sel) return;
+    if (crop && !crop.el.isConnected) { crop = null; ghost.style.display = 'none'; }   // 描き直しで消えた＝原稿が先に変わった
+    if (!sel) { pendingConvert = null; return; }
     if (sel.el.isConnected) { refreshSel(); return; }
     if (drag) { drag = null; hideGuides(); }
     if (keyBatch) { clearTimeout(keyBatch.timer); keyBatch = null; }
