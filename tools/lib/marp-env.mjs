@@ -51,7 +51,7 @@ export function latestDeck(root = ROOT) {
   };
   const consider = (p) => {
     const b = path.basename(p);
-    if (b.endsWith('.md') && !b.startsWith('_') && isMarp(p)) cands.push({ p, m: fs.statSync(p).mtimeMs });
+    if (b.endsWith('.md') && !b.startsWith('_') && !b.startsWith('.') && isMarp(p)) cands.push({ p, m: fs.statSync(p).mtimeMs });
   };
   for (const ent of fs.readdirSync(slides, { withFileTypes: true })) {
     const p1 = path.join(slides, ent.name);
