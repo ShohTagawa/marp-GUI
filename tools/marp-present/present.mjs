@@ -27,6 +27,39 @@ for (let i = 0; i < argv.length; i++) {
   positional.push(a);
 }
 
+// bespoke のページ送りバー（◀ 3/20 ▶ …）は既定で「下から 50px・左右中央」に出て、takeaway 帯に被る。
+// 右端の縦中央に、縦長の丸いバーとして出し直す（スライド右の余白に収まる幅 44px）。
+// 発表者ビュー・一覧の中のボタンは触らない（セレクタを .bespoke-marp-parent 直下に限る）。
+const OSC_SIDE_CSS = `<style id="ss-osc-side">
+body[data-bespoke-view=""] .bespoke-marp-parent>.bespoke-marp-osc{
+  left:auto;right:12px;top:50%;bottom:auto;transform:translateY(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  padding:10px 6px;border-radius:22px;line-height:1}
+body[data-bespoke-view=""] .bespoke-marp-parent>.bespoke-marp-osc>*{margin-left:0}
+body[data-bespoke-view=""] .bespoke-marp-parent>.bespoke-marp-osc>span[data-bespoke-marp-osc=page]{
+  min-width:0;font-size:0;padding:2px 0;opacity:.9}
+body[data-bespoke-view=""] .bespoke-marp-parent>.bespoke-marp-osc>span[data-bespoke-marp-osc=page]::after{
+  content:attr(data-short);display:block;font-size:14px;font-weight:700;line-height:1.25;
+  text-align:center;white-space:pre}
+body[data-bespoke-view=""] .bespoke-marp-parent>.bespoke-marp-osc>button[data-bespoke-marp-osc=prev]{transform:rotate(90deg)}
+body[data-bespoke-view=""] .bespoke-marp-parent>.bespoke-marp-osc>button[data-bespoke-marp-osc=next]{transform:rotate(90deg)}
+</style>
+<script id="ss-osc-side-js">
+// 「Page 3 of 12」を縦の「3 / 12」にする（本文は bespoke が書き換えるので、属性に写して ::after で出す）
+addEventListener('DOMContentLoaded', () => {
+  const sp = document.querySelector('.bespoke-marp-parent>.bespoke-marp-osc>span[data-bespoke-marp-osc=page]');
+  if (!sp) return;
+  const put = () => { const m = sp.textContent.match(/(\\d+)\\D+(\\d+)/); sp.dataset.short = m ? m[1] + '\\n/' + m[2] : ''; };
+  new MutationObserver(put).observe(sp, { childList: true, characterData: true, subtree: true });
+  put();
+});
+</script>`;
+function moveOscToSide(file) {
+  const s = fs.readFileSync(file, 'utf8');
+  if (s.includes('id="ss-osc-side"') || !s.includes('</head>')) return;
+  fs.writeFileSync(file, s.replace('</head>', OSC_SIDE_CSS + '</head>'));
+}
+
 let md = positional[0];
 if (!md) {
   md = latestDeck(ROOT);
