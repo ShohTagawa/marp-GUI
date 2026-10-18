@@ -1120,15 +1120,18 @@ section.lay-flow > .body > :is(ul, ol) > li + li::before {
 }
 
 /* ---- 14-5 lay-steps：番号つきの縦の手順（.steps ＋ .sn と同じ。枠は付けない・5つまで）---- */
-section.lay-steps > :is(ul, ol) {
+section.lay-steps > :is(ul, ol),
+section.lay-steps > .body > :is(ul, ol) {
   list-style: none; padding-left: 0; margin-left: 0;
   counter-reset: lay-step;
 }
-section.lay-steps > :is(ul, ol) > li {
+section.lay-steps > :is(ul, ol) > li,
+section.lay-steps > .body > :is(ul, ol) > li {
   position: relative; counter-increment: lay-step;
   padding-left: 2.2em; margin: 0 0 .8em;
 }
-section.lay-steps > :is(ul, ol) > li::before {
+section.lay-steps > :is(ul, ol) > li::before,
+section.lay-steps > .body > :is(ul, ol) > li::before {
   content: counter(lay-step);
   position: absolute; left: 0; top: .22em;
   width: 1.55em; height: 1.55em; border-radius: 50%;
