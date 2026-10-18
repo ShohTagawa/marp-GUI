@@ -7,7 +7,7 @@
 // k が変わっていない、は全部失敗。書けない型は planTextEdit が ok:false を返していればよい（書かないのは許容）。
 //
 // ブラウザが要るテストは puppeteer-core（リポジトリ直下の node_modules）＋手元の Chrome。無ければ skip。
-// 実デックは読むだけ（書き換えた原稿はメモリ上で作って描画する。slides/ には何も書かない）。
+// 見本デックは読むだけ（書き換えた原稿はメモリ上で作って描画する。slides/ には何も書かない）。
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert');
@@ -299,7 +299,7 @@ test('injectHlines: 開始タグだけに、そのタグの行番号が付く（
   assert.strictEqual((SM.injectHlines(TRICKY_HTML[7], 0, 1).match(/data-hline=/g) || []).length, 1);
 });
 
-test('attachLineInfo: 実デックの全 html_block で、属性を除くと元の content に戻る／二重に足さない', (t) => {
+test('attachLineInfo: 見本デックの全 html_block で、属性を除くと元の content に戻る／二重に足さない', (t) => {
   let blocks = 0, tags = 0, decks = 0;
   for (const d of DECKS) {
     if (!fs.existsSync(deckPath(d))) continue;
@@ -320,7 +320,7 @@ test('attachLineInfo: 実デックの全 html_block で、属性を除くと元�
     }
     blocks += before.length;
   }
-  if (!decks) return t.skip('実デックが無い');
+  if (!decks) return t.skip('見本デックが無い');
   t.diagnostic(`html_block ${blocks} 個・注入したタグ ${tags} 個`);
 });
 
@@ -752,10 +752,10 @@ test('レビューで見つけた型（実 DOM で往復）：数式の出力は
 });
 
 // ===========================================================================
-// 4. 実デック3本：特定率・往復・性能
+// 4. 見本デック3本：特定率・往復・性能
 // ===========================================================================
 for (const d of DECKS) {
-  test(`実デック ${d}: 特定率・等間隔 150 ノード以上の往復・locateNodes の時間`, { timeout: 600000 }, async (t) => {
+  test(`見本デック ${d}: 特定率・等間隔 150 ノード以上の往復・locateNodes の時間`, { timeout: 600000 }, async (t) => {
     if (!page) return t.skip(skipReason);
     if (!fs.existsSync(deckPath(d))) return t.skip('デックが無い');
     const deck = await loadDeck(fs.readFileSync(deckPath(d), 'utf8'));
