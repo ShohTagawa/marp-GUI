@@ -237,7 +237,8 @@ function analyzeSlide(slideText) {
     // 画像だけの行＝図
     if (/^!\[[^\]]*\]\([^)]*\)$/.test(line) && !para) {
       const next = (lines[i + 1] || '').trim();
-      if (next === '') { a.figures++; continue; }
+      // 次の行が空行、または段落を打ち切る HTML ブロック（<div class="attr"> など）なら、画像だけの段落になる
+      if (next === '' || /^<\/?(?:div|p|figure|table)\b/i.test(next)) { a.figures++; continue; }
     }
     if (/^>/.test(line)) { closePara(); paras.push(stripInline(line.replace(/^>\s?/, ''))); continue; }
     if (/^(?:-{3,}|\*{3,}|_{3,})$/.test(line)) { closePara(); continue; }
