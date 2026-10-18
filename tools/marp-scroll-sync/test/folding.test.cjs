@@ -204,7 +204,7 @@ test('panelLabels: 辞書・見出しの添え書き・split の左右・既存�
     [21, '強調の枠：結論', true],
     [29, '要点の帯', false],
   ]);
-  // 1行に開始タグが複数ある書き方（実デックに多い）
+  // 1行に開始タグが複数ある書き方（手で書いたデックに多い）
   const two = F.panelLabels(DECK).filter(x => x.line === 23 || x.line === 27).map(x => [x.line, x.text]);
   assert.deepStrictEqual(two, [[23, '左右2分割 › ◀ 左パネル'], [27, '▶ 右パネル']]);
   // style / svg / フェンス / コメントの中は見ない
