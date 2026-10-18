@@ -1153,44 +1153,62 @@ section:is(.lay-fig-right, .lay-fig-left) {
   align-items: start !important;
 }
 section.lay-fig-left { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); }
-section:is(.lay-fig-right, .lay-fig-left) > * { grid-column: 1; min-width: 0; max-width: none; }
-section.lay-fig-left > * { grid-column: 2; }
-section:is(.lay-fig-right, .lay-fig-left) > :is(h1, h2, footer) { grid-column: 1 / -1; }
+/* header・page-title・takeaway は外す（max-width:none が page-title の --pt-max を消し、
+   広がった page-title 帯が題字帯の末尾の字を隠していた）。:where で詳細度は * のまま */
+section:is(.lay-fig-right, .lay-fig-left) > :where(:not(header, .page-title, .takeaway)),
+section:is(.lay-fig-right, .lay-fig-left) > .body > :where(:not(header, .page-title, .takeaway)) { grid-column: 1; min-width: 0; max-width: none; }
+section.lay-fig-left > :where(:not(header, .page-title, .takeaway)),
+section.lay-fig-left > .body > :where(:not(header, .page-title, .takeaway)) { grid-column: 2; }
+section:is(.lay-fig-right, .lay-fig-left) > :is(h1, h2, footer),
+section:is(.lay-fig-right, .lay-fig-left) > .body > :is(h1, h2, footer) { grid-column: 1 / -1; }
 /* 位置を決めて置いてある物（position:absolute）は格子に載せない。載せると、その列が基準になって位置がずれる */
-section:is(.lay-fig-right, .lay-fig-left) > :is(header, .page-title, .takeaway) { grid-area: auto; max-width: none; }
-section:is(.lay-fig-right, .lay-fig-left) > :is(figure, svg, p:has(> :is(img, svg):only-child)) {
+section:is(.lay-fig-right, .lay-fig-left) > :is(header, .page-title, .takeaway),
+section:is(.lay-fig-right, .lay-fig-left) > .body > :is(header, .page-title, .takeaway) { grid-area: auto; }
+section:is(.lay-fig-right, .lay-fig-left) > :is(figure, svg, p:has(> :is(img, svg):only-child)),
+section:is(.lay-fig-right, .lay-fig-left) > .body > :is(figure, svg, p:has(> :is(img, svg):only-child)) {
   grid-column: 2; grid-row: 2 / -1;
   align-self: stretch; margin: 0;
   min-height: 0; max-height: 100%;
   display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start;
 }
-section.lay-fig-left > :is(figure, svg, p:has(> :is(img, svg):only-child)) { grid-column: 1; }
-section:is(.lay-fig-right, .lay-fig-left, .lay-fig-top) > :is(figure, p:has(> img:only-child)) > img {
+section.lay-fig-left > :is(figure, svg, p:has(> :is(img, svg):only-child)),
+section.lay-fig-left > .body > :is(figure, svg, p:has(> :is(img, svg):only-child)) { grid-column: 1; }
+section:is(.lay-fig-right, .lay-fig-left, .lay-fig-top) > :is(figure, p:has(> img:only-child)) > img,
+section:is(.lay-fig-right, .lay-fig-left, .lay-fig-top) > .body > :is(figure, p:has(> img:only-child)) > img {
   display: block; max-width: 100%; max-height: 100%; min-height: 0;
   width: auto; height: auto; object-fit: contain; object-position: left top;
 }
 section:is(.lay-fig-right, .lay-fig-left) > :is(svg, p:has(> svg:only-child)) > svg,
-section:is(.lay-fig-right, .lay-fig-left) > svg { width: 100%; height: auto; max-height: 100%; }
+section:is(.lay-fig-right, .lay-fig-left) > .body > :is(svg, p:has(> svg:only-child)) > svg,
+section:is(.lay-fig-right, .lay-fig-left) > svg,
+section:is(.lay-fig-right, .lay-fig-left) > .body > svg { width: 100%; height: auto; max-height: 100%; }
 
 /* ---- 14-7 lay-fig-top：図を上に大きく、文は下に短く --------------------------------------
    見出し → 図 → 文 の順に並べ替える（原稿の順は変えない）。図は残りの高さいっぱいまで。 */
-section.lay-fig-top > :is(h1, h2) { order: -2; }
-section.lay-fig-top > :is(figure, svg, p:has(> :is(img, svg):only-child)) {
+section.lay-fig-top > :is(h1, h2),
+section.lay-fig-top > .body > :is(h1, h2) { order: -2; }
+section.lay-fig-top > :is(figure, svg, p:has(> :is(img, svg):only-child)),
+section.lay-fig-top > .body > :is(figure, svg, p:has(> :is(img, svg):only-child)) {
   order: -1; flex: 1 1 0; min-height: 0; margin: 0 0 var(--gap-para);
   display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start;
 }
 section.lay-fig-top > p:has(> svg:only-child) > svg,
-section.lay-fig-top > svg { height: 100%; width: auto; max-width: 100%; min-height: 0; }
-section.lay-fig-top > :is(ul, ol, p) { flex: 0 0 auto; max-width: none; }
+section.lay-fig-top > .body > p:has(> svg:only-child) > svg,
+section.lay-fig-top > svg,
+section.lay-fig-top > .body > svg { height: 100%; width: auto; max-width: 100%; min-height: 0; }
+section.lay-fig-top > :is(ul, ol, p),
+section.lay-fig-top > .body > :is(ul, ol, p) { flex: 0 0 auto; max-width: none; }
 
 /* ---- 14-8 lay-lead：1文を大きく（.lead と同じ役。文字は 34px＝見出しと同じ大きさで種類を増やさない）---- */
-section.lay-lead > p:not(.note):not(:has(> img)) {
+section.lay-lead > p:not(:is(.note, .attr, .cite)):not(:has(> img)),
+section.lay-lead > .body > p:not(:is(.note, .attr, .cite)):not(:has(> img)) {
   font-size: 34px; font-weight: 700; line-height: 1.6;
   max-width: 24em; margin: auto 0;
   margin-bottom: auto !important;   /* academic の「最後の子は margin-bottom:0 !important」に勝たせて、縦の中央に置く */
   word-break: auto-phrase;
 }
-section.lay-lead > :is(h1, h2) { margin-bottom: 0; }
+section.lay-lead > :is(h1, h2),
+section.lay-lead > .body > :is(h1, h2) { margin-bottom: 0; }
 
 /* ---- 14-9 lay-points：要点だけを大きく、縦の中央に（文字がとても少ない1枚。2〜5行）-----------
    1行＝1つの要点。説明は付けない（「見出し＋説明」の形なら標準か lay-boxed）。
