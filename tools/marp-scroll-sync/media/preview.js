@@ -1900,7 +1900,7 @@
     if (window.scrollX !== x0 || window.scrollY !== y0) window.scrollTo(x0, y0);
     if (indices.indexOf(cur) >= 0) refreshSwatches();
     if (posSig(slides()) !== before) layout();   // 位置も印も変わらなければ、＋ や操作ボタンは置き直さない
-    else if (markBtn) markBtn.classList.toggle('ss-on', !!marks[cur]);
+    else { if (markBtn) markBtn.classList.toggle('ss-on', !!marks[cur]); setBadge(); }
     if (m.expect) verify(m.expect);
     overflowFor(indices);
     notifyRender('patch', indices);
