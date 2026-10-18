@@ -666,14 +666,18 @@
     drag.pending = null;
     var dx = (ev.x - drag.x0) / g.m.k, dy = (ev.y - drag.y0) / g.m.k;
     var extra = '';
-    if (drag.mode === 'move') {
-      if (drag.noMove) { /* Markdown の画像は動かさない */ }
-      else { var p = applyMove(g, dx, dy, ev.noSnap); extra = '  x' + (p[0] >= 0 ? '+' : '') + p[0] + ' y' + (p[1] >= 0 ? '+' : '') + p[1]; }
+    if (drag.crop) {
+      if (crop) moveEdge(crop, drag.mode, dx, dy, drag.cut0);   // 確定は Enter／外側クリックで（離しても送らない）
     } else {
-      var keep = !!KEEP_RATIO[tagOf(g.el)] !== !!ev.shift;
-      applyResize(g, drag.mode, dx, dy, keep);
+      if (drag.mode === 'move') {
+        if (drag.noMove) { /* Markdown の画像は動かさない */ }
+        else { var p = applyMove(g, dx, dy, ev.noSnap); extra = '  x' + (p[0] >= 0 ? '+' : '') + p[0] + ' y' + (p[1] >= 0 ? '+' : '') + p[1]; }
+      } else {
+        var keep = !!KEEP_RATIO[tagOf(g.el)] !== !!ev.shift;
+        applyResize(g, drag.mode, dx, dy, keep);
+      }
+      if (!g.checked) { g.checked = true; if (checkImportant(g.el, g)) { drag.pending = ev; } }
     }
-    if (!g.checked) { g.checked = true; if (checkImportant(g.el, g)) { drag.pending = ev; } }
     refreshSel(extra);
     var ms = performance.now() - t0;
     stats.frameMs = ms; stats.frames++;
