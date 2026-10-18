@@ -431,7 +431,15 @@ function dedupe(entries) {
   }
 }
 
-const byScore = (a, b) => b.score - a.score || String(b.date || '').localeCompare(String(a.date || '')) || a.key.localeCompare(b.key);
+/**
+ * score の高い順。同点は新しいデックが先、同じ日付ならデックのパス順、同じデックの中はスライド番号の順
+ * （数として比べる：#2 が #10 より先）。最後に key で順序を必ず決める（同じ入力からは同じ並び）。
+ */
+const byScore = (a, b) => b.score - a.score
+  || String(b.date || '').localeCompare(String(a.date || ''))
+  || String(a.deck || '').localeCompare(String(b.deck || ''))
+  || (Number(a.slide) || 0) - (Number(b.slide) || 0)
+  || String(a.key || '').localeCompare(String(b.key || ''));
 
 // ───────────────────────── buildCorpus ─────────────────────────
 
