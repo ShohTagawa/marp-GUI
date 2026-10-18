@@ -1,0 +1,110 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+/* Copyright (c) 2026 Shoh Tagawa */
+/* @theme tsutawaru-simple-cud */
+/* ============================================================================
+   tsutawaru-simple-cud — tsutawaru-simple の配色だけを、色覚の多様性に配慮した色に替えた版
+
+   tsutawaru-simple.css を @import して、色の変数だけを上書きする。
+   帯・余白・字間・部品・配置クラスは tsutawaru-simple と同じ。
+   原稿はそのままで、frontmatter の theme: を替えるだけで切り替わる。
+
+   ビルド時は4枚とも渡す（npm run png / npm run pdf は theme/*.css を全部渡すので指定不要）：
+     --theme-set theme/academic.css theme/tsutawaru-academic.css \
+                 theme/tsutawaru-simple.css theme/tsutawaru-simple-cud.css
+
+   色の出典：カラーユニバーサルデザイン推奨配色セット ver.4（2018年4月改定）の画面用 RGB 値。
+     『カラーユニバーサルデザイン推奨配色セット ガイドブック 第2版』（2018年7月）p.2
+     制作：カラーユニバーサルデザイン推奨配色セット制作委員会
+     https://jfly.uni-koeln.de/colorset/
+     ・ガイドブック第3版（ver.4.2 収録）は開いて確かめていない。
+       画面用 RGB が ver.4 から変わったかどうかは未確認。
+     ・色の値を資料やウェブで紹介するときは、上の「制作：…」を書き、委員会に一報する
+       （ガイドブック第2版 p.14 の Q7）。
+     このコメントの p.N は、すべてこのガイドブック第2版のページ（デザインの本のページではない）。
+
+   色の使い分け：
+     帯（細い斜線） … 配色セットのアクセントカラーそのまま（灰だけは配色セットの外の色）
+     区切りの地 … オレンジ・緑・空色はアクセントカラーそのまま（文字は濃い灰）。
+       青・赤は、白い文字が読めるところまで暗くした値（--accent と同じ）。
+     文字に使う色（--accent / --accent-dark） … 同じ色を暗くした値（配色セットの外の色）。
+       線形 RGB を一律に縮めて色相を保ち、白地とのコントラスト比が、一般色覚・P型・D型・T型の
+       どの見え方でも 4.5 以上（--accent）／7 以上（--accent-dark）になるところまで暗くした。
+     うすい塗り（--accent-soft） … 配色セットのベースカラーを白で薄めた値（配色セットの外の色）。
+
+   確かめ方と限界：
+     見え方は Machado, Oliveira & Fernandes (2009) の行列（程度 1.0）で計算し、色の差は CIEDE2000 で測った。
+     帯の色どうしの差の最小値は、tsutawaru-simple が P型 7.7／D型 4.9／T型 4.4、
+     この版が P型 16.2／D型 10.8／T型 12.0。
+     計算は見分けにくい組み合わせを探すためのもので、実際の見え方そのものではない。
+     当事者による確認はしていない（ガイドブック p.12 も当事者による検証を勧めている）。
+
+   _class に書く色の語：
+     blue（既定）／ red ／ orange ／ green ／ sky ／ gray
+     tsutawaru-simple の語もそのまま使える：yellow＝orange、teal＝sky、garnet＝red と同じ色になる。
+   ============================================================================ */
+@import "tsutawaru-simple";
+
+/* ============================================================================
+   1. 色
+      p.N はガイドブック第2版のページ。
+      ・赤は黄みに、緑は青みに寄せた色（ガイドブック p.11）
+      ・黄色（255,241,0）は白地では見えにくいので、帯と区切りには使わない（ガイドブック p.8：白×黄色は △）
+      ・紫と茶色は、青・赤・グレーと見分けにくい組み合わせがあるので採らない
+        （ガイドブック p.8：紫×青 △／赤×茶色 △／黒×茶色 ×／グレー×紫 △）
+      ・灰の帯は配色セットのグレー（132,145,158）ではなく #4D4D4D。ガイドブック p.8 でグレー×青が △ のため、
+        青との差が大きい濃い灰にした（計算で確かめた値。配色セットの外の色）
+   ============================================================================ */
+:root {
+  --bullet: #F6AA00;            /* 箇条書きの点＝オレンジ（246,170,0） */
+  --marker: #FFF100;            /* 下線マーカー＝黄色（255,241,0）。太字と組で使う */
+  --caution: #C53800;           /* 「不可」の語＝赤（255,75,0）を暗くした値 */
+
+  /* 既定の色＝青（0,90,255） */
+  --band: #005AFF;
+  --accent: #0055F3;
+  --accent-dark: #003FB9;
+  --accent-soft: #E2F3FF;
+  --divider-bg: #0055F3;
+  --divider-ink: #ffffff;
+}
+
+/* 区切りの文字の色は、地の色との明るさの差が大きいほうを選んである（白か、濃い灰 #1A1A1A）。
+   どの見え方でもコントラスト比 4.5 以上。 */
+section.blue {
+  --band: #005AFF; --accent: #0055F3; --accent-dark: #003FB9; --accent-soft: #E2F3FF;
+  --divider-bg: #0055F3; --divider-ink: #ffffff;
+}
+section:is(.red, .garnet) {               /* 赤（255,75,0） */
+  --band: #FF4B00; --accent: #C53800; --accent-dark: #962800; --accent-soft: #FFE7E2;
+  --divider-bg: #C53800; --divider-ink: #ffffff;
+}
+section:is(.orange, .yellow) {            /* オレンジ（246,170,0） */
+  --band: #F6AA00; --accent: #996800; --accent-dark: #744E00; --accent-soft: #FFE7C6;
+  --divider-bg: #F6AA00; --divider-ink: #1A1A1A;
+}
+section.green {                           /* 緑（3,175,122） */
+  --band: #03AF7A; --accent: #018159; --accent-dark: #006142; --accent-soft: #C2EED8;
+  --divider-bg: #03AF7A; --divider-ink: #1A1A1A;
+}
+section:is(.sky, .teal) {                 /* 空色（77,196,255） */
+  --band: #4DC4FF; --accent: #2B779C; --accent-dark: #1E5976; --accent-soft: #E2F3FF;
+  --divider-bg: #4DC4FF; --divider-ink: #1A1A1A;
+}
+section.gray {
+  --band: #4D4D4D; --accent: #4D4D4D; --accent-dark: #333333; --accent-soft: #E6E6E8;
+  --divider-bg: #4D4D4D; --divider-ink: #ffffff;
+}
+
+/* 強調の色を4色目にするプリセット（tsutawaru-academic の em-orange / em-blue）も、同じ考えの値にする */
+section.em-orange { --em: #996800; }
+section.em-blue   { --em: #0055F3; }
+
+/* ============================================================================
+   2. 色だけに頼らない
+      強調（.hl・*…*）は色＋太字、「不可」（.ng）は色＋太字＋語そのもの、下線マーカー（.mark）は
+      塗り＋太字。どれも tsutawaru-academic の時点で色以外の手がかりを持っている。
+      区切りの文字は、地が明るい色のとき太さを保ったまま濃い灰になる。
+   ============================================================================ */
+section.divider h2,
+section.divider .chapter-num { opacity: 1; }   /* 薄くすると地とのコントラスト比が下がる */
+section.divider::after { opacity: .8; }
