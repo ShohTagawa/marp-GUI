@@ -68,7 +68,8 @@
         "marpGui.nodePath": {
           "type": "string",
           "default": "",
-          "description": "%config.nodePath%"
+          "description": "%config.nodePath%",
+          "scope": "machine"
         }
       }
     }
