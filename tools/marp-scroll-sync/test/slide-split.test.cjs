@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Shoh Tagawa
 // lib/slide-split.cjs の回帰テスト。
 //   1) splitDeck / slideMeta の単体テスト
-//   2) slides/ と PonchiE/ 配下の marp:true の md 全部で、slideStartLines の枚数が marp-core の実描画枚数と一致すること
+//   2) slides/ 配下の marp:true の md 全部で、slideStartLines の枚数が marp-core の実描画枚数と一致すること
 //      （ここがズレると、同期・逆引き・スライド操作の全部が1枚ずつズレる）
 // 実行: node --test tools/marp-scroll-sync/test/slide-split.test.cjs
 'use strict';
