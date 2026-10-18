@@ -25,7 +25,7 @@ style: |
 <div class="title-photo"><img src="../assets/profile-placeholder.png" alt="Photo"></div>
 <div class="title-meta">
 <div class="title-name">Shoh Tagawa</div>
-<div class="title-affil">Based on: Tagawa S. "Chikyū chūshinkaku no suiso" [Hydrogen in the Earth's core]. Isotope News 2022;(780):26–30 [in Japanese]</div>
+<div class="title-affil">Based on: Tagawa S. “Chikyū chūshinkaku no suiso” [Hydrogen in the Earth's core]. Isotope News 2022;(780):26–30 [in Japanese]</div>
 </div>
 </div>
 
