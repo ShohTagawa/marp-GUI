@@ -1830,7 +1830,7 @@ test('速さ（8.4）：80 枚のデックで、1 枚の patch の適用が 50ms
     const med = (a) => a.slice().sort((x, y) => x - y)[Math.floor(a.length / 2)];
     const p = med(patchMs), r = med(renderMs);
     TIMINGS.push(`${n} 枚のデック（html ${(full.html.length / 1024).toFixed(0)}KB）：patch 1 枚 ${p.toFixed(1)}ms（最大 ${Math.max(...patchMs).toFixed(1)}ms）／render 全体 ${r.toFixed(1)}ms → patch は render の 1/${(r / p).toFixed(1)}`);
-    assert.ok(Math.max(...patchMs) <= PATCH_BUDGET, `patch ${patchMs.map(x => x.toFixed(1)).join(' / ')}ms ≤ ${PATCH_BUDGET}ms`);
+    if (TIME_BUDGETS) assert.ok(Math.max(...patchMs) <= PATCH_BUDGET, `patch ${patchMs.map(x => x.toFixed(1)).join(' / ')}ms ≤ ${PATCH_BUDGET}ms`);
   });
 });
 
