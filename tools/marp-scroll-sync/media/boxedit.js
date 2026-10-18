@@ -919,6 +919,7 @@
     selected: function () { return sel ? { el: sel.el, target: sel.target, index: sel.index, refused: sel.refused } : null; },
     targetOf: targetOf,
     flush: flushKeys,
+    cropState: function () { return crop ? { cut: crop.cut.slice(), last: crop.last } : null; },
     stats: stats,
   };
 })();
