@@ -41,7 +41,7 @@ Sample deck for marp-GUI. It describes the theme itself. The colour comparison w
 
 ## Band colours for three types of colour vision
 
-<svg viewBox="0 0 1120 345" width="1120" height="345" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Band colours of tsutawaru-simple and tsutawaru-simple-cud as seen with typical, P-type and D-type colour vision; the underline marks the closest pair in each row">
+<svg viewBox="0 0 1120 356" width="1120" height="356" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Band colours of tsutawaru-simple and tsutawaru-simple-cud as seen with typical, P-type and D-type colour vision; the underline marks the closest pair in each row">
 <text x="150" y="22" font-size="22" font-weight="700" fill="var(--ink, #333333)">tsutawaru-simple</text>
 <text x="660" y="22" font-size="22" font-weight="700" fill="var(--ink, #333333)">tsutawaru-simple-cud</text>
 <text x="0" y="74" font-size="22" font-weight="700" fill="var(--ink, #333333)">Typical</text>
