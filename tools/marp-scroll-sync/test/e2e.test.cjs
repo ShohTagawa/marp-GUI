@@ -471,17 +471,12 @@ T('7c. 編集中（未確定）に複製ボタン：文字が確定してから�
     const n = H.marpRender(t0).slides;
     const ln = lineOf(t0, '- 実際にテストを行ってみる'), si = slideOfLine(t0, ln);
     await moveCursor(S, SPLIT.slideStartLines(t0)[si]);
-    // ダブルクリックで編集に入る。負荷の高い環境では、押しても編集に入らないことがある
-    // （別の試験が同時に走っている手元の環境で、この試験だけを 5 回回して 2 回）。そのときは Esc で戻して押し直す（3 回まで）。
-    // 編集に入ったことは必ず確かめる（入らないまま打鍵して、複製だけが起きたのを「確定の漏れ」と取り違えないため）。
-    let editing = false;
-    for (let i = 0; i < 3 && !editing; i++) {
-      if (i) { await S.page.keyboard.press('Escape'); await S.settle(Q); }
-      const pt = await H.textPoint(S.page, si, '実際にテストを行ってみる');
-      await H.dbl(S.page, pt);
-      editing = !!(await H.pageInfo(S.page)).editingTag && await H.caretAt(S.page, '実際にテストを行ってみる', 'after');
-    }
-    assert.ok(editing, '「実際にテストを行ってみる」をダブルクリックすると編集が始まり、キャレットを置ける');
+    // textPoint は、moveCursor で始まった同期のスクロール（smooth）が止まってから座標を取る
+    const pt = await H.textPoint(S.page, si, '実際にテストを行ってみる');
+    await H.dbl(S.page, pt);
+    // 編集に入ったことを先に確かめる（入らないまま打鍵して、複製だけが起きたのを「確定の漏れ」と取り違えないため）
+    assert.ok((await H.pageInfo(S.page)).editingTag && await H.caretAt(S.page, '実際にテストを行ってみる', 'after'),
+      '「実際にテストを行ってみる」をダブルクリックすると編集が始まり、キャレットを置ける');
     await S.page.keyboard.type('★');
     const mk = S.mark();
     await clickOp(S, 'duplicate');
