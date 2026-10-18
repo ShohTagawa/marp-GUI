@@ -3,8 +3,8 @@
 // 通し試験（E2E）：仮想 VS Code の上で本物の extension.js を動かし、本物の Webview HTML を Chrome に読み込んでつなぐ。
 //   node --test tools/marp-scroll-sync/test/e2e.test.cjs
 //   作業フォルダ：環境変数 SS_E2E_DIR（無ければ OS の一時フォルダ）。SS_E2E_KEEP=1 で終了後も残す（PNG 目視用）。
-// 実デック（slides/ の原本）は読むだけ。作業フォルダへコピーしてから触る。
-// LEC のコピーの末尾には、実デックに無い記法（自動リンク・インラインコード・コードブロック・Markdown の表）を
+// 見本デック（slides/ の原本）は読むだけ。作業フォルダへコピーしてから触る。
+// LEC のコピーの末尾には、見本デックに無い記法（自動リンク・インラインコード・コードブロック・Markdown の表）を
 // 確かめるための合成スライドを1枚足している（SYNTH）。
 'use strict';
 const test = require('node:test');
