@@ -1094,13 +1094,15 @@ section.lay-keyrow > .body > :is(ul, ol) > li > strong:first-child { color: var(
 
 /* ---- 14-4 lay-flow：左から右への流れ（.flow ＋ .fbox ＋ .arw と同じ。4つまで）------------
    白地・細い枠・直角・等幅・等高。矢印は小さな黒い三角で、大きさは全部同じ。 */
-section.lay-flow > :is(ul, ol) {
+section.lay-flow > :is(ul, ol),
+section.lay-flow > .body > :is(ul, ol) {
   list-style: none; padding-left: 0;
   display: flex; align-items: stretch; gap: calc(1.1em + 13px);
   margin: .8em 0 var(--gap-para);
   word-break: auto-phrase;
 }
-section.lay-flow > :is(ul, ol) > li {
+section.lay-flow > :is(ul, ol) > li,
+section.lay-flow > .body > :is(ul, ol) > li {
   position: relative;
   flex: 1 1 0; min-width: 0; margin: 0;
   background: #fff; border: 1.5px solid var(--ink); border-radius: 0;
