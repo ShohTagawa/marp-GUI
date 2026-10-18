@@ -525,6 +525,32 @@ test('tune ツールバー：スウォッチは var(--accent) を送る。tuneSt
   });
 });
 
+test('指定ページへ送る：バッジを押す／G → 番号 → Enter で gotoSlide。範囲外は送らない', async (t) => {
+  await withPage(t, { init: { index: 0 } }, async (page) => {
+    await sleep(500);
+    await page.click('.ss-badge');
+    assert.equal(await page.evaluate(() => document.activeElement && document.activeElement.classList.contains('ss-jump')), true);
+    await page.keyboard.type('７');   // 全角でも通す
+    await page.keyboard.press('Enter');
+    await sleep(REVEAL_WAIT);
+    assert.deepEqual((await posted(page, 'gotoSlide')).map(m => m.index), [6]);
+    assert.equal(await page.evaluate(() => document.querySelector('.ss-badge').classList.contains('ss-jumping')), false);
+    assert.equal(await page.evaluate(() => document.querySelector('.ss-badge-text').textContent), 'Slide 7/11');
+    await clearPosted(page);
+    await page.keyboard.press('g');
+    await page.keyboard.type('99');
+    await page.keyboard.press('Enter');
+    await sleep(100);
+    assert.deepEqual(await posted(page, 'gotoSlide'), [], '範囲外は送らない');
+    // 入力中の j / k はスライド送りにならない。Esc で閉じる
+    await page.keyboard.type('j');
+    await page.keyboard.press('Escape');
+    await sleep(100);
+    assert.deepEqual(await posted(page, 'gotoSlide'), []);
+    assert.equal(await page.evaluate(() => document.querySelector('.ss-badge').classList.contains('ss-jumping')), false);
+  });
+});
+
 test('スライド操作ボタン → slideOp（現在のスライドの index）', async (t) => {
   await withPage(t, { init: { index: 2 } }, async (page) => {
     await sleep(500);   // 初期のスムーズスクロールが終わるのを待つ
