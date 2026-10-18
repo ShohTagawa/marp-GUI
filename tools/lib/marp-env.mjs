@@ -6,7 +6,8 @@
 //   - リポジトリルート・theme/*.css の列挙
 //   - 「最後に編集したデック」の自動選択
 //   - Chrome / Edge の実行ファイル探索（CHROME_PATH 環境変数が最優先）
-//   - marp-cli の実行（node_modules に無ければ npm install を自動で走らせる）
+//   - marp-cli の実行（node_modules に無ければ、npm install を促すメッセージを出して終了する。
+//     ネットワークに出る npm install を、PDF・PNG の書き出しの途中で黙って走らせない）
 //   - puppeteer-core の解決（marp-cli の依存として入るものを使う）
 //   - OS 既定の方法でファイル/URL を開く
 import fs from 'node:fs';
