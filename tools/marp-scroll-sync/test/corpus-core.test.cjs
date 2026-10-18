@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Shoh Tagawa
 // lib/corpus-core.cjs の単体テスト（DESIGN.md 7.1・8.2）。
 // 合成リポジトリ（os.tmpdir に git init）で、本文の抽出・churn・score・重複のまとめ・cache・検索・棚・CLI を確かめる。
-// 実リポジトリには何も書かない。git が無い環境では、git の要るテストだけ skip する。
+// このリポジトリには何も書かない。git が無い環境では、git の要るテストだけ skip する。
 'use strict';
 
 const test = require('node:test');
