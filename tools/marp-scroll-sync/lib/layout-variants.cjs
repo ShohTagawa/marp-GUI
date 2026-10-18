@@ -6,7 +6,7 @@
 //   - 判定の表（LAYOUTS）はここ 1 か所。ブラウザ側（media/layouts.js）へは browserTable() の JSON を
 //     window.__SS_LAYOUTS__ として渡す。条件の解き方（matches）だけは同じ物を layouts.js にも書いてある
 //     （ここを変えたら layouts.js の matches も直し、test/layouts.test.cjs の突き合わせを回すこと）。
-//   - why に書くページ番号は docs/tsutawaru-rules.md に在るものだけ（test/layout-variants.test.cjs が確かめる）。
+//   - why に書くページ番号は docs/design-rules.md（英語・日本語の両方）に在るものだけ（test/layout-variants.test.cjs が確かめる）。
 'use strict';
 
 const LAY_RE = /^lay-[a-z0-9][a-z0-9-]*$/;
