@@ -81,6 +81,7 @@ try {
   console.log(`[1/2] marp: 発表用HTML(bespoke)を描画  → ${deckName}`);
   // --allow-local-files は付けない：HTML出力には不要で、marp の Puppeteer 経路を起こす。
   runMarp([mdAbs, ...themeSetArgs(ROOT), '-o', html]);
+  moveOscToSide(html);
 
   const url = pathToFileURL(html).href + (page > 1 ? `#${page}` : '');
   if (open) {
