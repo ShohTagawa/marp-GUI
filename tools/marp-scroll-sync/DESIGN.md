@@ -332,7 +332,7 @@ _lib: day-agenda | 構成, アジェンダ | 2026-09-20
   - `<div class="body">`（属性は class だけ。語は `body` と `vtop`/`vcenter`/`vspread` だけ。開きタグだけの行で次が空行）は**透過する包み**とみなし、中身で判定する（`WRAP_CLASS`・`WRAP_EXTRA`。結果に `wrapped:true`）。二重の包み・ほかのクラス・style つき・中が HTML のままなら従来どおり `reason:'div'`。
   - `.page-title` `.takeaway` `.note` に加え、`.attr` `.cite` `.src-row`（出典・注記の行）も数えない（`SIDE_CLASSES`。入れ子の div は開閉を数えて丸ごと飛ばす）。画像だけの行の直後に空行なしで `.attr` が続く形も図 1 つと数える。
   - スライド内の `<style>`（scoped も）は読み飛ばす。`<p class="lead">` のような HTML の段落は段落として数え、`<p><img …></p>`（9.6 のトリミングで書き換えた画像）は図として数える（ブラウザ側の判定と合わせるため。トリミングの前後で配置案は変わらない）。
-  - CSS（tsutawaru-academic.css §14-0〜14-10）は各規則に `section.lay-x > .body > …` の版を並べ、§14-11 で lay-* のときだけ `.body` を `display:contents` にする。直下の分の詳細度は変えていない。
+  - CSS（tsutawaru-academic.css §14-0〜14-10 と、tsutawaru-simple.css の lay-points / lay-lead の上書き）は各規則に `section.lay-x > .body > …` の版を並べ、§14-11 で lay-* のときだけ `.body` を `display:contents` にする。直下の分の詳細度は変えていない。
   - 判定の表 `browserTable()` は `sideClasses` / `wrapClass` / `wrapExtra` も渡し、layouts.js の `analyze` も `.body` の子を展開する（2 か所の論理は同じ。layouts.test.cjs の突き合わせで確かめる）。
   - 同時に直した不具合（§14-6）：`section.lay-fig-right > *` の `max-width:none` が page-title にも当たり、デックの `--pt-max` が消えて広がった page-title 帯が題字帯の末尾の字を隠していた。header・page-title・takeaway を `:where(:not(…))` で外した（詳細度は `*` のまま。試験：layouts.test.cjs の「§14-6」）。
   - 実測：見本デック sample-layouts（20 枚。lay-* と --pt-center を使う）は、この変更の前後で PNG が画素まで同じ。
