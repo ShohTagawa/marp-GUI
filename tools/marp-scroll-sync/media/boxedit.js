@@ -291,12 +291,26 @@
     place(hoverBox, hoverTag, el, labelOf(el, m));
   }
   function refreshSel(extra) {
-    if (!sel || !sel.el.isConnected) { selBox.style.display = 'none'; selTag.style.display = 'none'; return; }
+    if (!sel || !sel.el.isConnected) {
+      selBox.style.display = 'none'; selTag.style.display = 'none'; cropBtn.style.display = 'none'; ghost.style.display = 'none';
+      return;
+    }
     var m = metrics(sel.el);
     if (!m) return;
+    var c = insetOf(sel.el);
+    if (crop || anyCut(c)) extra = (extra || '') + '  切り: 上' + c[0] + ' 右' + c[1] + ' 下' + c[2] + ' 左' + c[3];
     place(selBox, selTag, sel.el, labelOf(sel.el, m, extra));
     selBox.classList.toggle('ss-box-refused', !!sel.refused);
-    selBox.classList.toggle('ss-box-mdimg', !!(sel.target && sel.target.kind === 'mdimg'));
+    selBox.classList.toggle('ss-box-mdimg', !!(sel.target && sel.target.kind === 'mdimg') && !crop);
+    selBox.classList.toggle('ss-box-cropping', !!crop);
+    if (!sel.refused && sel.target && tagOf(sel.el) === 'img' && !drag) {
+      cropBtn.textContent = crop ? '✓ 確定' : '✂ 切る';
+      cropBtn.style.display = 'block';
+      var tr = selTag.getBoundingClientRect();
+      cropBtn.style.left = Math.max(2, Math.min(tr.right + 4, window.innerWidth - 72)) + 'px';
+      cropBtn.style.top = tr.top + 'px';
+    } else cropBtn.style.display = 'none';
+    showGhost(m);
   }
   function hideGuides() { guideV.style.display = 'none'; guideH.style.display = 'none'; }
   function showGuides(m, gx, gy) {
