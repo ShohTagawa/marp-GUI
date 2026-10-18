@@ -1,9 +1,17 @@
 {
   "name": "marp-gui",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
-  "description": "Marp スライドを VS Code のプレビュー上で編集する環境（同期プレビュー・直接編集・配置案・ベクターPDF・プレゼン）。mac / Windows 共通。",
+  "description": "Edit Marp slide decks directly in a synchronized VS Code preview, with layout suggestions, a reusable slide library, vector PDF export and presenting (macOS / Windows).",
   "license": "Apache-2.0",
+  "homepage": "https://github.com/ShohTagawa/marp-GUI",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ShohTagawa/marp-GUI.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ShohTagawa/marp-GUI/issues"
+  },
   "scripts": {
     "setup": "node tools/setup.mjs",
     "setup:check": "node tools/setup.mjs --check",
@@ -14,11 +22,16 @@
     "lint": "node tools/tsutawaru-lint.mjs",
     "library": "node tools/marp-library.mjs index && node tools/marp-library.mjs thumbs && node tools/marp-library.mjs corpus",
     "corpus": "node tools/marp-library.mjs corpus",
-    "test": "node --test --test-concurrency=1 \"tools/marp-scroll-sync/test/*.test.cjs\""
+    "test": "node --test --test-concurrency=1 \"tools/marp-scroll-sync/test/*.test.cjs\"",
+    "bench": "node tools/marp-scroll-sync/bench/latency.bench.cjs",
+    "screenshots": "node tools/marp-scroll-sync/bench/screenshots.cjs",
+    "demo:ranking": "node tools/demo/revision-ranking-demo.mjs"
+  },
+  "dependencies": {
+    "@marp-team/marp-cli": "^4.5.1",
+    "pdf-lib": "^1.17.1"
   },
   "devDependencies": {
-    "@marp-team/marp-cli": "^4.5.1",
-    "pdf-lib": "^1.17.1",
     "puppeteer-core": "^24.43.1"
   },
   "engines": {
