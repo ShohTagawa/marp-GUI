@@ -5,6 +5,8 @@
 //   ドラッグ＝移動（style.translate）、ハンドル＝大きさ（style.width / height）。ドラッグ中は Webview の中だけで
 //   要素の style を直接書き換え（1 フレーム 1 回）、離したときに 1 回だけ boxCommit { index, version, target, style } を送る。
 //   値は 1280×720（スライドの viewBox）の座標系の整数 px。
+//   トリミング（画像だけ）：選んで C キーか札の右の「✂ 切る」。ハンドルは見える範囲の縁を動かす（clip-path: inset と、
+//   切った分だけ詰める margin-*）。Enter・外側クリックで確定（boxCommit 1 回）、Esc で取り消し、0 でトリミングを外す。
 //
 // 頼るもの：
 //   window.ssPreview … preview.js の公開 API { slides, sectionOf, current, post, version, toast, isEditing, onRender, closePopups }。
