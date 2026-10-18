@@ -130,7 +130,7 @@ Entry points: the ★ button and command (mark/unmark), the 📚 button (search 
 
 ## 12. Home screen
 
-`home-vscode.cjs` opens a read-only Webview (command "Home", ⌘K H / Ctrl+K H, the status-bar item, editor title button, and on start-up when the workspace contains `theme/academic.css`, no Marp file is visible and the home was not shown in the last 60 s). Tabs: recent decks (up to 12, kept in `workspaceState`), shelves, most edited (by revision count, by human revision count when available, by score, or by last revision date; duplicates and unrevised converted slides are hidden), and all decks; a search box uses `searchCorpus`. Clicking a card opens the deck at that slide's line and, by default, the synced preview. The list comes from the in-memory index; thumbnails are requested for visible cards only, 60 ms per batch.
+`home-vscode.cjs` opens a read-only Webview (command "Home", ⌘K H / Ctrl+K H, the status-bar item, editor title button, and on start-up when the workspace contains `theme/academic.css`, no Marp file is visible and the home was not shown in the last 60 s). Tabs: recent decks (up to 12, kept in `workspaceState`), shelves, most edited (by revision count, by human revision count when available, by score, or by last revision date; only slides revised at least once — or marked, in the score order — and no duplicates), and all decks; a search box uses `searchCorpus`. Clicking a card opens the deck at that slide's line and, by default, the synced preview. The list comes from the in-memory index; thumbnails are requested for visible cards only, 60 ms per batch.
 
 ## 13. Overflow detection
 
