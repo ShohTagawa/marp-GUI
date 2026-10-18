@@ -485,7 +485,7 @@ function entriesOfDeck(repoRoot, deckRel, mdAbs, text) {
 
 /**
  * 索引を作る（書き込みはしない。writeCorpus が書く）。
- *   withChurn … git の履歴から添削量を数える（全デックで 1 分前後）。false なら数えない（cache にあれば引き継ぐ）
+ *   withChurn … git の履歴から添削量を数える（デックと履歴が多いと時間がかかる。約 4,000 枚で 1 分前後）。false なら数えない（cache にあれば引き継ぐ）
  *   cache     … 前回の戻り値。md の mtimeMs+size が同じデックは本文を読み直さない。
  *               churn は、withChurn のときは HEAD も同じ場合だけ使い回す。withChurn=false のときは md が同じなら引き継ぐ
  *               （md が変わっていなければ、未コミットの手直しも含めて数えた結果は変わらないため。無いよりずっと役に立つ）
