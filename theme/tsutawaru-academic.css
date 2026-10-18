@@ -1109,7 +1109,8 @@ section.lay-flow > .body > :is(ul, ol) > li {
   padding: .7em .6em;
   line-height: 1.45;
 }
-section.lay-flow > :is(ul, ol) > li + li::before {
+section.lay-flow > :is(ul, ol) > li + li::before,
+section.lay-flow > .body > :is(ul, ol) > li + li::before {
   content: ""; position: absolute;
   left: calc(-.55em - 13px - 1.5px); top: 50%; margin-top: -9px;
   width: 0; height: 0; font-size: inherit; line-height: 0;
