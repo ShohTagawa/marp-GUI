@@ -218,7 +218,7 @@ _lib: alc-agenda | 構成, アジェンダ | 2026-09-20
 ### 7.1 索引（lib/corpus-core.cjs。純粋＋fs＋git 呼び出し。vscode 非依存）
 
 - `buildCorpus(repoRoot, { withChurn=true, cache=null, textOf=null, git=null, onProgress=null }) → { version, generatedAt, head, withChurn, decks:{[deck]:{mtimeMs,size,churn}}, entries[], warnings[] }`（書き込みはしない）
-  - 対象：`slides/` 配下の `marp: true` の md（`_library`・`out`・`node_modules`・`.bak`・`work/`・`old/`・`orig/`・`parts/` は除く。`parts/` は実リポジトリで 14 枚中 10 枚が本体と重複していたため）。スライド分割は `slide-split.cjs`。
+  - 対象：`slides/` 配下の `marp: true` の md（`_library`・`out`・`node_modules`・`.bak`・`work/`・`old/`・`orig/`・`parts/` は除く。`parts/` は作者の手元のデック群で 14 枚中 10 枚が本体と重複していたため）。スライド分割は `slide-split.cjs`。
   - `withChurn:false` でも、md が変わっていないデックは `cache` の churn を引き継ぐ（そのデックの全 entry に churn があり、`decks[deck].churn` が true のとき）。`churn.last` は日付のほか `'worktree'`（未コミットの手直し）か空文字。
   - `cache`（前回の戻り値）を渡すと、md の `mtimeMs+size` が同じデックは再計算しない。churn は `head`（git の HEAD）も同じときだけ再利用。
   - `textOf(abs)` は未保存の原稿を差し込む口（library-core の buildIndex と同じ流儀）。
