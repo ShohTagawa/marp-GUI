@@ -17,7 +17,12 @@ div.marpit > svg.current-slide { border-color:#4aa3ff; }
 /* 右上はスライド操作ボタンが来るので、バッジは右下へ（幅 700px で重なるのを実測） */
 .ss-badge { position:fixed; bottom:18px; right:14px; z-index:9;
   background:#222a; color:#fff; font:600 12px/1.4 sans-serif;
-  padding:3px 9px; border-radius:9px; pointer-events:none; }
+  padding:3px 9px; border-radius:9px; cursor:pointer; user-select:none; }
+.ss-badge:hover { background:#333c; }
+.ss-badge .ss-jump { display:none; width:5.5em; font:600 12px/1.4 sans-serif; color:#fff; background:#111;
+  border:1px solid #4aa3ff; border-radius:5px; padding:1px 5px; outline:none; }
+.ss-badge.ss-jumping .ss-badge-text { display:none; }
+.ss-badge.ss-jumping .ss-jump { display:inline-block; }
 
 /* ---- 直接編集 ---- */
 /* 「ここは直接直せる」の合図。outline はレイアウトを動かさない（border だと文字が1px動く） */
