@@ -1037,22 +1037,30 @@ section.cover-hero .title-big.long { font-size: 64px; }
    ============================================================================ */
 
 /* ---- 14-0 共通：項目の見出し（行頭の太字＋改行）を1行の小見出しにする ---------------- */
-section:is(.lay-boxed, .lay-cards2, .lay-cards3, .lay-keyrow, .lay-flow, .lay-steps) > :is(ul, ol) { max-width: none; }
-section:is(.lay-boxed, .lay-cards2, .lay-cards3, .lay-keyrow, .lay-flow, .lay-steps) > :is(ul, ol) > li::before { content: none; }
-section:is(.lay-boxed, .lay-cards2, .lay-cards3, .lay-keyrow, .lay-flow, .lay-steps) > :is(ul, ol) > li > strong:first-child:has(+ br) { display: block; line-height: 1.6; }
-section:is(.lay-boxed, .lay-cards2, .lay-cards3, .lay-keyrow, .lay-flow, .lay-steps) > :is(ul, ol) > li > strong:first-child + br { display: none; }
+section:is(.lay-boxed, .lay-cards2, .lay-cards3, .lay-keyrow, .lay-flow, .lay-steps) > :is(ul, ol),
+section:is(.lay-boxed, .lay-cards2, .lay-cards3, .lay-keyrow, .lay-flow, .lay-steps) > .body > :is(ul, ol) { max-width: none; }
+section:is(.lay-boxed, .lay-cards2, .lay-cards3, .lay-keyrow, .lay-flow, .lay-steps) > :is(ul, ol) > li::before,
+section:is(.lay-boxed, .lay-cards2, .lay-cards3, .lay-keyrow, .lay-flow, .lay-steps) > .body > :is(ul, ol) > li::before { content: none; }
+section:is(.lay-boxed, .lay-cards2, .lay-cards3, .lay-keyrow, .lay-flow, .lay-steps) > :is(ul, ol) > li > strong:first-child:has(+ br),
+section:is(.lay-boxed, .lay-cards2, .lay-cards3, .lay-keyrow, .lay-flow, .lay-steps) > .body > :is(ul, ol) > li > strong:first-child:has(+ br) { display: block; line-height: 1.6; }
+section:is(.lay-boxed, .lay-cards2, .lay-cards3, .lay-keyrow, .lay-flow, .lay-steps) > :is(ul, ol) > li > strong:first-child + br,
+section:is(.lay-boxed, .lay-cards2, .lay-cards3, .lay-keyrow, .lay-flow, .lay-steps) > .body > :is(ul, ol) > li > strong:first-child + br { display: none; }
 
 /* ---- 14-1 lay-boxed：各項目を塗りで囲む（.boxed と同じ。目標・ねらいの1枚・3項目まで）---- */
-section.lay-boxed > :is(ul, ol) { list-style: none; margin-left: 0; padding-left: 0; }
-section.lay-boxed > :is(ul, ol) > li {
+section.lay-boxed > :is(ul, ol),
+section.lay-boxed > .body > :is(ul, ol) { list-style: none; margin-left: 0; padding-left: 0; }
+section.lay-boxed > :is(ul, ol) > li,
+section.lay-boxed > .body > :is(ul, ol) > li {
   background: var(--fill); border-radius: var(--radius);
   padding: 11px 20px; margin: 0 0 11px;
 }
-section.lay-boxed > :is(ul, ol) > li:last-child { margin-bottom: 0; }
+section.lay-boxed > :is(ul, ol) > li:last-child,
+section.lay-boxed > .body > :is(ul, ol) > li:last-child { margin-bottom: 0; }
 
 /* ---- 14-2 lay-cards2 / lay-cards3：塗りのカード（.grid2 / .grid3 ＋ .fill と同じ）-------
    cards2＝2列（2つ、または 2×2 の4つ）。cards3＝3列・1段（3つ）。等幅・等高・間隔均等。 */
-section:is(.lay-cards2, .lay-cards3) > :is(ul, ol) {
+section:is(.lay-cards2, .lay-cards3) > :is(ul, ol),
+section:is(.lay-cards2, .lay-cards3) > .body > :is(ul, ol) {
   list-style: none; padding-left: 0;
   display: grid; grid-template-columns: 1fr 1fr;
   gap: 18px var(--gap-group);
