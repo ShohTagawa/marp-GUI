@@ -30,7 +30,7 @@ footer: ''
 <circle cx="86" cy="480" r="30" fill="#FFFFFF"/>
 <rect x="72" y="466" width="28" height="28" rx="3" fill="none" stroke="var(--accent, #1A7A5E)" stroke-width="3"/>
 <path d="M78 480L85 487L97 472" fill="none" stroke="var(--warn, #E07B39)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-<text x="128" y="487" font-size="20" fill="var(--ink, #1f2937)">Last week's quiz</text>
+<text x="128" y="476" font-size="20" fill="var(--ink, #1f2937)"><tspan x="128">Last week's</tspan><tspan x="128" dy="26">quiz</tspan></text>
 <path d="M306 340H322L338 360L322 380H306L322 360Z" fill="var(--accent, #1A7A5E)"/>
 <circle cx="640" cy="360" r="64" fill="var(--accent-soft, #E4F2EC)"/>
 <text x="640" y="368" font-size="22" font-weight="700" text-anchor="middle" fill="var(--accent-dark, #125642)">Every week</text>
