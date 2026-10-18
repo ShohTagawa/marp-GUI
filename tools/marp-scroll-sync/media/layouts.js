@@ -83,7 +83,8 @@
       if (t === 'blockquote') { var q = norm(el.textContent); if (q) { a.paragraphs++; a.textChars += charLen(q); } return; }
       if (t === 'pre' || t === 'marp-pre') { notPlain('code'); return; }
       notPlain('div');
-    });
+    };
+    Array.prototype.forEach.call(section.children, function (el) { visit(el, false); });
     a.lists = lists.length;
     a.hasFigure = a.figures > 0;
     if (lists.length === 1) {
