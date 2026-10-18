@@ -909,20 +909,31 @@ test('カード：Shadow DOM の中に section があり、デックごとの cs
     items[0].title = '<i>題名はタグにならない</i>';
     await send(page, { type: 'gallery', index: 0 });
     await answer(page, await lastSearch(page), { items, css: fx.css });
-    const g = await page.evaluate(() => Array.from(document.querySelectorAll('.ss-gal-pick')).map(c => {
+    const g = await page.evaluate((cssMap) => Array.from(document.querySelectorAll('.ss-gal-pick')).map(c => {
       const root = c.querySelector('.ss-gal-shadow').shadowRoot;
       const sec = root && root.querySelector('div.marpit > svg[data-marpit-svg] section');
+      const svg = root && root.querySelector('div.marpit > svg[data-marpit-svg]');
       const v = root && root.querySelector('video');
+      const deckCss = (c.__ssItem && cssMap[c.__ssItem.cssKey]) || '';
       return { sec: !!sec, accent: sec ? getComputedStyle(sec).getPropertyValue('--accent').trim().toUpperCase() : null,
         w: sec ? getComputedStyle(sec).width : null, pe: root ? getComputedStyle(root.querySelector('div.marpit')).pointerEvents : null,
         script: root ? root.querySelectorAll('script').length : -1, video: v ? [v.hasAttribute('controls'), v.hasAttribute('autoplay'), v.getAttribute('preload')] : null,
         h: Math.round(c.querySelector('.ss-gal-thumbbox').getBoundingClientRect().height), tw: Math.round(c.querySelector('.ss-gal-thumbbox').getBoundingClientRect().width),
+        // 幅の確かめ：section は svg と同じ幅・border-box・overflow:hidden（基本規則が生きている）。fonts の @import は url の中の ; で切れていない
+        ov: sec ? getComputedStyle(sec).overflow : null, bs: sec ? getComputedStyle(sec).boxSizing : null,
+        fit: sec && svg ? Math.round(sec.getBoundingClientRect().width - svg.getBoundingClientRect().width) : null,
+        fontImport: /display=swap'\);/.test(deckCss) ? /display=swap'\);/.test(Array.from(root.querySelectorAll('style')).map(x => x.textContent).join('')) : 'n/a',
         badges: Array.from(c.querySelectorAll('.ss-gal-badge')).map(b => b.textContent), name: c.querySelector('.ss-gal-name').textContent, sub: c.querySelector('.ss-gal-sub').textContent };
-    }));
+    }), fx.css);
     assert.equal(g.length, 8);
     assert.ok(g.every(x => x.sec && x.w === '1280px' && x.pe === 'none' && x.script === 0), JSON.stringify(g.map(x => [x.sec, x.w, x.pe, x.script])));
     assert.deepEqual(g.map(x => x.accent), ['#C8611C', '#C8611C', '#C8611C', '#C8611C', '#A6192E', '#A6192E', '#A6192E', '#A6192E'], 'デックごとの配色');
     assert.ok(g.every(x => Math.abs(x.h - x.tw * 9 / 16) < 2), 'サムネイルは 16:9');
+    // 2026-10-17 実測：@import url('…wght@400;700…') を ; で切ると、残った 700&display=swap'); の引用符が section の基本規則（1280×720・border-box・
+    // overflow:hidden）まで呑み込み、section が svg より広くなって右側が切れていた（section 1060px／svg 975px・box-sizing content-box・overflow visible）
+    assert.ok(g.every(x => x.ov === 'hidden' && x.bs === 'border-box' && x.fit === 0), 'section は svg と同じ幅・border-box・overflow:hidden: ' + JSON.stringify(g.map(x => [x.ov, x.bs, x.fit])));
+    assert.ok(g.every(x => x.fontImport === true || x.fontImport === 'n/a'), 'fonts の @import は url の中の ; で切れずに <style> へ移る: ' + JSON.stringify(g.map(x => x.fontImport)));
+    assert.ok(g.some(x => x.fontImport === true), '見本デックの css に Google Fonts の @import がある（この確かめが空振りしていない）: ' + JSON.stringify(g.map(x => x.fontImport)));
     assert.deepEqual(g[0].video, [false, false, 'none']);
     assert.equal(await page.evaluate(() => window.__pwned), undefined);
     assert.equal(g[0].name, '<i>題名はタグにならない</i>');
