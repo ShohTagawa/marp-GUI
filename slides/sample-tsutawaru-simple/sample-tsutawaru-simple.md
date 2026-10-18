@@ -117,8 +117,8 @@ section { --font-jp: var(--font-seed); }
 
 - **Band**
   The hatching changes colour.
-- **Subheadings and emphasis**
-  They take a calmer shade of the same hue.
+- **Accent**
+  Subheadings and emphasis take a calmer shade.
 - **Dividers**
   The ground of the divider changes colour.
 
