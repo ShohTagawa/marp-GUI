@@ -174,7 +174,7 @@ section { --font-jp: var(--font-seed); }
 
 - blue is the default
 - orange and sky are other names for yellow and teal
-- For diverse colour vision, switch the theme to tsutawaru-simple-cud
+- tsutawaru-simple-cud gives colours for diverse colour vision
 
 <div class="takeaway">This slide is garnet lay-fig-right</div>
 
