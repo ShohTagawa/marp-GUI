@@ -944,7 +944,7 @@ module.exports = {
   CORPUS_VERSION,
   buildCorpus, searchCorpus, corpusPath, readCorpus, writeCorpus,
   churnOf, repoHistory, jaccard, lineDelta, slidesOf, gitBin, isClaudeVersion, CLAUDE_AUTHORS,
-  extractText, normalizeForSearch, readRevisionGroups, groupOf, scoreOf, dedupe,
+  extractText, normalizeForSearch, GROUPS_FILE, readRevisionGroups, groupOf, scoreOf, dedupe, byScore,
   SHELF_VERSION, shelfPath, readShelf, writeShelf, resolveShelf, normalizeShelf,
   shelfAdd, shelfRename, shelfMove, shelfRemove, shelfRenameShelf, shelfMoveShelf,
 };
