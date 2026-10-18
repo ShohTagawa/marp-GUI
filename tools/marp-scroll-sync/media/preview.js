@@ -1817,6 +1817,7 @@
     if (k === 'PageUp' || k === 'k') { ev.preventDefault(); go(-1); return; }
     if (k === 'Home') { ev.preventDefault(); goTo(0); return; }
     if (k === 'End') { ev.preventDefault(); goTo(slides().length - 1); return; }
+    if (k === 'g' || k === 'G') { ev.preventDefault(); openJump(); return; }
     if (k !== 'ArrowUp' && k !== 'ArrowDown') return;
     ev.preventDefault();
     const tuning = tActive && !navMode && !ev.shiftKey;   // 文字を選んでいて、かつページ送り中でなければサイズ調整
