@@ -405,11 +405,22 @@ function lintFile(path) {
   return out;
 }
 
-function walk(p, acc = []) {
-  if (statSync(p).isDirectory()) {
+function walk(p, acc = [], top = true) {
+  let st;
+  try {
+    st = top ? statSync(p) : lstatSync(p);
+    // 走査中に見つけたリンクは、ファイルなら読み、ディレクトリはたどらない（循環を避ける）
+    if (st.isSymbolicLink()) {
+      st = statSync(p);
+      if (st.isDirectory()) return acc;
+    }
+  } catch {
+    return acc;   // 壊れたリンク・読めない項目は飛ばす
+  }
+  if (st.isDirectory()) {
     for (const e of readdirSync(p)) {
       if (e === 'node_modules' || e === 'out' || e.startsWith('.')) continue;
-      walk(join(p, e), acc);
+      walk(join(p, e), acc, false);
     }
   } else if (p.endsWith('.md') && !p.includes('原稿')) acc.push(p);
   return acc;
