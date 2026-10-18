@@ -833,6 +833,7 @@
       var el = elementAt(ev.clientX, ev.clientY);
       if (!el) { if (sel) { deselect(); stop(ev, true); swallow = Date.now() + 600; } return; }
       stop(ev, true); swallow = Date.now() + 600;
+      if (crop && crop.el === el) return;   // トリミング中は動かさない
       if (!(sel && sel.el === el && !sel.refused)) { if (!select(el, false)) return; }
       beginDrag(ev, 'move');   // 選んだその手で動かせる
       return;
