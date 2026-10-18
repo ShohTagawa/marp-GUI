@@ -42,7 +42,7 @@ No vertical rule is drawn. Body text is dark grey rather than black.
 
 ## The band position is one word in _class
 
-| Word in _class | Band | Suits |
+| _class | Band | Suits |
 |---|---|---|
 | (none) | Thin band on the left | Headings and bullets |
 | band-top | Band along the top | Side-by-side comparisons, wide tables |
