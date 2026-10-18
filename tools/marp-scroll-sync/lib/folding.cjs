@@ -390,7 +390,7 @@ const classList = (attrs) => {
  *   [{ line, text, multiline, safe }]
  *     multiline … 同じ行で閉じていない（＝中身が下に続く区画）
  *     safe      … この行の行末にコメントを書いても発表者ノートに入らない（html_block の中）
- * 1行に開始タグが複数あるとき（実デックに多い `<div class="split-body"><div class="left">`）は、
+ * 1行に開始タグが複数あるとき（よくある書き方 `<div class="split-body"><div class="left">`）は、
  * その行で開いたままの区画を外側から順に ' › ' でつなぐ。全部その行で閉じていれば先頭の1つだけ。
  * split-body の直下の div は、クラスが left/right でなくても 1つ目を左・2つ目を右とする。
  * 同じ行にすでにコメントがあれば出さない（原稿に書いたラベルと二重にしない）。
