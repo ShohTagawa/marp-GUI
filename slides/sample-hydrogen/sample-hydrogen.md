@@ -42,7 +42,7 @@ Sample deck for marp-GUI. Text and numbers follow the source article; every figu
 - **Theory suggests tens to a hundred times as much water**
   Recent planet-formation theory has repeatedly pointed to large amounts of delivered water.
 - **Low by chance, or regulated?**
-  Debate continues over whether a mechanism "regulated" the amount of ocean water.
+  Debate continues over whether a mechanism “regulated” the amount of ocean water.
 
 <div class="takeaway">We focus on the reaction between the core and water as the core formed</div>
 
