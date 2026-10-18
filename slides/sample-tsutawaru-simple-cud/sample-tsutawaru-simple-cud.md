@@ -106,9 +106,9 @@ Sample deck for marp-GUI. It describes the theme itself. The colour comparison w
 <text x="660" y="338" font-size="18" fill="var(--ink-weak, #6E6E6E)">closest pair 10.8: red and orange</text>
 </svg>
 
-<p class="note wide">Simulated with the matrices of Machado et al. (2009); differences measured in CIEDE2000. For T-type vision the minimum rises from 4.4 to 12.0.</p>
+<p class="note wide">Simulation: Machado et al. (2009). Difference: CIEDE2000. T-type: from 4.4 to 12.0.</p>
 
-<div class="takeaway">For P- and D-type vision, the closest pair now differs by more than 10</div>
+<div class="takeaway">For P- and D-type, every pair now differs by more than 10</div>
 
 ---
 
