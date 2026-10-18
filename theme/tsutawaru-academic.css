@@ -8,9 +8,9 @@
    academic.css を @import して、**本文（メイン領域）だけ**を本のルールで組み直す。
    ヘッダー帯・ロゴ・page-title・ページ番号・フォントは academic.css のまま触らない。
 
-   ビルド時は3枚とも渡す：
+   ビルド時は2枚とも渡す（@import "academic" を解決するため）：
      --theme-set theme/academic.css theme/tsutawaru-academic.css
-   （部品テーマ（非同梱） とは併用しない。tsutawaru は 部品テーマ（非同梱） の代わりに使う）
+   （npm run png / pdf / present は theme/*.css を全部渡すので、指定は要らない）
 
    このテーマが解こうとしている課題：
      (A) 囲み枠が多すぎる → p.212「囲みすぎは絶対にNGです。」
