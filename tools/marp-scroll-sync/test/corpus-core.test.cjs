@@ -55,9 +55,9 @@ function makeRepo(withGit) {
   const commit = (msg, date) => { git('add', '-A'); git('commit', '-q', '-m', msg, '--date', date + 'T12:00:00'); };
   mk(root, 'theme/academic.css', '/* @theme academic */\nsection { font-size: 23px; }\n.takeaway { font-size: 28px; }\n');
   mk(root, 'theme/tsutawaru-academic.css', '/* @theme tsutawaru-academic */\n@import "academic";\n.fill { background: #eee; }\n');
-  mk(root, 'docs/revision-map_2026H1.md', [
-    '# 添削マップ', '', '## A. 添削濃厚', '', '| デック | メモ |', '|---|---|', '| `slides/20260601_Test_a-deck` | 濃い |', '',
-    '## B. 他PC', '', '- slides/20260701_Test_fork/ を見る', '', '## C. 変換移植のみ', '', '| `slides/20250101_Old_converted` | 変換 |', '',
+  mk(root, C.GROUPS_FILE, [
+    '# 手本デックの一覧', '', '## A. 手本', '', '| デック | メモ |', '|---|---|', '| `slides/20260601_Test_a-deck` | 何度も直した |', '',
+    '## B. 準手本', '', '- slides/20260701_Test_fork/ を見る', '', '## C. 対象外', '', '| `slides/20250101_Old_converted` | 変換のまま |', '',
   ].join('\n'));
   const A = 'slides/20260601_Test_a-deck/20260601_Test_a-deck.md';
   mk(root, A, deckA(INTRO_V1));
