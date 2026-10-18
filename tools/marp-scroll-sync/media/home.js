@@ -59,6 +59,10 @@
 
   // ---------- サムネイル（preview.js と同じ方式） ----------
   const FIX_CSS = ':host{display:block}div.marpit{pointer-events:none;user-select:none;-webkit-user-select:none}div.marpit>svg[data-marpit-svg]{display:block;width:100%;height:auto}';
+  // @import は replaceSync が受け付けないので外して、要るものだけ小さな <style> で足す。url('…') や "…" の中の ; で切らないよう、
+  // 引用符と url(…) を丸ごと読む。旧 /@import\s[^;]+;/ は Google Fonts の wght@400;700 の ; で切れ、残った 700&display=swap'); の
+  // 引用符が次の規則（section の 1280×720・overflow:hidden）まで文字列として呑み込み、サムネイルの右側が切れていた（実測 2026-10-17）
+  const IMPORT_RE = /@import\s+(?:url\(\s*(?:"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|[^)]*)\s*\)|"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')[^;]*;/g;
   const cssStore = new Map(), sheetStore = new Map();
   let fixSheet = null, canAdopt = false;
   try {
