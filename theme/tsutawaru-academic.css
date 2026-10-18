@@ -442,7 +442,7 @@ section table.zebra tbody tr td { border-bottom: none; }
   border-top: 9px solid transparent;
   border-bottom: 9px solid transparent;
 }
-/* 部品テーマ（非同梱） 由来の .flowrow / .farrow も同じ見た目に寄せる */
+/* 旧来の書き方 .flowrow / .farrow も同じ見た目に寄せる */
 .flowrow { display: flex; align-items: center; gap: .55em; margin: .8em 0; flex-wrap: nowrap; }
 .flowrow > .fbox {
   flex: 1 1 0; min-width: 0; background: #fff; color: var(--ink);
