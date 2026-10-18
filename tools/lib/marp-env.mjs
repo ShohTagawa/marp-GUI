@@ -32,7 +32,8 @@ export function themeFiles(root = ROOT) {
 }
 
 /**
- * slides/ 直下〜デック直下（深さ1〜2）の *.md から、'_' 始まり（一時ファイル）を除いて
+ * slides/ 直下〜デック直下（深さ1〜2）の *.md から、'_' 始まり（一時ファイル）と '.' 始まり
+ * （隠しファイル。macOS が外付けの記憶装置に作る ._*.md も）を除いて
  * 最新 mtime のものを返す。引数なし実行（npm run pdf / ▶ボタン）用。
  */
 export function latestDeck(root = ROOT) {
