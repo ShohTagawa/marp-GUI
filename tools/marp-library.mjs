@@ -75,7 +75,7 @@ const HELP = `marp-library — 完成スライドの印・台帳・再利用
 印は _class と同じコメントに入る 1 行です（発表者ノートにも出力にも出ません）:
   <!--
   _class: summary
-  _lib: alc-agenda | 構成, アジェンダ | 2026-09-20
+  _lib: day-agenda | 構成, アジェンダ | 2026-09-20
   -->
 `;
 
