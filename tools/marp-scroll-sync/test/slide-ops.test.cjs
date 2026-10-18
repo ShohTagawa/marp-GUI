@@ -189,7 +189,7 @@ test('duplicateSlide: frontmatter の無いデック・範囲外', () => {
 
 // ---------------------------------------------------------------- _lib の印
 
-const MARKED = '<!--\n_class: summary\n_lib: alc-agenda | 構成, アジェンダ | 2026-09-20\n-->';
+const MARKED = '<!--\n_class: summary\n_lib: day-agenda | 構成, アジェンダ | 2026-09-20\n-->';
 
 test('stripLibMark: _class だけになったら1行形式へ戻す', () => {
   assert.strictEqual(stripLibMark(MARKED + '\n\n## 見出し\n'), '<!-- _class: summary -->\n\n## 見出し\n');
