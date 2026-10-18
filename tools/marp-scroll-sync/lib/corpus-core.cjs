@@ -268,13 +268,28 @@ const isMarp = (text) => /^---\r?\n[\s\S]*?\bmarp:\s*true\b/.test(text.slice(0, 
 const normDeckName = (s) => String(s).toLowerCase().replace(/[#\s]/g, '_');
 
 /**
- * docs/revision-map_2026H1.md の「## A.」「## B.」の節にある slides/… のパスを拾う。戻り値 [{ name, group }]。
+ * 手本にするデックの一覧（任意のファイル。配布版には無い）。リポジトリからの相対パス。
+ * 書くのは利用者で、git で追跡してよい（corpus.json と違い生成物ではない）。形は Markdown：
+ *
+ *   ## A. 手本（何度も手を入れて仕上げたデック）
+ *   - slides/20260101_Event_deck-a/
+ *   ## B. 準手本
+ *   | `slides/20260202_Event_deck-b` | メモ |
+ *
+ * 「## A.」「## B.」の節にあるデックのスライドは、score に +0.4／+0.2 が付き、ホームに A／B の印が出る。
+ * ほかの見出し（## C. など）の節は読まない。ファイルが無ければ群は付かず、score は変わらない。
+ */
+const GROUPS_FILE = 'slides/_library/groups.md';
+
+/**
+ * GROUPS_FILE の「## A.」「## B.」の節にある slides/… のパスを拾う。戻り値 [{ name, group }]。
  * 表の列や書式が変わっても落ちないよう、節の見出しとパスの形だけを頼りにする。
  * `slides/20260101+0102_Event_x` は 20260101_… と 20260102_… の 2 本として読む。読めなければ []。
+ * text を渡すとファイルの代わりにそれを読む（テスト用）。
  */
 function readRevisionGroups(repoRoot, text) {
   try {
-    if (typeof text !== 'string') text = fs.readFileSync(path.join(repoRoot, 'docs', 'revision-map_2026H1.md'), 'utf8');
+    if (typeof text !== 'string') text = fs.readFileSync(path.join(repoRoot, ...GROUPS_FILE.split('/')), 'utf8');
   } catch (_) { return []; }
   const out = [];
   let group = null;
