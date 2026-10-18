@@ -69,24 +69,36 @@ section.em-orange { --em: #B45309; }
 section.em-blue   { --em: #2166AC; }
 
 /* ============================================================================
-   1b. ヘッダー題字・page-title は「文字量に合わせて自動幅」
+   1b. ヘッダー題字・page-title の既定（ふつうの長さの題名なら何も書かなくてよい）
        academic.css は幅が固定%（--hdr-left-w / --pt-left / --pt-width）で、
        デックの題名の長さごとに3つの値を手調整する必要があった。
-       tsutawaru では既定を fit-content にして調整を不要にする。
+       tsutawaru では既定を「題字帯 23%・page-title 帯 50%・題字帯の右に噛み合わせ」にする。
 
-       デック側で固定したい時だけ frontmatter で上書きする：
+       デック側で変えたい時だけ frontmatter で上書きする：
          style: |
            :root { --hdr-left-w: 30%; --pt-center: 40%; --pt-width: 26%; }
-       ・--hdr-left-w   … 題字帯の幅（既定 fit-content＝文字に追従）
+       ・--hdr-left-w   … 題字帯の幅（既定 23%。文字に追従させるなら fit-content）
        ・--hdr-left-max … 題字帯の上限幅（超えたら…で省略）
-       ・--pt-center    … page-title 帯の「中心」の位置（既定 50%＝画面中央）
-       ・--pt-width     … page-title 帯の幅（既定 fit-content）
+       ・--pt-center    … page-title 帯の「中心」の位置（書いたときだけ効く。書かなければ題字帯に噛み合わせる）
+       ・--pt-width     … page-title 帯の幅（既定 50%）
+       ・--hdr-gap      … 題字帯と page-title 帯の隙間（既定 -4px＝重ねて白消し）
    ============================================================================ */
+/* 既定の変更（2026-10-04）：新規デックで毎回つまみを書かなくて済むよう、既定を
+   「題字帯 23%・page-title 50%・題字帯に噛み合わせ（重ねて白消し -4px）」にした
+   （以前は 題字帯 fit-content・page-title 帯は文字に追従して画面中央 --pt-center: 50%・上限 40%）。
+   page-title は --pt-center を書いたデックでは従来どおり「中心位置」で置き、
+   書かないデックでは題字帯の右に噛み合わせる（--pt-left の式＝academic.css と同じ）。
+   題字が長くて 23% に収まらないデックは --hdr-left-w を広げる（または fit-content にする）。
+   --pt-center を書いている見本デック（sample-layouts）は、変更の前後で PNG が画素まで同じ。 */
 :root {
-  --hdr-left-w: fit-content;
-  --hdr-left-max: 38%;
-  --pt-center: 50%;
-  --pt-max: 40%;
+  --hdr-left-w: 23%;    /* 左の題字帯の幅。タイトルの長さに合わせる（文字に追従させるなら fit-content） */
+  --hdr-left-max: 38%;  /* 題字帯の上限幅 */
+  --pt-width: 50%;      /* 中央 page-title 帯の幅（文字が折り返すなら広く） */
+  --pt-max: none;       /* page-title 帯の上限幅（none＝--pt-width のまま） */
+  /* 題字帯と page-title 帯の白い隙間：4px＝隙間あり／0＝密着／-4px＝重ねて白を消す */
+  --hdr-gap: -4px;
+  /* 噛み合わせの左端（触らなくてよい）。--hdr-slant は 22px */
+  --pt-left: calc(var(--hdr-left-w) - var(--hdr-slant, 22px) + var(--hdr-gap));
 }
 section > header .hdr-left {
   width: var(--hdr-left-w);
