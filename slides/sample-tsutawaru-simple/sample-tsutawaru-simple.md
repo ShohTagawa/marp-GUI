@@ -141,7 +141,7 @@ section { --font-jp: var(--font-seed); }
 ## Start a new deck in three steps
 
 1. **Name the theme**
-   Write tsutawaru-simple in the front matter.
+   Set it in the front matter.
 2. **Write the text**
    Headings and bullets in plain Markdown.
 3. **Check the PNGs**
