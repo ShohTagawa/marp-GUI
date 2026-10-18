@@ -120,10 +120,11 @@ test('jaccard / lineDelta', () => {
 // ───────────────────────── 添削マップ・score ─────────────────────────
 
 test('readRevisionGroups：A・B の節だけを拾う。日付の連記を展開する。読めなければ []', () => {
-  const g = C.readRevisionGroups('/nonexistent', '## A. x\n| `slides/20260621+0622_DataInfra_x` |\n## B. y\nslides/20260101_B-deck/\n## C. z\nslides/20250101_C\n');
-  assert.deepEqual(g.map((x) => x.name + ':' + x.group), ['20260621_datainfra_x:A', '20260622_datainfra_x:A', '20260101_b-deck:B']);
+  assert.equal(C.GROUPS_FILE, 'slides/_library/groups.md', '手本デックの一覧は任意のファイル（配布版には無い）');
+  const g = C.readRevisionGroups('/nonexistent', '## A. x\n| `slides/20260621+0622_Event_x` |\n## B. y\nslides/20260101_B-deck/\n## C. z\nslides/20250101_C\n');
+  assert.deepEqual(g.map((x) => x.name + ':' + x.group), ['20260621_event_x:A', '20260622_event_x:A', '20260101_b-deck:B']);
   assert.deepEqual(C.readRevisionGroups('/nonexistent/repo'), []);
-  assert.equal(C.groupOf('slides/20260622_DataInfra_x/a.md', g), 'A');
+  assert.equal(C.groupOf('slides/20260622_Event_x/a.md', g), 'A');
   assert.equal(C.groupOf('slides/20250101_C/a.md', g), null);
   assert.equal(C.groupOf('slides/any/a.md', []), null);
 });
