@@ -44,12 +44,17 @@ function px(v) {
 }
 
 /**
- * style 引数を検算して { translate, width, height } にならす。値は 文字列（書く値）| null（消す）| undefined（触らない）。
- * 0,0 の translate は「消す」。おかしな値は null を返す（呼び出し側で ok:false）。
+ * style 引数を検算して { translate, width, height, 'clip-path', 'margin-top', … } にならす。
+ * 値は 文字列（書く値）| null（消す）| undefined（触らない）。
+ * 0,0 の translate と 全部 0 の clipPath は「消す」。おかしな値は null を返す（呼び出し側で ok:false）。
+ *   clipPath = [上, 右, 下, 左]（切る量。0 以上）→ clip-path: inset(…)
+ *   margin   = { top, right, bottom, left }（各 数 | null | 無し）→ margin-top など辺ごとの宣言。
+ *              shorthand にしないのは、元の margin（テーマの 0 auto や原稿の margin 宣言）を残し、外せば元へ戻すため。
  */
 function normStyle(style) {
   if (!style || typeof style !== 'object') return null;
-  const out = { translate: undefined, width: undefined, height: undefined };
+  const out = {};
+  for (const p of PROPS) out[p] = undefined;
   if (style.translate === null) out.translate = null;
   else if (style.translate !== undefined) {
     if (!Array.isArray(style.translate) || style.translate.length !== 2) return null;
