@@ -94,7 +94,7 @@ node tools/tsutawaru-lint.mjs <file.md|dir>... [--summary] [--lang ja|en]
 | Rule (our wording) | Lint | Handbook page(s) | Source | Used in |
 |---|---|---|---|---|
 | Align every element; top and left edges always line up. | — | p.148 | handbook | theme |
-| A figure without a clear edge can sit on a pale grey background. | — | p.152 | handbook | theme (figure backdrop) |
+| A figure without a clear edge can sit on a pale grey background. | — | p.152 | handbook | theme §9 (figure backdrop) |
 | Put related items close together so that they read as a group. | — | p.154 | handbook | `lay-fig-top` |
 | Leave about one line between a figure and its caption. | — | p.157 | handbook | theme (captions) |
 | The jump ratio (heading size over body size) sets the hierarchy; make low-priority text clearly smaller. | — | p.160 | handbook | theme |
