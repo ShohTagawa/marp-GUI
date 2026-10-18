@@ -36,8 +36,8 @@ const FM = (extra) => `---\nmarp: true\ntheme: parts-deck\n${extra || ''}paginat
 
 test('parseMark: 形式どおりに読む／クォート付きも読む／無ければ null', () => {
   assert.deepStrictEqual(
-    core.parseMark('<!--\n_class: summary\n_lib: alc-agenda | 構成, アジェンダ | 2026-09-20\n-->\n\n# t'),
-    { id: 'alc-agenda', tags: ['構成', 'アジェンダ'], at: '2026-09-20' });
+    core.parseMark('<!--\n_class: summary\n_lib: day-agenda | 構成, アジェンダ | 2026-09-20\n-->\n\n# t'),
+    { id: 'day-agenda', tags: ['構成', 'アジェンダ'], at: '2026-09-20' });
   assert.deepStrictEqual(
     core.parseMark('<!--\n_class: summary\n_lib: "x-1 | a: b, c #d | 2026-01-02"\n-->'),
     { id: 'x-1', tags: ['a: b', 'c #d'], at: '2026-01-02' });
@@ -92,7 +92,7 @@ test('writeMark: 値が YAML を壊すときだけ自動でクォートする。
 test('marp-core 実測：印を付けても comments（発表者ノート）にも HTML にも出ず、描画が 1 バイトも変わらない', () => {
   const body = '\n\n# 見出し\n\n- a\n- b\n\n<!-- 本物のノート -->\n\n---\n\n# 次\n';
   const variants = [
-    { name: '日本語タグ', fm: '', head: '<!-- _class: summary -->', mark: { id: 'alc-agenda', tags: ['構成', 'アジェンダ'] } },
+    { name: '日本語タグ', fm: '', head: '<!-- _class: summary -->', mark: { id: 'day-agenda', tags: ['構成', 'アジェンダ'] } },
     { name: 'コロンと#', fm: '', head: '<!-- _class: summary -->', mark: { id: 'c1', tags: ['a:b', 'e: f', 'g #h', 'x:'] } },
     { name: '引用符と\\', fm: '', head: '<!-- _class: summary -->', mark: { id: 'c2', tags: ['say "hi"', "it's", 'a\\b'] } },
     { name: '_class 無し', fm: '', head: '', mark: { id: 'n1', tags: ['t'] } },
