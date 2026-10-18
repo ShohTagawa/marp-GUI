@@ -401,7 +401,7 @@ _lib: alc-agenda | 構成, アジェンダ | 2026-09-20
 
 確定後は 8.4 の patch で 1 枚だけ差し替わる。はみ出しは 7.3 の ⚠ がそのまま働く。
 
-### 9.5 実装で確定した点（2026-09-20。通し試験 `test/e2e-flows.test.cjs` の h1〜h6 で固めた）
+### 9.5 実装で確定した点（2026-09-20。作者の手元の通し試験（配布しない）の h1〜h6 で固めた）
 
 - **配線**（extension.js）：`buildHtml` は layouts.js の次に `media/boxedit.css` / `boxedit.js` を載せる（`optional()`。読めなければ黙って外す）。`lib/style-edit.cjs` が読めないときは boxedit.js も載せない（動かせても書けないため）。それでも `boxCommit` が届いたら「箱の編集の部品を読み込めませんでした」。
 - `boxCommit` は `PREVIEW_EDIT_TYPES` に入り、editChain・version 照合は editCommit と同じ（不一致は `REASON_TEXT.stale`。Webview は editResult ok:false で見た目を戻す）。`handleBoxCommit`：`forceSlides.add(index)` → `planStyleEdit` → `applyEditsChecked` → 枚数が変わらないことを確かめて `replaceMinimal`。書くものが無ければ（edits が空）その場で描き直して表示を原稿どおりに戻す。失敗は `postEditResult(false, …)` と `guideToLine(plan.line)`（`mdimg-move` は案内しない）。
