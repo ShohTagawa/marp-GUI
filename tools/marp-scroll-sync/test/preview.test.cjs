@@ -1316,8 +1316,10 @@ test('＋ はスライドの間にマウスを乗せたときだけ現れる（1
       await page.mouse.move(p.x + 180, p.y + 6);   // ボタンの真上でなくても、間の帯の中なら出る
       const t0 = Date.now();
       await sleep(80);
-      const look = await insertLook(page, idx);
-      assert.deepEqual([look.near, look.opacity, look.pe], [true, 1, 'auto'], `帯に乗ると 100ms 以内に見える（index ${idx}・${Date.now() - t0}ms）`);
+      let look = await insertLook(page, idx);
+      // 「100ms 以内」は手元でだけ確かめる。CI の共有ランナーでは、見えるようになるまで最大 1 秒待つ（出ること自体は確かめる）
+      for (let i = 0; !TIME_BUDGETS && i < 46 && !(look.near && look.opacity === 1); i++) { await sleep(20); look = await insertLook(page, idx); }
+      assert.deepEqual([look.near, look.opacity, look.pe], [true, 1, 'auto'], `帯に乗ると ${TIME_BUDGETS ? '100ms' : '1 秒'} 以内に見える（index ${idx}・${Date.now() - t0}ms）`);
       assert.equal(await page.evaluate(() => document.querySelectorAll('.ss-insert.ss-near').length), 1, '出るのは 1 つだけ');
       // 余白より少し広い：スライドの端 6px に入っていても出ている
       await page.mouse.move(p.x + 180, p.y + 15 + 6);
