@@ -112,8 +112,8 @@ footer: ''
 <text x="896" y="248" font-size="56" font-weight="700" fill="var(--accent-dark, #125642)">30〜70倍</text>
 <text x="896" y="284" font-size="20" fill="var(--ink, #1f2937)"><tspan x="896">今の海の水素と比べた、</tspan><tspan x="896" dy="26">核の水素の量</tspan></text>
 <text x="896" y="342" font-size="18" fill="var(--muted, #6b7280)">（モデルによる見積もり）</text>
-<path d="M896 398H1224" fill="none" stroke="#FFFFFF" stroke-width="3"/>
-<text x="896" y="436" font-size="20" fill="var(--ink, #1f2937)"><tspan x="896">核への取り込みが、</tspan><tspan x="896" dy="26">海の量を「調整」した</tspan><tspan x="896" dy="26">のかもしれない</tspan></text>
+<path d="M896 374H1224" fill="none" stroke="#FFFFFF" stroke-width="3"/>
+<text x="896" y="412" font-size="20" fill="var(--ink, #1f2937)"><tspan x="896">核への取り込みが、</tspan><tspan x="896" dy="26">海の量を「調整」した</tspan><tspan x="896" dy="26">のかもしれない</tspan></text>
 <rect x="32" y="606" width="1216" height="64" rx="8" fill="url(#pon-ja-2-band)"/>
 <text x="640" y="647" font-size="26" font-weight="700" text-anchor="middle" fill="#FFFFFF">核ができるとき、海の量が決まったのか？</text>
 <text x="32" y="704" font-size="18" fill="var(--muted, #6b7280)">出典：田川翔「地球中心核の水素」Isotope News 2022年4月号 No.780, pp.26–30。図はこのページのために描いた。</text>
