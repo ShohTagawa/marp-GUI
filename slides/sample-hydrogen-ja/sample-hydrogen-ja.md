@@ -77,7 +77,10 @@ marp-GUI の見本デック。本文と数値は出典の記事どおり。図�
 
 ---
 
-<!-- _class: lay-cards3 -->
+<!--
+_class: lay-cards3
+_lib: core-density-ja | sample, cards | 2026-10-18
+-->
 
 ## 核には、鉄より軽い元素が入っています
 
@@ -92,7 +95,10 @@ marp-GUI の見本デック。本文と数値は出典の記事どおり。図�
 
 ---
 
-<!-- _class: lay-keyrow -->
+<!--
+_class: lay-keyrow
+_lib: prior-studies-ja | sample, keyrow | 2026-10-18
+-->
 
 ## 先行研究は、正反対の結果でした
 
