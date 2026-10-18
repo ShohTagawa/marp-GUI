@@ -5,7 +5,7 @@
   "command.exportPdf": "Marp: ベクターPDF出力（このスライド）",
   "config.title": "Marp GUI PDF",
   "config.chunkSize": "1チャンクのページ数。0でスクリプト既定(20)。PDFが落ちるなら 12 など小さくする。",
-  "config.chromePath": "Chrome/Edge 実行ファイルのパス。空なら OS ごとの標準インストール先を自動検出（mac: /Applications、Windows: Program Files）。",
+  "config.chromePath": "Chrome/Edge 実行ファイルのパス。空なら OS ごとの標準インストール先を自動検出（mac: /Applications、Windows: Program Files）。ユーザー設定でだけ指定できる（フォルダ側の設定では変えられない）。",
   "config.nodePath": "node 実行ファイルのパス。空なら PATH から探す（nvm 等で見つからないときだけ指定）。ユーザー設定でだけ指定できる（フォルダ側の設定では変えられない）。",
   "capabilities.untrustedWorkspaces": "開いたフォルダの tools/ 配下の Node スクリプトを実行するため、信頼したフォルダでだけ動かす。",
   "capabilities.virtualWorkspaces": "手元の Node スクリプトを実行するため、仮想ファイルシステムの上では動かない。"
