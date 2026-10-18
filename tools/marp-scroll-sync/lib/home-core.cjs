@@ -22,11 +22,18 @@ function toItem(e, extra) {
   }, extra || {});
 }
 
+/**
+ * 同点のときの最後の順：デックのパス順、同じデックの中はスライド番号の順（数として比べる：#2 が #10 より先。
+ * key の文字列で比べると #1, #10, #2 になる）。最後に key で順序を必ず決める（corpus-core の byScore と同じ）
+ */
+const byPlace = (a, b) => String(a.deck || '').localeCompare(String(b.deck || ''))
+  || (Number(a.slide) || 0) - (Number(b.slide) || 0)
+  || String(a.key || '').localeCompare(String(b.key || ''));
 const byTouched = (a, b) => (b.churn && b.churn.touched || 0) - (a.churn && a.churn.touched || 0)
   || (b.churn && b.churn.lines || 0) - (a.churn && a.churn.lines || 0)
   || String(b.churn && b.churn.last || '').localeCompare(String(a.churn && a.churn.last || ''))
-  || a.key.localeCompare(b.key);
-const byScore = (a, b) => (b.score || 0) - (a.score || 0) || String(b.date || '').localeCompare(String(a.date || '')) || a.key.localeCompare(b.key);
+  || byPlace(a, b);
+const byScore = (a, b) => (b.score || 0) - (a.score || 0) || String(b.date || '').localeCompare(String(a.date || '')) || byPlace(a, b);
 const hT = (e) => (e.churn && e.churn.human ? e.churn.human.touched || 0 : (e.churn && e.churn.touched || 0));
 const byHuman = (a, b) => hT(b) - hT(a) || byTouched(a, b);
 const byRecent = (a, b) => String(b.churn && b.churn.last || b.date || '').localeCompare(String(a.churn && a.churn.last || a.date || ''))
