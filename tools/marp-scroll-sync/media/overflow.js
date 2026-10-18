@@ -195,7 +195,7 @@
       var ft = flowTakeaways[k2];
       for (var j2 = 0; j2 < boxes.length; j2++) {
         var b2 = boxes[j2];
-        if (b2.svg) continue;   // インライン SVG の箱は絵のまわりの余白を含む（隣のブロックと同じ扱い。実測：実デックの数枚）
+        if (b2.svg) continue;   // インライン SVG の箱は絵のまわりの余白を含む（隣のブロックと同じ扱い。実測：作者の手元のデックの数枚）
         if (b2.bottom > ft.top + SIB_TOL && b2.top < ft.bottom - SIB_TOL && b2.right > ft.left + SIB_TOL && b2.left < ft.right - SIB_TOL) { out.hitsTakeaway = true; break; }
       }
     }
