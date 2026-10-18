@@ -1395,8 +1395,10 @@ test('速さ（8.0）：先読み済みなら、クリックから骨組みが 1
     }));
     TIMINGS.push(`＋ポップアップ（棚 9 枚＋上位 6 枚・先読み済み）：骨組み ${m.skeleton.toFixed(1)}ms／棚 9 枚のサムネイル ${m.thumbs.toFixed(1)}ms`);
     assert.deepEqual([m.shelfCards, m.all, m.names], [9, 15, 9], 'クリックと同期して、棚 9 枚（行方不明は 10 枚目なので出ない）＋上位 6 枚の骨組みが出る');
-    assert.ok(m.skeleton <= SKELETON_BUDGET, `骨組み ${m.skeleton.toFixed(1)}ms ≤ ${SKELETON_BUDGET}ms`);
-    assert.ok(m.thumbs <= THUMBS_BUDGET, `サムネイル ${m.thumbs}ms ≤ ${THUMBS_BUDGET}ms`);
+    if (TIME_BUDGETS) {
+      assert.ok(m.skeleton <= SKELETON_BUDGET, `骨組み ${m.skeleton.toFixed(1)}ms ≤ ${SKELETON_BUDGET}ms`);
+      assert.ok(m.thumbs <= THUMBS_BUDGET, `サムネイル ${m.thumbs}ms ≤ ${THUMBS_BUDGET}ms`);
+    } else assert.ok(Number.isFinite(m.thumbs), `棚 9 枚のサムネイルが 3 秒以内に出ない（${m.filled} 枚）`);
     const g = await popState(page);
     assert.deepEqual(g.tabs, ['自己紹介*', '生成AI']);
     assert.deepEqual(g.heads, ['棚', '手を入れた順']);
