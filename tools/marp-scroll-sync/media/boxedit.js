@@ -817,6 +817,11 @@
   window.addEventListener('pointerdown', function (ev) {
     if (ev.button !== 0 || editing()) return;
     var t = ev.target;
+    if (t === cropBtn) {
+      stop(ev, true); swallow = Date.now() + 600;
+      if (crop) commitCrop(false); else enterCrop();
+      return;
+    }
     var onHandle = t && t.classList && t.classList.contains('ss-box-handle');
     if (sel && !sel.refused && onHandle) {
       stop(ev, true); swallow = Date.now() + 600;
