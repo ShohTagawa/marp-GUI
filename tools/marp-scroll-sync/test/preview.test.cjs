@@ -1017,7 +1017,7 @@ test('古い reqId の応答は捨てる／閉じたあとに届いた応答で�
     const fx = corpus();
     await openGal(page, 0);
     const first = await lastSearch(page);
-    await page.type('.ss-gal-filter', 'ALC');
+    await page.type('.ss-gal-filter', 'lecture');
     await sleep(400);
     const second = await lastSearch(page);
     assert.ok(second.reqId !== first.reqId);
