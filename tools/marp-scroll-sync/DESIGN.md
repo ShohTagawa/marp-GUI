@@ -327,6 +327,15 @@ _lib: day-agenda | 構成, アジェンダ | 2026-09-20
 - media/layouts.js（ブラウザ側）：スライドの右クリック（と、操作ボタン列の「配置」ボタン）で、**いまのスライドの DOM を複製してクラスだけ差し替えた小さなサムネイル** を並べたポップアップを出す。再描画も拡張との往復も要らないので一瞬で出る。各案に `ssDetectOverflow` を当て、はみ出す案には ⚠ を付ける（選べるが勧めない）。クリックで `layoutApply { index, version, cls }` → 拡張が `planSetLayout` で書き戻す（Cmd+Z 1回）。ホバーで大きなプレビュー（現在のスライドの枠に一時的に反映。離すと戻る）。
 - preview.js は `window.ssPreview = { slides(), sectionOf(svg), current(), version(), post(msg), toast(message, isError?), isEditing(), onRender(fn({kind:'render'|'patch', indices})) → 登録を外す関数, closePopups() }` を公開し、layouts.js はこれだけに頼る（`current / version / isEditing` は関数）。`closePopups()` は window に CustomEvent `ss-close-popups` も出すので、ほかの部品はこれを聞いて自分のポップアップを閉じる。
 - 確定した形：配置クラスは 10 個（`lay-list` は作らず、ポップアップの先頭に「標準（cls:null＝lay-* を外す）」を出す）。`variantsFor → [{ cls, label, why, group, current, fits }]`（いま付いている lay-* は条件に合わなくても `fits:false` で残す）。`planSetLayout → { ok, edits(0〜1件), revealLine, reason? }`（YAML 配列の `_class` は断る）。判定の表は `browserTable()` を拡張が `window.__SS_LAYOUTS__` として埋め込み、条件の解き方 `matches()` は layout-variants.cjs と layouts.js の 2 か所にある（Webview は eval 不可。見本デック全枚で一致をテスト）。`window.ssLayouts = { open(index?, x?, y?), close(), analyze, variants, lastMs, lastCheckMs }`。操作ボタン列の「配置」ボタンはまだ無い（右クリックだけ）。
+- **包みと出典の行（2026-10-17 追加）**：素の構造の判定を 2 点ゆるめた。
+  - `<div class="body">`（属性は class だけ。語は `body` と `vtop`/`vcenter`/`vspread` だけ。開きタグだけの行で次が空行）は**透過する包み**とみなし、中身で判定する（`WRAP_CLASS`・`WRAP_EXTRA`。結果に `wrapped:true`）。二重の包み・ほかのクラス・style つき・中が HTML のままなら従来どおり `reason:'div'`。
+  - `.page-title` `.takeaway` `.note` に加え、`.attr` `.cite` `.src-row`（出典・注記の行）も数えない（`SIDE_CLASSES`。入れ子の div は開閉を数えて丸ごと飛ばす）。画像だけの行の直後に空行なしで `.attr` が続く形も図 1 つと数える。
+  - スライド内の `<style>`（scoped も）は読み飛ばす。`<p class="lead">` のような HTML の段落は段落として数え、`<p><img …></p>`（9.6 のトリミングで書き換えた画像）は図として数える（ブラウザ側の判定と合わせるため。トリミングの前後で配置案は変わらない）。
+  - CSS（tsutawaru-academic.css §14-0〜14-10）は各規則に `section.lay-x > .body > …` の版を並べ、§14-11 で lay-* のときだけ `.body` を `display:contents` にする。直下の分の詳細度は変えていない。
+  - 判定の表 `browserTable()` は `sideClasses` / `wrapClass` / `wrapExtra` も渡し、layouts.js の `analyze` も `.body` の子を展開する（2 か所の論理は同じ。layouts.test.cjs の突き合わせで確かめる）。
+  - 同時に直した不具合（§14-6）：`section.lay-fig-right > *` の `max-width:none` が page-title にも当たり、デックの `--pt-max` が消えて広がった page-title 帯が題字帯の末尾の字を隠していた。header・page-title・takeaway を `:where(:not(…))` で外した（詳細度は `*` のまま。試験：layouts.test.cjs の「§14-6」）。
+  - 実測：見本デック sample-layouts（20 枚。lay-* と --pt-center を使う）は、この変更の前後で PNG が画素まで同じ。
+  - 限界：lay-fig-* で出典の行は図の真下でなく原稿の順（文の列の下）に出る。`.body` の vcenter/vspread は lay-* を付けている間は効かない。デック側が `section.lay-x > ul` の直下指定で上書きしている場合、その上書きは `.body` の中には効かない。
 - 拡張の配線：`buildHtml` は `textnodes.js → overflow.js → preview.js → __SS_LAYOUTS__ → layouts.js` の順に埋め込む。overflow.js・layouts.js・layouts.css・layout-variants.cjs は任意の部品で、読めなければ黙って外す（`</script` `</style` は `<\/` に直して埋める）。`layoutApply` は editChain に載せ、version の照合は `slideOp` と同じ。`planSetLayout` の結果で枚数が変わるときは書かない。`!ok` は reason をトーストに出して `revealLine` へ案内。コマンド `marpScrollSync.changeLayout` は、カーソルのあるスライドの `variantsFor` を QuickPick で出す（プレビューが無くても使える）。
 
 ### 8.4 変わったスライドだけ差し替える
