@@ -26,6 +26,18 @@
   try { ORDER_HEAD = new RegExp(T.orderHead, 'i'); } catch (_) { ORDER_HEAD = /^[①-⑳]/; }
   var PATTERN = {};
   (T.patternClasses || []).forEach(function (c) { PATTERN[c] = 1; });
+  // 判定で数えない行（出典・注記・位置の決まった物）と、透過する包み（.body）。lib/layout-variants.cjs の SIDE_CLASSES / WRAP_*
+  var SIDE = T.sideClasses || ['page-title', 'takeaway', 'note'];
+  var WRAP = T.wrapClass || null;
+  var WRAP_OK = {};
+  (T.wrapExtra || []).concat(WRAP ? [WRAP] : []).forEach(function (c) { WRAP_OK[c] = 1; });
+  /** 透過する包みか：<div class="body">（縦配分の語は可）。style・id が付いていない。中に地の文が無い（＝中が Markdown として読まれた） */
+  function isWrap(el) {
+    if (!WRAP || el.tagName.toLowerCase() !== 'div' || !el.classList.contains(WRAP)) return false;
+    if (el.hasAttribute('style') || el.hasAttribute('id')) return false;
+    if (!Array.prototype.every.call(el.classList, function (c) { return WRAP_OK[c]; })) return false;
+    return Array.prototype.every.call(el.childNodes, function (n) { return n.nodeType !== 3 || norm(n.nodeValue) === ''; });
+  }
   var NOT_PLAIN = T.notPlainText || 'このスライドは div で組んであるので、配置の切り替えは使えません';
   var THUMB_W = 184;
 
