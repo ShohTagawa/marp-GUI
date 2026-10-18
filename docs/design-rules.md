@@ -84,7 +84,7 @@ node tools/tsutawaru-lint.mjs <file.md|dir>... [--summary] [--lang ja|en]
 | Remove shadows, gradients, outlines and 3-D effects. | — | p.104 | handbook | theme (cover, boxes, decoration) |
 | Leave padding inside a box: about one character, or half a character for a short phrase. | — | p.106, p.107 | handbook | theme `.fill`, `.tight` |
 | Simplify a diagram by cutting elements. | — | p.110 | handbook | theme; `lay-fig-only` |
-| Give diagram boxes one width and height, independent of their text, and align them. | — | p.111 | handbook | theme `.flow` |
+| Give diagram boxes one width and height, independent of their text, and align them. | — | p.111 | handbook | theme §8 `.flow` |
 | Tables: three horizontal rules (top, under the header, bottom) and no vertical rules; numbers right-aligned, words left-aligned. | — | p.136 | handbook | theme §7 (tables) |
 | Long tables may use light shading on alternate rows instead of rules. | — | p.137 | handbook | theme §7 (tables) |
 | Cell padding about the size of the text in the cell. | — | p.139 | handbook | theme §7 (tables) |
