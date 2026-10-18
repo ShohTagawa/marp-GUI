@@ -421,6 +421,39 @@
   }
   function go(d) { goTo(cur + d); }
 
+  // ---------- 指定ページへ送る（右下の Slide n/N を押す、または G） ----------
+  function setBadge(ss) {
+    ss = ss || slides();
+    badgeText.textContent = ss.length ? 'Slide ' + (cur + 1) + '/' + ss.length : 'Slide –';
+  }
+  function openJump() {
+    if (badge.classList.contains('ss-jumping')) { jumpInput.focus(); return; }
+    badge.classList.add('ss-jumping');
+    jumpInput.value = '';
+    jumpInput.placeholder = (cur + 1) + ' / ' + slides().length;
+    jumpInput.focus();
+  }
+  function closeJump() { badge.classList.remove('ss-jumping'); jumpInput.blur(); }
+  badge.addEventListener('click', (ev) => { if (ev.target !== jumpInput) openJump(); });
+  badge.addEventListener('keydown', (ev) => {
+    if (ev.target === badge && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); openJump(); }
+  });
+  jumpInput.addEventListener('keydown', (ev) => {
+    if (ev.isComposing || ev.keyCode === 229) return;
+    ev.stopPropagation();   // 入力中の j / k / 矢印をスライド送りに使わない
+    if (ev.key === 'Escape') { ev.preventDefault(); closeJump(); return; }
+    if (ev.key !== 'Enter') return;
+    ev.preventDefault();
+    // 全角数字でも通す
+    const v = jumpInput.value.replace(/[０-９]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)).trim();
+    const n = parseInt(v, 10);
+    const total = slides().length;
+    if (!Number.isFinite(n) || n < 1 || n > total) { toast('1〜' + total + ' の番号を入れてください', true); jumpInput.select(); return; }
+    closeJump();
+    goTo(n - 1);
+  });
+  jumpInput.addEventListener('blur', () => setTimeout(() => { if (document.activeElement !== jumpInput) badge.classList.remove('ss-jumping'); }, 0));
+
   // ---------- クリック逆引き ----------
   // ポインタ直下のテキストノードを精密に取り、その文字列で原稿を照合させる。
   // 併せて要素の実寸 font-size(px) を読み、サイズ増減の起点として送る。
