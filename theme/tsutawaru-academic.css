@@ -1018,7 +1018,7 @@ section.cover-hero .title-big.long { font-size: 64px; }
        ・項目の見出しは 13-1 と同じ書き方：「- **見出し**」＋次の行に説明。
        ・header / .page-title / .takeaway / ページ番号は動かさない（どれも position:absolute のまま）。
        ・横に並べるのは3つまで（lay-cards2 は 2×2 の4つまで、lay-flow は4つまで）。
-         docs/cognitive-load-guide.md
+         13 章と同じ、このリポジトリの決まり。
        ・1枚に付ける lay-* は1つだけ。
    ============================================================================ */
 
