@@ -80,7 +80,7 @@ Right-click (or `L`) opens a popup whose thumbnails are clones of the current sl
 
 ## 9. Folding and labels
 
-`folding.cjs` provides ranges for each slide, the front-matter `style:` block (a leading `:root { … }` block stays visible), and multi-line `<style>`, `<svg>` and comments. With `autoFold`, opening a deck folds all slides but the current one; entering another slide's body folds the previous one, while `style`/`svg` blocks stay folded (`autoFoldKinds`). Moves by commands or find/replace, multiple cursors and selections are ignored; success is checked through `visibleRanges`, with retries. Decorations show `number | class | title ★` on separator lines and region names after tags such as `<div class="left">`. Nothing is written unless "Write Panel Names…" is run, which puts a comment at the end of the opening tag's line only. A diagnostic flags label-like comments that would leak into presenter notes.
+`folding.cjs` provides ranges for each slide, the front-matter `style:` block (a leading `:root { … }` block stays visible), and multi-line `<style>`, `<svg>` and comments. With `autoFold`, opening a deck folds all slides but the current one, and entering another slide's body folds the previous one; `style`/`svg` blocks stay folded (`autoFoldKinds`). Moves by commands or find/replace, multiple cursors and selections are ignored. Decorations show `number | class | title ★` on separator lines and region names after tags such as `<div class="left">`. Nothing is written unless "Write Panel Names…" is run, which puts a comment at the end of the opening tag's line only. A diagnostic flags label-like comments that would leak into presenter notes.
 
 ## 10. Library: marks and adaptation
 
