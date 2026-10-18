@@ -347,9 +347,30 @@ async function openSession(opts) {
 
 // ---------- ページの中を見る・操作する ----------
 
-/** スライド index の中で sub を含むテキストノードの画面上の点。occurrence は同じ語の何個目か（0 始まり） */
+/**
+ * ページのスクロールが止まるまで待つ。同期の scrollToSlide は smooth scroll なので、動いている途中で座標を取って押すと、
+ * 押すまでに画面がずれて外れる（ダブルクリックしても編集に入らない。負荷の高い手元の環境で 5 回中 2 回、実測）。
+ * 3 フレーム続けて scrollY が変わらなければ止まったとみなす（最大 300 フレーム）。
+ */
+function scrollRest(page) {
+  return page.evaluate(() => new Promise((resolve) => {
+    let last = NaN, still = 0, n = 0;
+    const tick = () => {
+      const y = window.scrollY;
+      still = y === last ? still + 1 : 0; last = y;
+      if (still >= 3 || ++n > 300) resolve(); else requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }));
+}
+
+/**
+ * スライド index の中で sub を含むテキストノードの画面上の点。occurrence は同じ語の何個目か（0 始まり）。
+ * スクロールが止まってから測る（scrollRest）。
+ */
 async function textPoint(page, index, sub, o) {
   o = o || {};
+  await scrollRest(page);
   const r = await page.evaluate((index, sub, occ, where, exact) => {
     const frame = document.querySelectorAll('div.marpit > svg[data-marpit-svg]')[index];
     if (!frame) return null;
