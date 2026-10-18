@@ -371,7 +371,7 @@ function lintSlide(text, startLine, out, push) {
 
   // ---- 文字サイズの種類数（p.77）はスライド単位で判定 ----
   const kinds = new Set(sizes).size;
-  if (kinds >= RULES.FONTSIZE_KINDS_WARN) push('warn', startLine, 'kinds', kinds);
+  if (kinds >= RULES.FONTSIZE_KINDS_WARN) push('warn', slideLine, 'kinds', kinds);
 }
 
 /**
