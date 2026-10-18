@@ -153,6 +153,46 @@ test('ブラウザ側の判定は、原稿からの判定（variantsFor）と一
   const got = await page.evaluate(() => window.ssPreview.slides().map((svg) => window.ssLayouts.variants(window.ssPreview.sectionOf(svg)).map((v) => [v.cls, v.current])));
   assert.strictEqual(got.length, want.length);
   got.forEach((g, i) => assert.deepStrictEqual(g, want[i], `スライド ${i + 1}`));
+  // 包み・出典の行：案が出る物と出ない物（両側の判定がそろって「素の構造でない」になっただけ、を見逃さない）
+  const cls = (i) => got[i].map((v) => v[0]);
+  assert.deepStrictEqual(cls(N + 4), [null, 'lay-boxed', 'lay-cards3', 'lay-keyrow'], '.body の中の箇条書き');
+  assert.deepStrictEqual(cls(N + 5), [null, 'lay-boxed', 'lay-cards3', 'lay-keyrow', 'lay-points'], '.body.vcenter');
+  assert.deepStrictEqual([cls(N + 6), cls(N + 7)], [[], []], '透過しない包み・中が HTML の包み');
+  assert.deepStrictEqual(cls(N + 8), [null, 'lay-fig-right', 'lay-fig-left', 'lay-fig-top'], '図＋出典＋箇条書き');
+  assert.deepStrictEqual(cls(N + 9), [null, 'lay-fig-top', 'lay-fig-only'], '.body の中の図＋出典');
+  assert.deepStrictEqual(cls(N + 10), [null, 'lay-boxed', 'lay-keyrow', 'lay-cards2', 'lay-points'], 'src-row と cite は数えない');
+  assert.deepStrictEqual(cls(N + 11), [null, 'lay-fig-right', 'lay-fig-left', 'lay-fig-top'], 'スライド内の <style> は数えない');
+  assert.deepStrictEqual(cls(N + 12), cls(N + 13), '<p><img style> に書き換えても配置案は同じ');
+  assert.deepStrictEqual(cls(N + 12), [null, 'lay-fig-right', 'lay-fig-left', 'lay-fig-top']);
+});
+
+test('テーマ §14：lay-* を付けると .body の包みは display:contents になり、中身に配置が効く', async (t) => {
+  if (skip()) return t.skip(skip());
+  const r = await page.evaluate((i) => {
+    const sec = window.ssPreview.sectionOf(window.ssPreview.slides()[i]);
+    const body = sec.querySelector(':scope > .body'), ul = body && body.querySelector(':scope > ul');
+    const read = () => [getComputedStyle(body).display, getComputedStyle(ul).display, getComputedStyle(ul).gridTemplateColumns.split(' ').length];
+    const before = read();
+    sec.classList.add('lay-cards3');
+    const after = read();
+    sec.classList.remove('lay-cards3');
+    return { before, after };
+  }, N + 4);
+  assert.deepStrictEqual(r.before.slice(0, 2), ['block', 'block'], '配置クラスなし＝包みは普通の箱');
+  assert.deepStrictEqual(r.after, ['contents', 'grid', 3], 'lay-cards3＝包みは透過、箇条書きは 3 列の格子');
+});
+
+test('テーマ §14-6：lay-fig-right でも page-title の上限幅（--pt-max）は消えない', async (t) => {
+  if (skip()) return t.skip(skip());
+  // 以前は section.lay-fig-right > * の max-width:none が page-title にも当たり、広がった帯が題字帯の末尾を隠していた
+  const r = await page.evaluate((i) => {
+    const sec = window.ssPreview.sectionOf(window.ssPreview.slides()[i]);
+    const pt = sec.querySelector(':scope > .page-title'), sw = sec.getBoundingClientRect().width;
+    return { cls: sec.className, maxWidth: getComputedStyle(pt).maxWidth, ratio: pt.getBoundingClientRect().width / sw };
+  }, N + 11);
+  assert.ok(/\blay-fig-right\b/.test(r.cls), r.cls);
+  assert.strictEqual(r.maxWidth, '30%');
+  assert.ok(r.ratio <= 0.3 + 0.005, 'page-title 帯の幅はスライド幅の 30% 以内: ' + r.ratio);
 });
 
 test('ホバーで本体に一時反映・離すと戻る。クリックで layoutApply を送って閉じる', async (t) => {
