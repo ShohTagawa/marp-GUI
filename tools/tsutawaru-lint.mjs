@@ -273,6 +273,9 @@ function splitSlides(src) {
  * ------------------------------------------------------------------ */
 function lintSlide(text, startLine, out, push) {
   const notes = maskNotes(text);
+  // スライド単位の指摘（囲み・文字数・サイズの種類）は、そのスライドの最初の空でない行に付ける
+  const first = text.search(/\S/);
+  const slideLine = startLine + (first < 0 ? 0 : lineAt(text, first));
 
   // ---- SVG の中の文字サイズ（このリポジトリの規則・warn） ----
   // SVG の font-size は SVG の単位。拡大率が分かれば描画の px に直して比べ、分からなければ数値のまま比べる。
