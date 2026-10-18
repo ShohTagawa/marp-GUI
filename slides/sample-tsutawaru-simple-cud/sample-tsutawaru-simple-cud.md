@@ -27,9 +27,9 @@ Sample deck for marp-GUI. It describes the theme itself. The colour comparison w
 ## Only the colours differ from tsutawaru-simple
 
 - **Band colours**
-  The accent colours of the CUD recommended colour set, as they are.
+  The accent colours of the CUD colour set, unchanged.
 - **Text colours**
-  The same hues, darkened to a contrast ratio of 4.5 or more on white.
+  The same hues, darkened to contrast 4.5 or more on white.
 - **Cues besides colour**
   Emphasis is also bold; each divider also carries a title.
 
