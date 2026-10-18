@@ -792,7 +792,7 @@ test('字下げした <div> で左右に分けた箇条書き：隣のパネル�
   }
 });
 
-test('項目の補足に1行の <div>…</div> を字下げして添える書き方（PreFD デックの型）は項目の一部として扱う', { skip: !Marp && 'marp-core なし' }, () => {
+test('項目の補足に1行の <div>…</div> を字下げして添える書き方（手で書いたデックによくある型）は項目の一部として扱う', { skip: !Marp && 'marp-core なし' }, () => {
   const src = FM + '\n<div style="font-size:24px">\n\n- 一\n- 二\n  <div style="margin-left:2em">補足1</div>\n  <div style="margin-left:2em">補足2</div>\n- 三\n  <div>補足3</div>\n\n</div>\n';
   const maps = liMaps(src);
   const m2 = maps.find(m => m[0] === lineNo(src, '- 二'));
