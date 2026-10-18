@@ -839,9 +839,10 @@
       return;
     }
     if (!sel) return;
-    if (t === selBox && !sel.refused) { stop(ev, true); swallow = Date.now() + 600; beginDrag(ev, 'move'); return; }
-    // 外側のクリック＝終了。スライドの上なら、そのクリックで原稿へ飛ばさない
+    if (t === selBox && !sel.refused) { stop(ev, true); swallow = Date.now() + 600; if (!crop) beginDrag(ev, 'move'); return; }
+    // 外側のクリック＝終了（トリミング中なら確定してから）。スライドの上なら、そのクリックで原稿へ飛ばさない
     var ui = inUi(t) && !inLayer(t);
+    if (crop) commitCrop(false);
     deselect();
     if (!ui) { stop(ev, true); swallow = Date.now() + 600; }
   }, true);
