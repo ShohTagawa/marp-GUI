@@ -136,7 +136,7 @@ const T = {
       'Say it with facts and evidence; drop the exaggeration (project rule; Japanese text only).'],
     soft: (w) => [`stock phrase "${w}"`,
       'A stock phrase typical of machine-drafted text; use concrete words (project rule; Japanese text only).'],
-    summary: (pages, dens, med) => `${pages} slides / ${dens} boxes per slide / median ${med} characters per slide`,
+    summary: (pages, dens, med) => `${pages} ${pages === 1 ? 'slide' : 'slides'} / ${dens} boxes per slide / median ${med} characters per slide`,
     clean: 'clean',
     total: (decks, slides) => `Total (${decks} ${decks === 1 ? 'deck' : 'decks'}, ${slides} slides): `,
     none: 'No Marp decks found (.md files with marp: true).',
