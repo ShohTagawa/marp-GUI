@@ -1246,6 +1246,9 @@ for (const width of [700, 1400]) {
 // ====================================================================================================
 const SETTLE = 1300;   // 開いた直後のスムーズスクロール（現在のスライドへ）が終わるのを待つ。途中で座標を取るとずれる
 const SKELETON_BUDGET = 100, THUMBS_BUDGET = 400, PATCH_BUDGET = 50;   // ms。超えたら失敗（DESIGN.md 8.0）
+// CI の共有ランナーでは速さの予算を assert しない（測って # timings に出すだけ。手元では assert する）。
+// 速さ以外の確かめ（枚数・並び・応答）は CI でも行う。ほかのテストファイルの速さの試験と同じ扱い。
+const TIME_BUDGETS = !process.env.CI;
 const TIMINGS = [];
 after(() => { if (TIMINGS.length) console.log('# timings\n' + TIMINGS.map(s => '#   ' + s).join('\n')); });
 
