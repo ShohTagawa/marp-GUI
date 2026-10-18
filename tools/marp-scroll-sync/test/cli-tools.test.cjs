@@ -60,8 +60,8 @@ test('marp-env：latestDeck は "_" と "." で始まる md（macOS の ._*.md �
   } finally { fs.rmSync(root, { recursive: true, force: true }); }
 });
 
-test('present.mjs：発表用 HTML に、ページ送りバーを右端の縦に移す CSS を 1 回だけ入れる（takeaway 帯に被らない）', { timeout: 120000 }, () => {
-  if (!fs.existsSync(path.join(REPO, 'node_modules', '@marp-team', 'marp-cli', 'package.json'))) return;   // npm install 前は測れない
+test('present.mjs：発表用 HTML に、ページ送りバーを右端の縦に移す CSS を 1 回だけ入れる（takeaway 帯に被らない）', { timeout: 120000 }, (t) => {
+  if (!fs.existsSync(path.join(REPO, 'node_modules', '@marp-team', 'marp-cli', 'package.json'))) return t.skip('npm install の前（marp-cli が無い）');
   const dir = tmp('marp-present-');
   try {
     const md = path.join(dir, 'deck.md');
