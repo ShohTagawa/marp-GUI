@@ -156,7 +156,7 @@ Sample deck for marp-GUI. Text and numbers follow the source article; every figu
 
 ## Core hydrogen: 30–70 times that in today's oceans
 
-Uptake of hydrogen into the core may be the main mechanism that "regulated" the amount of ocean water.
+Uptake of hydrogen into the core may be the main mechanism that “regulated” the amount of ocean water.
 
 ---
 
