@@ -16,7 +16,7 @@ An English summary of [`tools/marp-scroll-sync/DESIGN.md`](../tools/marp-scroll-
 
 **(iv) Re-render only changed slides, within 0.4 s.** No gesture should take more than 0.4 s from input to visible result. The cost is replacing the Webview DOM, not rendering, so only changed slides are sent (section 4); popups show a synchronous skeleton and fill thumbnails later. Section 14 lists the budgets the shipped tests assert.
 
-Supporting rules: no npm dependency besides `@marp-team/marp-core`; optional modules load through `safeRequire`, so a broken module disables one feature, not the preview (tested by fault injection); logic independent of VS Code lives in pure modules; `engines.vscode` is `^1.80.0` and newer APIs are feature-detected.
+Supporting rules: no npm dependency besides `@marp-team/marp-core`; optional modules load through `safeRequire`, so a broken module disables one feature, not the preview; logic independent of VS Code lives in pure modules; newer VS Code APIs are feature-detected.
 
 ## 3. Module map
 
