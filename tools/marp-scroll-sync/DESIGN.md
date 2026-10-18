@@ -422,6 +422,15 @@ _lib: day-agenda | 構成, アジェンダ | 2026-09-20
 - **実測**（headless Chrome・作者の手元のデックの写し）：離してから表示の確定まで 70〜82ms（patch 1 枚）。プレビューの QR の位置・大きさ（1280×720 の座標で x=640.6, 190×190）は、同じ原稿を標準の marp-cli で PNG にした結果と一致。
 - **未確認**：VS Code 実機の Webview で Option+クリック・Option+↑ が届くか、Windows で Alt がメニューバーに取られないか。札の「幅×高さ」は border-box、原稿に書く width は CSS の width（content-box の要素では食い違って見える。QR は札 190×190・原稿 180px）。
 
+### 9.6 画像のトリミング（2026-10-10 追加）
+- 対象は `<img>` だけ。選んで C キーか札の右の「✂ 切る」。ハンドルは見える範囲の縁を動かす（縦横比は保たない）。Enter・C・外側クリック・別の要素の選択で確定（boxCommit 1 回＝⌘Z 1 回）、Esc で取り消し、0 で外して確定。矢印は直前に触った縁を 1px（Shift で 10px）。
+- 書くもの：`clip-path: inset(Tpx Rpx Bpx Lpx)` と、切った辺だけの `margin-*`（値は「元の margin − 切った量」。周りが詰まる）。shorthand の `margin:` は使わない（切っていない辺の auto を潰すため）。元の margin 宣言は残し、外せば元の原稿に戻る。左右 auto の中央寄せで左右を切ったときは、その辺だけ今の数値で固定し toast で知らせる。
+- 外すとき（切り量 0）の判定：前のトリミングで書いた margin を外したときの値（fall）と、書いてあった値から逆算した元の値（base）の差が 0.5px 以下なら margin-* を消す。auto の余白が 262.5px のような半端な値だと、四捨五入した値との差がちょうど 0.5 になる。以前は `< 0.5` で比べていて `margin-left: 263px` が原稿に残った（2026-10-18 に `<= 0.5` に直した。e2e-crop.test.cjs が 400×400 の見本画像で .qr の中の 262.5px を作って確かめる）。
+- boxCommit の style：`clipPath:[T,R,B,L]|null`、`margin:{top?,right?,bottom?,left?}`（数＝書く、null＝消す、鍵なし＝触らない）。`!important` は確定直前に computed と比べ、必要なときだけ付けて 1 回で送る。
+- Markdown の画像は `<p><img …></p>` に書き換えてから書く（`p:has(> img:only-child)` と p の余白を保つため。html_block になり data-hline も付くので、以後プレビューで選べる）。alt の `w:` / `h:` は style の width / height に移し、title は残す。対象は画像だけの段落に限る。文と混ざる画像（`mdimg-inline`）・フィルタ付き（sepia 等。`mdimg-keywords`）は断る。書き換えた直後は同じ行の `<img>` を選び直し、「Markdown の画像を <img> に書き換えました」と知らせる。
+- トリミング中は要素に実際に clip-path と margin を当て、元の画像を暗く重ねて切られる部分を見せる。選択枠と札（`切り: 上… 右… 下… 左…`）は見えている範囲に合わせる。
+- 確認：試験は style-edit.test.cjs の「トリミング：…」2 本（原稿の書き換え）と e2e-crop.test.cjs（Webview の操作から原稿・undo まで）。VS Code 実機では未確認。
+
 
 ## 10. ホーム画面（v0.3）
 
