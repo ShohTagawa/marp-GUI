@@ -122,7 +122,7 @@
       boxes.push(b);
       if (b.bottom > maxBottom) maxBottom = b.bottom;
       if (b.top < minTop) minTop = b.top;
-      // インライン SVG の箱は絵のまわりの余白を含む（入れ物からあふれても見た目は重ならない＝実測：実デックの数枚 枚目）。
+      // インライン SVG の箱は絵のまわりの余白を含む（入れ物からあふれても見た目は重ならない＝実測：作者の手元のデックの数枚）。
       // 隣のブロックとの重なりには数えない（下端・takeaway の判定には数える）
       if (noSib) return;
       for (var a = acc; a; a = a.parent) {
