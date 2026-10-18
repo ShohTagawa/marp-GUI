@@ -351,6 +351,7 @@
   }
   function deselect() {
     flushKeys();
+    if (crop) cancelCrop();
     if (drag) cancelDrag();
     sel = null;
     selBox.style.display = 'none'; selTag.style.display = 'none';
