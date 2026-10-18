@@ -24,7 +24,7 @@ Sample deck for marp-GUI. It describes the theme itself; every figure was drawn 
 
 ---
 
-## The header band is gone; a band and the title remain
+## The header band is gone; the title remains
 
 - No header band is shown, so the body gets more height
 - The <span class="hl">left band</span> shows the colour of the section
