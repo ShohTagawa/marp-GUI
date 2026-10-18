@@ -16,7 +16,7 @@ const EXT_ROOT = path.resolve(__dirname, '..', '..');
 const REPO_ROOT = path.resolve(EXT_ROOT, '..', '..');
 const DECK = path.join(REPO_ROOT, 'slides', 'sample-lecture', 'sample-lecture.md');
 
-// 実デックの先頭10枚には無い要素（インライン SVG の文字・span.hl・空の箇条書き・ゆるいリスト）を足すスライド。
+// 見本デックの先頭10枚には無い要素（インライン SVG の文字・span.hl・空の箇条書き・ゆるいリスト）を足すスライド。
 // 直接編集のテストで使う。行は FIXTURE_MARK で探す。
 const FIXTURE = [
   '<!-- _class: summary -->',
