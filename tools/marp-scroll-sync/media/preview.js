@@ -76,7 +76,12 @@
   }
 
   // ---------- UI 要素の生成（#wrap 以外は拡張側に期待しない） ----------
-  const badge = h('div', { class: 'ss-badge ss-ui' });
+  // 右下の「Slide 3/20」。押す（または G）と番号の入力欄になり、Enter でそのスライドへ送る
+  const badge = h('div', { class: 'ss-badge ss-ui', role: 'button', tabindex: '0', title: 'クリック（または G キー）でページ番号を入れて移動' });
+  const badgeText = h('span', { class: 'ss-badge-text' });
+  const jumpInput = h('input', { class: 'ss-jump', type: 'text', inputmode: 'numeric', spellcheck: 'false', 'aria-label': '移動先のページ番号' });
+  badge.appendChild(badgeText);
+  badge.appendChild(jumpInput);
   const layer = h('div', { id: 'ss-layer', class: 'ss-ui' });
   const toastEl = h('div', { class: 'ss-toast ss-ui', role: 'status' });
 
