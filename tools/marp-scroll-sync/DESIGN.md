@@ -232,7 +232,7 @@ _lib: alc-agenda | 構成, アジェンダ | 2026-09-20
     score, dupOf: key|null, dupCount }
   ```
   - `churn`：tools/marp-library.mjs の `churnOf`（版ごとにスライドを題名＋類似度で対応付け、内容が変わった版の数 touched と変更行数 lines を数える）を移設して使う。
-  - `score`（手を入れた度合い。式はコードのコメントに明記し、テストで固定する）：★ > touched > lines > tune > group A/B、`converted` は減点、新しいデックに小さな加点。
+  - `score`（手を入れた度合い。式はコードのコメントに明記し、テストで固定する）：★ > touched > lines > tune > group A/B（任意のファイル `slides/_library/groups.md` の「## A.」「## B.」の節に挙げたデック。配布版には無いので group は付かず、加点も 0）、`converted` は減点、新しいデックに小さな加点。
   - 重複のまとめ：正規化した題名が同じで本文の文字 4-gram Jaccard ≥ 0.7 のものを同じ束にし、score が最大（同点なら新しい）を代表にする。他は `dupOf` に代表の key。代表の `dupCount` に束の大きさ。
 - `searchCorpus(corpus, query, { onlyMarked, sort:'relevance'|'score'|'recent', theme, excludeDeck, dedupe=true, offset=0, limit=24, shelf /* resolveShelf の戻り値 */ }) → { total, items:[{ entry, snippet, titleHit, dupCount, shelf:{name,label}|null }] }`
   - 棚のスライドは先頭に出す（語が空で並びの指定が無ければ棚の並び順）。棚どうしは重複としてまとめない。関連度には score を 1.0 倍で足す（題名の一致どうしの中で、添削済みを上に、変換のままを下に。題名に当たらないものが、当たったものを越えることはない）。
