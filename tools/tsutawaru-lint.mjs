@@ -138,7 +138,7 @@ const T = {
       'A stock phrase typical of machine-drafted text; use concrete words (project rule; Japanese text only).'],
     summary: (pages, dens, med) => `${pages} ${pages === 1 ? 'slide' : 'slides'} / ${dens} boxes per slide / median ${med} characters per slide`,
     clean: 'clean',
-    total: (decks, slides) => `Total (${decks} ${decks === 1 ? 'deck' : 'decks'}, ${slides} slides): `,
+    total: (decks, slides) => `Total (${decks} ${decks === 1 ? 'deck' : 'decks'}, ${slides} ${slides === 1 ? 'slide' : 'slides'}): `,
     none: 'No Marp decks found (.md files with marp: true).',
     notFound: (p) => `not found: ${p}`,
     badLang: (v) => `--lang must be ja or en: ${v ?? '(no value)'}`,
