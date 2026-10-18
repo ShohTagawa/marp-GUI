@@ -56,7 +56,7 @@ node tools/tsutawaru-lint.mjs <file.md|dir>... [--summary] [--lang ja|en]
 | Use a plain, legible sans-serif face for slides and headings, and keep the same face inside figures. | — | p.20 | handbook | theme (one face for text and figures) |
 | Set numbers large and their units about half as large. | — | p.46 | handbook | theme `.num`, `.unit` |
 | Do not stretch type or decorate it with shadows, outlines or 3-D effects; emphasise with weight, size or colour. | — | p.52 | handbook | theme §6 |
-| For emphasis that works for every reader, use a calm colour, bold or an underline. | — | p.55 | handbook | theme `.mark` |
+| For emphasis that works for every reader, use a calm colour, bold or an underline. | — | p.55 | handbook | theme §6 `.mark` |
 
 ### Chapter 2: Text and lists
 
