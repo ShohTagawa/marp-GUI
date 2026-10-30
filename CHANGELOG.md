@@ -43,6 +43,7 @@ Extensions: synchronized preview `marp-scroll-sync` 0.4.0 (was 0.3.0); PDF/prese
 - The PDF/present extension does not run in untrusted or virtual workspaces, and its `nodePath` / `chromePath` settings can only be set per machine, not by a workspace.
 - Presenting no longer starts Chrome with `--allow-file-access-from-files`.
 - Windows: the `cmd /c start` fallback of `openInBrowser` percent-encodes cmd metacharacters; `shellSync` refuses arguments that are not plain words.
+- Lockfiles: non-breaking updates from `npm audit fix` (`source-map-js` 1.2.2; `markdown-it` 14.3.3, `@xmldom/xmldom` 0.9.12, `speech-rule-engine` 4.1.5, `ip-address` 10.7.5). The advisories that remain need `puppeteer-core` 25 or a newer Marp release and are listed in `SECURITY.md`.
 - Open findings (the background index build runs `tools/marp-library.mjs` from the folder treated as the repository root; "Present" in the synchronized preview sends a command line to a terminal; the Webview CSP allows `https:` and inline styles) are listed in `docs/security-review.md`.
 
 ## [1.0.0] — 2026-10-03
