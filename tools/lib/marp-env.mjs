@@ -270,4 +270,58 @@ export function rel(p, root = ROOT) {
   return r.startsWith('..') ? p : r.split(path.sep).join('/');
 }
 
+const MIME_BY_EXT = {
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.gif': 'image/gif',
+  '.webp': 'image/webp',
+  '.svg': 'image/svg+xml',
+  '.avif': 'image/avif',
+};
+
+/**
+ * HTML 内の相対画像参照（src="..." / url(...)）を data: URI に埋め込む。
+ * macOS でリポジトリが ~/Documents・~/Desktop・~/Downloads 配下にあるとき、Chrome に「書類フォルダ」等の
+ * TCC 権限が無いと file:///Users/.../Documents/... が ERR_ACCESS_DENIED で拒否されるため、
+ * 一時フォルダ（os.tmpdir()）へ HTML を出して開く際に相対パス画像が消えないよう Node 側で解決する。
+ * 安全のため、実体パスが rootDir 配下にある画像拡張子のファイルだけを埋め込む。
+ */
+export function inlineLocalAssets(htmlText, baseDir, rootDir = ROOT) {
+  const cache = new Map();
+  let rootReal = rootDir;
+  try { rootReal = fs.realpathSync(rootDir); } catch { /* ignore */ }
+  const toDataUri = (rawRef) => {
+    if (!rawRef || /^(?:data:|https?:|file:|#|\/)/i.test(rawRef)) return null;
+    if (cache.has(rawRef)) return cache.get(rawRef);
+    let uri = null;
+    try {
+      const clean = decodeURIComponent(rawRef.split(/[?#]/)[0]);
+      const ext = path.extname(clean).toLowerCase();
+      const mime = MIME_BY_EXT[ext];
+      if (mime) {
+        const abs = path.resolve(baseDir, clean);
+        if (fs.existsSync(abs)) {
+          const real = fs.realpathSync(abs);
+          if (real === rootReal || real.startsWith(rootReal + path.sep)) {
+            const b64 = fs.readFileSync(real).toString('base64');
+            uri = `data:${mime};base64,${b64}`;
+          }
+        }
+      }
+    } catch { /* ignore */ }
+    cache.set(rawRef, uri);
+    return uri;
+  };
+  return htmlText
+    .replace(/\b(src|poster)=(["']|&quot;)([^"'&]+)\2/g, (m, attr, q, ref) => {
+      const d = toDataUri(ref);
+      return d ? `${attr}=${q}${d}${q}` : m;
+    })
+    .replace(/url\((["']|&quot;|)([^)"'&]+)\1\)/g, (m, q, ref) => {
+      const d = toDataUri(ref.trim());
+      return d ? `url(${q}${d}${q})` : m;
+    });
+}
+
 export const platform = { IS_WIN, IS_MAC, rootPkg };

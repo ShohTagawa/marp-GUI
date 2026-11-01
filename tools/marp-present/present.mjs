@@ -11,9 +11,10 @@
 // 環境変数:
 //   CHROME_PATH  Chrome/Edge の実行パス（未指定なら OS ごとの標準インストール先を探す）
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { ROOT, latestDeck, runMarp, themeSetArgs, openInBrowser, rel } from '../lib/marp-env.mjs';
+import { ROOT, latestDeck, runMarp, themeSetArgs, openInBrowser, inlineLocalAssets, rel } from '../lib/marp-env.mjs';
 
 const argv = process.argv.slice(2);
 let page = 1;
@@ -43,15 +44,70 @@ body[data-bespoke-view=""] .bespoke-marp-parent>.bespoke-marp-osc>span[data-besp
   text-align:center;white-space:pre}
 body[data-bespoke-view=""] .bespoke-marp-parent>.bespoke-marp-osc>button[data-bespoke-marp-osc=prev]{transform:rotate(90deg)}
 body[data-bespoke-view=""] .bespoke-marp-parent>.bespoke-marp-osc>button[data-bespoke-marp-osc=next]{transform:rotate(90deg)}
+button.ss-tts-btn{font-size:16px;line-height:1;padding:4px;border-radius:50%;color:#fff}
+button.ss-tts-btn[data-speaking="1"]{opacity:1;filter:drop-shadow(0 0 4px #ffd54f)}
 </style>
 <script id="ss-osc-side-js">
 // 「Page 3 of 12」を縦の「3 / 12」にする（本文は bespoke が書き換えるので、属性に写して ::after で出す）
+// ＋ 発表者ノート（無ければスライド本文）の音声読み上げボタン（🔊 / S キー）
 addEventListener('DOMContentLoaded', () => {
   const sp = document.querySelector('.bespoke-marp-parent>.bespoke-marp-osc>span[data-bespoke-marp-osc=page]');
-  if (!sp) return;
-  const put = () => { const m = sp.textContent.match(/(\\d+)\\D+(\\d+)/); sp.dataset.short = m ? m[1] + '\\n/' + m[2] : ''; };
-  new MutationObserver(put).observe(sp, { childList: true, characterData: true, subtree: true });
-  put();
+  if (sp) {
+    const put = () => { const m = sp.textContent.match(/(\\d+)\\D+(\\d+)/); sp.dataset.short = m ? m[1] + '\\n/' + m[2] : ''; };
+    new MutationObserver(put).observe(sp, { childList: true, characterData: true, subtree: true });
+    put();
+  }
+  if (!('speechSynthesis' in window)) return;
+  const synth = window.speechSynthesis;
+  const btns = [];
+  const setSpeaking = (on) => btns.forEach((b) => { b.dataset.speaking = on ? '1' : ''; b.textContent = on ? '⏹' : '🔊'; });
+  const currentText = () => {
+    const slides = Array.from(document.querySelectorAll('.bespoke-marp-slide'));
+    const idx = slides.findIndex((s) => s.classList.contains('bespoke-marp-active'));
+    const note = document.querySelector('.bespoke-marp-note.bespoke-marp-active')
+      || (idx >= 0 ? document.querySelector('.bespoke-marp-note[data-index="' + idx + '"]') : null);
+    if (note && note.textContent.trim()) {
+      return note.textContent.replace(/【[^】]*】/g, '').trim();
+    }
+    const sec = idx >= 0 ? slides[idx].querySelector('section') : document.querySelector('.bespoke-marp-active section');
+    if (!sec) return '';
+    const clone = sec.cloneNode(true);
+    clone.querySelectorAll('header, footer, .page-title, style, script').forEach((el) => el.remove());
+    return clone.textContent.replace(/\\s+/g, ' ').trim();
+  };
+  const toggleSpeak = () => {
+    if (synth.speaking) { synth.cancel(); setSpeaking(false); return; }
+    const txt = currentText();
+    if (!txt) return;
+    const u = new SpeechSynthesisUtterance(txt);
+    u.lang = document.documentElement.lang || 'ja-JP';
+    u.onend = () => setSpeaking(false);
+    u.onerror = () => setSpeaking(false);
+    setSpeaking(true);
+    synth.speak(u);
+  };
+  const osc = document.querySelector('.bespoke-marp-parent>.bespoke-marp-osc');
+  const info = document.querySelector('.bespoke-marp-presenter-info-container');
+  for (const host of [osc, info]) {
+    if (!host) continue;
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'ss-tts-btn';
+    b.title = '読み上げ / 停止 (S キー)';
+    b.setAttribute('aria-label', '読み上げ');
+    b.textContent = '🔊';
+    b.addEventListener('click', (e) => { e.stopPropagation(); toggleSpeak(); });
+    host.appendChild(b);
+    btns.push(b);
+  }
+  addEventListener('keydown', (e) => {
+    if (e.target && /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+    if (!e.metaKey && !e.ctrlKey && !e.altKey && (e.key === 's' || e.key === 'S')) {
+      e.preventDefault();
+      toggleSpeak();
+    }
+  });
+  addEventListener('hashchange', () => { if (synth.speaking) { synth.cancel(); setSpeaking(false); } });
 });
 </script>`;
 function moveOscToSide(file) {
@@ -83,7 +139,17 @@ try {
   runMarp([mdAbs, ...themeSetArgs(ROOT), '-o', html]);
   moveOscToSide(html);
 
-  const url = pathToFileURL(html).href + (page > 1 ? `#${page}` : '');
+  // macOS でリポジトリが ~/Documents・~/Desktop・~/Downloads にあると、Chrome に TCC 権限が無い場合
+  // file:///Users/.../Documents/... が ERR_ACCESS_DENIED になる。画像を data: URI で埋め込んだ HTML を
+  // os.tmpdir() にも書き出し、ブラウザではそちらを開く（.marp-present.html も互換のため残す）。
+  const inlined = inlineLocalAssets(fs.readFileSync(html, 'utf8'), deckDir, ROOT);
+  fs.writeFileSync(html, inlined);
+  const tmpDir = path.join(os.tmpdir(), 'marp-gui-present');
+  fs.mkdirSync(tmpDir, { recursive: true });
+  const openHtml = path.join(tmpDir, `${deckName}.html`);
+  fs.writeFileSync(openHtml, inlined);
+
+  const url = pathToFileURL(openHtml).href + (page > 1 ? `#${page}` : '');
   if (open) {
     console.log('[2/2] ブラウザで開く  (F=全画面 / P=発表者ビュー / ←→=ページ送り / O=一覧)');
     // 【安全のため付けないフラグ】--allow-file-access-from-files

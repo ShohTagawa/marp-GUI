@@ -20,7 +20,7 @@ export async function printChunks(htmlPath, jobs, { chromePath = findChrome() } 
   const puppeteer = await loadPuppeteer();
   const browser = await puppeteer.launch({
     executablePath: chromePath,
-    headless: 'shell',
+    headless: true,
     // VS Code 拡張ホストから起動すると、Chrome の初回起動処理やデフォルトブラウザ確認で
     // 止まる/許可待ちになることがある。それらを抑止して非対話でも確実に上がるようにする。
     //

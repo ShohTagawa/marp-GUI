@@ -37,9 +37,63 @@ function npmInstall(dir, label) {
   if (r.status === 0) ok(`${label}: インストール完了`); else ng(`${label}: npm install 失敗 (exit=${r.status})`);
 }
 
-function linkExtension(srcRel, linkName) {
-  const want = fs.realpathSync(path.join(ROOT, srcRel));
-  const extDir = path.join(os.homedir(), '.vscode', 'extensions');
+function registerInExtensionsJson(extDir, src, linkName) {
+  if (CHECK) return;
+  const extJsonPath = path.join(extDir, 'extensions.json');
+  if (!fs.existsSync(extJsonPath)) return;
+  try {
+    const pkg = JSON.parse(fs.readFileSync(path.join(src, 'package.json'), 'utf8'));
+    const id = `${pkg.publisher}.${pkg.name}`;
+    const version = pkg.version || '0.1.0';
+    const linkPath = path.join(extDir, linkName).split(path.sep).join('/');
+    const list = JSON.parse(fs.readFileSync(extJsonPath, 'utf8'));
+    if (!Array.isArray(list)) return;
+    const entry = {
+      identifier: { id },
+      version,
+      location: {
+        $mid: 1,
+        fsPath: path.join(extDir, linkName),
+        external: 'file:///' + linkPath.replace(/^\/+/, ''),
+        path: linkPath,
+        scheme: 'file',
+      },
+      relativeLocation: linkName,
+    };
+    const idx = list.findIndex((e) => e && e.identifier && String(e.identifier.id).toLowerCase() === id.toLowerCase());
+    if (idx >= 0) list[idx] = Object.assign({}, list[idx], entry);
+    else list.push(entry);
+    fs.writeFileSync(extJsonPath, JSON.stringify(list));
+    const obsPath = path.join(extDir, '.obsolete');
+    if (fs.existsSync(obsPath)) {
+      const obs = JSON.parse(fs.readFileSync(obsPath, 'utf8'));
+      const key = `${id}-${version}`;
+      if (obs && (obs[key] || obs[linkName])) {
+        delete obs[key];
+        delete obs[linkName];
+        fs.writeFileSync(obsPath, JSON.stringify(obs));
+      }
+    }
+  } catch { /* ignore */ }
+}
+
+function hasExistingRepoLink(extDir, srcRel) {
+  try {
+    for (const entry of fs.readdirSync(extDir)) {
+      const entryPath = path.join(extDir, entry);
+      const st = fs.lstatSync(entryPath);
+      if (st.isSymbolicLink()) {
+        const rp = fs.realpathSync(entryPath);
+        if (rp.endsWith(srcRel) && fs.existsSync(rp)) return `${entry} → ${rp}`;
+      }
+    }
+  } catch { /* ignore */ }
+  return null;
+}
+
+function linkExtensionToDir(extDir, labelPrefix, srcRel, linkName, preserveExisting = false) {
+  const src = path.join(ROOT, srcRel);
+  const want = fs.realpathSync(src);
   const link = path.join(extDir, linkName);
   let current = null;
   try {
@@ -48,15 +102,40 @@ function linkExtension(srcRel, linkName) {
       try { current = fs.realpathSync(link); } catch { current = '(壊れたリンク)'; }
     } else { current = '(リンクではない実体)'; }
   } catch { /* 無い */ }
-  if (current && path.resolve(current) === path.resolve(want)) { ok(`${linkName}: 登録済み`); return; }
-  if (CHECK) { ng(`${linkName}: 未登録${current ? `（現在: ${current}）` : ''}`); return; }
+  if (current && path.resolve(current) === path.resolve(want)) {
+    registerInExtensionsJson(extDir, src, linkName);
+    ok(`${labelPrefix}${linkName}: 登録済み`);
+    return;
+  }
+  if (preserveExisting) {
+    const existing = hasExistingRepoLink(extDir, srcRel);
+    if (existing) {
+      info(`${labelPrefix}${linkName}: 既存の VS Code 拡張リンクを保持（${existing}）`);
+      return;
+    }
+  }
+  if (CHECK) { ng(`${labelPrefix}${linkName}: 未登録${current ? `（現在: ${current}）` : ''}`); return; }
   fs.mkdirSync(extDir, { recursive: true });
   if (current) {
-    if (current === '(リンクではない実体)') { ng(`${linkName}: ${link} はリンクではない実フォルダなので触りません。手で退避してください。`); return; }
+    if (current === '(リンクではない実体)') { ng(`${labelPrefix}${linkName}: ${link} はリンクではない実フォルダなので触りません。手で退避してください。`); return; }
     fs.rmSync(link, { recursive: false, force: true });   // フォルダを動かした後の古いリンクを貼り直す
   }
   fs.symlinkSync(want, link, IS_WIN ? 'junction' : 'dir');
-  ok(`${linkName}: 登録しました → ${link}`);
+  registerInExtensionsJson(extDir, src, linkName);
+  ok(`${labelPrefix}${linkName}: 登録しました → ${link}`);
+}
+
+function linkExtension(srcRel, linkName) {
+  const forceVscode = process.argv.includes('--force-vscode');
+  linkExtensionToDir(path.join(os.homedir(), '.vscode', 'extensions'), '[VS Code] ', srcRel, linkName, !forceVscode);
+  const agyIdeRoot = path.join(os.homedir(), '.antigravity-ide');
+  if (fs.existsSync(agyIdeRoot)) {
+    linkExtensionToDir(path.join(agyIdeRoot, 'extensions'), '[Antigravity IDE] ', srcRel, linkName, false);
+  }
+  const agyRoot = path.join(os.homedir(), '.antigravity');
+  if (fs.existsSync(agyRoot)) {
+    linkExtensionToDir(path.join(agyRoot, 'extensions'), '[Antigravity] ', srcRel, linkName, false);
+  }
 }
 
 console.log(`\n== marp-GUI セットアップ (${process.platform}) ${CHECK ? '[確認のみ]' : ''}`);

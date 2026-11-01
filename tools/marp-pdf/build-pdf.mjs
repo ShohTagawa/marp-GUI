@@ -23,7 +23,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import { ROOT, latestDeck, findChrome, runMarp, themeSetArgs, ensureNodeModules, rel } from '../lib/marp-env.mjs';
+import { ROOT, latestDeck, findChrome, runMarp, themeSetArgs, ensureNodeModules, inlineLocalAssets, rel } from '../lib/marp-env.mjs';
 import { printChunks } from './chunk-print.mjs';
 
 // ── 引数 ─────────────────────────────────────────────────────────────────────
@@ -58,10 +58,9 @@ const { PDFDocument } = await import('pdf-lib');
 
 fs.mkdirSync(path.dirname(out), { recursive: true });
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'marp-pdf-'));
-// 中間HTMLは「元の .md と同じディレクトリ」に置く。
-// marp は HTML 出力時に画像を ../assets/... など相対パスのまま残すため、
-// 別ディレクトリ(例 /tmp)に置くと相対参照が壊れて画像が表示されなくなる。
-const html = path.join(deckDir, `.marp-pdfbuild-${process.pid}.html`);
+// 中間HTMLは os.tmpdir() 内の tmp に置き、相対パス画像は inlineLocalAssets で data: URI 化する。
+// （macOS で ~/Documents 配下に置くと Chrome の TCC 権限が無い環境で ERR_ACCESS_DENIED になるため）
+const html = path.join(tmp, `pdfbuild-${process.pid}.html`);
 const cleanup = () => {
   try { fs.rmSync(tmp, { recursive: true, force: true }); } catch {}
   try { fs.rmSync(html, { force: true }); } catch {}
@@ -71,10 +70,12 @@ process.on('SIGINT', () => { cleanup(); process.exit(130); });
 
 try {
   console.log('[1/4] marp: 全スライドを1つのHTMLに描画 (printToPDFを使わないので落ちない)');
-  runMarp([mdAbs, ...themeSetArgs(ROOT), '--allow-local-files', '-o', html]);
+  runMarp([mdAbs, ...themeSetArgs(ROOT), '-o', html]);
 
   // スライド枚数は描画済みHTMLから数える（CRLF や frontmatter の書式差に影響されない）。
-  const htmlText = fs.readFileSync(html, 'utf8');
+  const rawHtml = fs.readFileSync(html, 'utf8');
+  const htmlText = inlineLocalAssets(rawHtml, deckDir, ROOT);
+  fs.writeFileSync(html, htmlText);
   let n = (htmlText.match(/<svg[^>]*data-marpit-svg/g) || []).length;
   if (!n) {
     // 保険：md の --- 区切り数（旧 build-pdf.sh と同じロジック）
