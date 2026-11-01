@@ -14,7 +14,7 @@ Your source stays plain Markdown. In the preview you can double-click text to fi
 
 Works on macOS and Windows (the test suite also runs on Ubuntu). Node.js 20 or later.
 
-> **Note:** The extension's buttons, menus, and messages are currently in Japanese only. Screenshots may show Japanese labels in the interface.
+> **Note:** The command titles and settings of the extensions are in English, but the buttons, menus and messages inside the preview are currently Japanese only, and screenshots may show Japanese labels. The sample deck `slides/sample-getting-started/` explains the workflow in English.
 
 > **Notice:** This software is provided free of charge, "AS IS", without warranty of any kind. To the maximum extent permitted by applicable law, the author and contributors are not liable for any damages arising from its use. See the [Disclaimer](#disclaimer) below for details.
 
@@ -23,6 +23,10 @@ Works on macOS and Windows (the test suite also runs on Ubuntu). Node.js 20 or l
 ![A grid of finished slides from the sample deck "Hydrogen in the Earth's Core"](docs/img/en/07-slides.png)
 
 You can make academic slides like these from ordinary Markdown. Above are some slides from the sample deck "Hydrogen in the Earth's Core".
+
+![Six slides from the sample deck "Getting started with marp-GUI"](docs/img/en/08-getting-started.png)
+
+The sample deck "Getting started with marp-GUI" (`slides/sample-getting-started/`, twelve slides, English) explains the workflow itself: direct editing, layout classes, slide operations, box editing, export and the lint. Open it first if you read English rather than Japanese.
 
 ![The synced preview, with the current slide marked by a blue frame](docs/img/en/01-overview.png)
 
@@ -69,7 +73,7 @@ npm run setup
 ## 4. Try it out
 
 1. In VS Code, **open the `marp-GUI` folder** (File → Open Folder)
-2. Open `slides/sample-layouts/sample-layouts.md`
+2. Open `slides/sample-getting-started/sample-getting-started.md` (an English deck; `slides/sample-layouts/sample-layouts.md` shows every layout class, in Japanese)
 3. Press **⌘K M** (Windows: **Ctrl+K M**) to open the synced preview on the right
 
 | To do this | Do this |
@@ -203,9 +207,10 @@ npm test
 ```
 theme/            five themes: academic.css (base), tsutawaru-academic.css (recommended),
                   tsutawaru-simple.css, tsutawaru-simple-cud.css (colour-universal palette), ponchie.css (one-page overview)
-slides/           13 sample decks: sample-hydrogen, -academic, -ponchie, -tsutawaru-simple and
-                  -tsutawaru-simple-cud in English and Japanese (-ja); sample-layouts (layout classes),
-                  sample-parts (parts), sample-lecture (test fixture); shared images in assets/
+slides/           14 sample decks: sample-getting-started (the workflow, English); sample-hydrogen,
+                  -academic, -ponchie, -tsutawaru-simple and -tsutawaru-simple-cud in English and
+                  Japanese (-ja); sample-layouts (layout classes), sample-parts (parts),
+                  sample-lecture (test fixture); shared images in assets/
 docs/             DESIGN.en.md, design-rules.md (lint rules), benchmark.md, security-review.md, examples/
 tools/
   marp-scroll-sync/   VS Code extension: synced preview, direct editing, layout options, slide operations
@@ -243,5 +248,6 @@ The following restates, for clarity, the points of Section 7 (Disclaimer of Warr
 - To the maximum extent permitted by applicable law, the author and contributors shall not be liable for any damages arising out of the use of or inability to use this software, including loss of data, corruption of slides or source files, work stoppage, or any other direct, indirect, incidental, or consequential damages.
 - Where liability cannot be excluded by law, any such liability is limited to the amount you paid for this software (which is zero, as it is free).
 - This software rewrites your source files directly. Please keep your own backups of important files.
+- Support is provided on a best-effort basis. The author is under no obligation to answer questions, fix defects or release updates, and the software may change or be withdrawn at any time without notice. If something goes wrong, see [Troubleshooting](#6-troubleshooting) first, then open a GitHub issue as described in [CONTRIBUTING.md](CONTRIBUTING.md).
 - Marp renders the HTML in a deck as is. Before opening a deck (.md file) from an unknown or untrusted source, check its contents. Deciding which files to open is your own responsibility.
 - Most of the code was written with an AI coding agent from the author's specifications. It is checked by 346 automated tests (`npm test`); the repository's GitHub Actions workflow runs them on Ubuntu, macOS and Windows with Node.js 20 and 22. A security review is recorded in [docs/security-review.md](docs/security-review.md), including the findings that are still open. Tests and reviews reduce defects and vulnerabilities but cannot rule them out.

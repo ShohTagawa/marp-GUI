@@ -2,7 +2,7 @@
 
 All notable changes to marp-GUI. The version is the one in the root `package.json`; the two VS Code extensions carry their own versions (listed per release). Dates are in JST.
 
-## [1.1.0] — unreleased (prepared 2026-10-31)
+## [1.1.0] — 2026-11-01
 
 Extensions: synchronized preview `marp-scroll-sync` 0.4.0 (was 0.3.0); PDF/present `marp-gui-pdf` 1.4.0 (was 1.3.0).
 
@@ -15,7 +15,7 @@ Extensions: synchronized preview `marp-scroll-sync` 0.4.0 (was 0.3.0); PDF/prese
 - **Preview:** click the "Slide n/N" badge or press G to jump to a slide by number.
 - **Layout variants** also work for slides whose body is wrapped in `<div class="body">`, and ignore source lines (`.attr`, `.cite`, `.src-row`) when counting items.
 - **Themes:** `tsutawaru-simple` (no header band, a hatched band instead), `tsutawaru-simple-cud` (the same with a colour-universal palette) and `ponchie` (one-page overview figures), five themes in all.
-- **Sample decks:** `sample-hydrogen` (English, 12 slides, with two library marks and a shelf) and `sample-hydrogen-ja`; `sample-academic`, `sample-ponchie`, `sample-tsutawaru-simple`, `sample-tsutawaru-simple-cud`, each in English and Japanese; `sample-lecture`, a fictional deck used by the tests. 13 sample decks in all.
+- **Sample decks:** `sample-getting-started` (English, 12 slides: the workflow itself, from direct editing to export and the lint; shown in the README); `sample-hydrogen` (English, 12 slides, with two library marks and a shelf) and `sample-hydrogen-ja`; `sample-academic`, `sample-ponchie`, `sample-tsutawaru-simple`, `sample-tsutawaru-simple-cud`, each in English and Japanese; `sample-lecture`, a fictional deck used by the tests. 14 sample decks in all.
 - **Tests:** the test suite of the synchronized-preview extension (`npm test`, which runs `tools/run-tests.mjs`: it lists the test files itself, because Node.js 20 does not expand glob arguments to `node --test`; Chrome-driven tests are skipped when Chrome is not found) and a GitHub Actions workflow that runs it on Ubuntu, macOS and Windows with Node.js 20 and 22.
 - **Benchmark:** `npm run bench` measures the time from a gesture to the repainted preview (direct edit, layout thumbnails, layout switch, insert popup, slide operations, box drag, typing in the source); results in `docs/benchmark.md`.
 - **Tools:** `npm run screenshots` re-takes the screenshots in `docs/img/`; `npm run demo:ranking` shows the revision ranking of the library on a temporary git repository.

@@ -22,6 +22,10 @@ mac / Windows で使えます（テストは Ubuntu でも走ります）。Node
 
 このような学術スライドを、ふつうの Markdown から作れます。上は見本デック「地球中心核の水素」の一部です。
 
+![英語の見本デック「Getting started with marp-GUI」の 6 枚](docs/img/en/08-getting-started.png)
+
+英語の見本デック「Getting started with marp-GUI」（`slides/sample-getting-started/`、12 枚）は、直接編集・配置クラス・スライド操作・箱の編集・書き出し・lint という使い方そのものを英語で説明します。
+
 ![同期プレビューで、いま選んでいるスライドを青い枠で示している画面](docs/img/ja/01-overview.png)
 
 VS Code の右側に開く同期プレビューです。原稿（左側）のカーソルを動かすと、プレビューもそのスライドへ移り、青い枠で示します。上にスライド操作のボタン、下に文字の大きさと色のバーが出ます。
@@ -199,9 +203,9 @@ npm test
 ```
 theme/            テーマ 5 つ：academic.css（土台）・tsutawaru-academic.css（推奨）・
                   tsutawaru-simple.css・tsutawaru-simple-cud.css（色覚の多様性に配慮した配色）・ponchie.css（1 枚の全体像）
-slides/           見本デック 13 本：sample-hydrogen・-academic・-ponchie・-tsutawaru-simple・
-                  -tsutawaru-simple-cud の英語版と日本語版（-ja）、sample-layouts（配置クラス）・
-                  sample-parts（部品）・sample-lecture（試験用）。共有画像は assets/
+slides/           見本デック 14 本：sample-getting-started（使い方・英語）、sample-hydrogen・-academic・
+                  -ponchie・-tsutawaru-simple・-tsutawaru-simple-cud の英語版と日本語版（-ja）、
+                  sample-layouts（配置クラス）・sample-parts（部品）・sample-lecture（試験用）。共有画像は assets/
 docs/             DESIGN.en.md・design-rules.md（lint の規則）・benchmark.md・security-review.md・examples/
 tools/
   marp-scroll-sync/   VS Code 拡張：同期プレビュー・直接編集・配置案・スライド操作
@@ -239,5 +243,6 @@ Apache License 2.0（[LICENSE](LICENSE)）。テーマ・拡張・ツールと�
 - 適用される法律が認める最大限の範囲で、作者および貢献者は、このソフトウェアの使用または使用できなかったことから生じた損害（データの消失、スライドや原稿の破損、業務の中断、その他の直接・間接・付随的・結果的な損害を含みます）について、一切の責任を負いません。
 - 法律上どうしても責任を免れることができない場合でも、その責任は、利用者がこのソフトウェアに支払った金額（無償のため 0 円）を上限とします。
 - このソフトウェアは原稿ファイルを直接書き換えます。大切な原稿は、ご自身でバックアップを取ってからお使いください。
+- サポートはできる範囲で行うものです。作者には、質問への回答・不具合の修正・更新の提供を行う義務はなく、このソフトウェアは予告なく変更・提供終了することがあります。困ったときは、まず「[うまく行かないとき](#6-うまく行かないとき)」を見て、それでも解決しなければ [CONTRIBUTING.md](CONTRIBUTING.md) の手順で GitHub の issue にお知らせください。
 - Marp は原稿中の HTML をそのまま描画します。出どころのわからない、または信頼できないデック（.md ファイル）を開くときは、中身を確かめてからにしてください。どのファイルを開くかは、利用者ご自身の責任で判断してください。
 - コードの大部分は、作者の仕様に沿って AI のコーディングエージェントが書きました。346 件の自動テスト（`npm test`）で確かめ、リポジトリの GitHub Actions のワークフローが Ubuntu・macOS・Windows × Node.js 20・22 で同じテストを回します。セキュリティの点検の結果は、まだ直していない項目も含めて [docs/security-review.md](docs/security-review.md) にあります。テストと点検で不具合や脆弱性は減らせますが、無くせるわけではありません。

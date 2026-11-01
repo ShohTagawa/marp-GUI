@@ -1,7 +1,10 @@
 {
   "markdown.marp.themes": [
     "./theme/academic.css",
-    "./theme/tsutawaru-academic.css"
+    "./theme/tsutawaru-academic.css",
+    "./theme/tsutawaru-simple.css",
+    "./theme/tsutawaru-simple-cud.css",
+    "./theme/ponchie.css"
   ],
   "markdown.marp.html": "all",
   "files.associations": { "*.md": "markdown" },

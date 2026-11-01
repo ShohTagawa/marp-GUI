@@ -3,7 +3,7 @@ cff-version: 1.2.0
 message: "If you use marp-GUI in your work, please cite it as below."
 title: "marp-GUI: text-first slide authoring with direct-manipulation write-back and design-rule linting"
 version: 1.1.0
-date-released: 2026-10-18
+date-released: 2026-11-01
 authors:
   - family-names: Tagawa
     given-names: Shoh
