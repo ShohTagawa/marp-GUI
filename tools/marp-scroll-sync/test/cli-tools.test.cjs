@@ -102,3 +102,29 @@ test('marp-pdf 拡張の manifest：信頼していないフォルダ・仮想�
     for (const k of keys) assert.ok(typeof nls[k] === 'string' && nls[k], f + ' に ' + k);
   }
 });
+
+test('同期プレビュー拡張の manifest：信頼していないフォルダ・仮想ファイルシステムでは動かない（docs/security-review.md SEC-04）', () => {
+  const dir = path.join(REPO, 'tools', 'marp-scroll-sync');
+  const pkg = JSON.parse(fs.readFileSync(path.join(dir, 'package.json'), 'utf8'));
+  assert.strictEqual(pkg.capabilities.untrustedWorkspaces.supported, false);
+  assert.strictEqual(pkg.capabilities.virtualWorkspaces.supported, false);
+  for (const f of ['package.nls.json', 'package.nls.ja.json']) {
+    const nls = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8'));
+    for (const k of ['capabilities.untrustedWorkspaces', 'capabilities.virtualWorkspaces']) assert.ok(typeof nls[k] === 'string' && nls[k], f + ' に ' + k);
+  }
+});
+
+test('拡張は、原稿のフォルダ側の tools/ のスクリプトを実行しない：起動する CLI は拡張と同じリポジトリの物に固定（SEC-01・SEC-02）', () => {
+  const ss = path.join(REPO, 'tools', 'marp-scroll-sync');
+  const ext = fs.readFileSync(path.join(ss, 'extension.js'), 'utf8');
+  assert.ok(!/\.sendText\(/.test(ext), 'extension.js は統合ターミナルに命令行を送らない');
+  assert.ok(!/npx\s+--yes/.test(ext), 'npx --yes …@latest の取り寄せに頼らない');
+  assert.match(ext, /PRESENT_SCRIPT = path\.resolve\(__dirname, '\.\.', 'marp-present', 'present\.mjs'\)/);
+  for (const f of ['corpus-vscode.cjs', 'library-vscode.cjs']) {
+    const src = fs.readFileSync(path.join(ss, 'lib', f), 'utf8');
+    assert.match(src, /BUNDLED_CLI = path\.resolve\(__dirname, '\.\.', '\.\.', 'marp-library\.mjs'\)/, f);
+    assert.ok(!/path\.join\(repoRoot, 'tools', 'marp-library\.mjs'\)\s*;/.test(src) || /existsSync\(path\.join\(repoRoot, 'tools', 'marp-library\.mjs'\)\)/.test(src), f + '：原稿側の tools/marp-library.mjs は存在の目印に見るだけ');
+    assert.ok(!/\.sendText\(/.test(src), f + ' は統合ターミナルに命令行を送らない');
+  }
+  assert.ok(fs.existsSync(path.resolve(ss, '..', 'marp-library.mjs')) && fs.existsSync(path.resolve(ss, '..', 'marp-present', 'present.mjs')));
+});

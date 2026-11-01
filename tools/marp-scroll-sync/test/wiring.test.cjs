@@ -526,7 +526,8 @@ test('部品があるとき：📚 は検索つきのギャラリー（gallery�
 test('corpus-vscode：索引の裏作成は多重起動しない／終わったら読み直す', async () => {
   makeRepo();
   fs.mkdirSync(path.join(REPO, 'tools'), { recursive: true });
-  fs.writeFileSync(path.join(REPO, 'tools', 'marp-library.mjs'), '// テスト用の置き石\n');
+  // 原稿の側の tools/marp-library.mjs は「marp-GUI の作業フォルダ」の目印。実行するのは拡張と同じリポジトリの CLI（SEC-01）
+  fs.writeFileSync(path.join(REPO, 'tools', 'marp-library.mjs'), 'throw new Error("must not run")\n');
   for (const k of Object.keys(require.cache)) if (k.startsWith(path.join(EXT, 'lib') + path.sep)) delete require.cache[k];
   const cv = require(path.join(EXT, 'lib', 'corpus-vscode.cjs'));
   const core = require(path.join(EXT, 'lib', 'corpus-core.cjs'));
@@ -544,6 +545,10 @@ test('corpus-vscode：索引の裏作成は多重起動しない／終わった�
   assert.strictEqual(posted[0].building, true, 'corpus.json が無い → その場で作って応答し、裏で作り直す');
   assert.strictEqual(spawned.length, 1);
   assert.deepStrictEqual(spawned[0].args.slice(1), ['corpus', '--root', REPO]);
+  assert.strictEqual(spawned[0].args[0], path.resolve(EXT, '..', 'marp-library.mjs'), '同梱の CLI（拡張のフォルダの隣）を動かす');
+  assert.ok(!spawned[0].args[0].startsWith(REPO + path.sep), '原稿のリポジトリの tools/marp-library.mjs は実行しない');
+  assert.strictEqual(spawned[0].cmd, process.execPath);
+  assert.ok(!spawned[0].o.shell);
   assert.strictEqual(spawned[0].o.env.ELECTRON_RUN_AS_NODE, '1');
   svc.rebuild(doc); svc.search(doc, { reqId: 2, query: '', offset: 0, limit: 3, haveCss: [] });
   assert.strictEqual(spawned.length, 1, '走っている間は重ねて起動しない');
@@ -644,4 +649,42 @@ test('書き戻したらすぐ保存する（saveAfterEdit）：editCommit・sli
   await sleep(100);
   assert.strictEqual(S.doc.lineAt(7).text, '- alphaZ');
   assert.ok(!brief(S, n).some(m => m.type === 'editResult' && m.ok === false));
+});
+
+// ---------- セキュリティの回帰試験（docs/security-review.md SEC-01・SEC-02） ----------
+test('▶ プレゼン：同梱の present.mjs を引数の配列で起動する（シェルに命令行を送らない）。原稿のパスの $( ) や ` は展開されない／ワークスペースより上へ repoRoot をたどらない', async () => {
+  const cp = require('child_process');
+  const { EventEmitter } = require('events');
+  const OUT = fs.mkdtempSync(path.join(os.tmpdir(), 'ss-present-'));
+  const W = path.join(OUT, 'ws');                                   // 開いているワークスペースフォルダ
+  fs.mkdirSync(path.join(OUT, 'theme'), { recursive: true });       // ワークスペースの外（1 つ上）の theme/academic.css
+  fs.writeFileSync(path.join(OUT, 'theme', 'academic.css'), '/* @theme academic */');
+  const md = path.join(W, 'slides', 'a$(touch PWNED)`id`', 'deck.md');
+  const calls = [];
+  const origSpawn = cp.spawn, origWf = vscode.workspace.getWorkspaceFolder;
+  cp.spawn = (cmd, args, o) => {
+    calls.push({ cmd, args, o });
+    const ch = new EventEmitter(); ch.stdout = new EventEmitter(); ch.stderr = new EventEmitter();
+    setImmediate(() => ch.emit('close', 0));
+    return ch;
+  };
+  try {
+    const S = setup(DECK, { md });
+    S.doc.save = async () => true;
+    vscode.workspace.getWorkspaceFolder = (uri) => (uri && uri.fsPath && uri.fsPath.startsWith(W + path.sep) ? { uri: { fsPath: W } } : undefined);
+    await vscode.commands.executeCommand('marpScrollSync.present');
+    await sleep(20);
+    assert.strictEqual(calls.length, 1, JSON.stringify(calls.map(c => c.args)));
+    const c = calls[0];
+    assert.strictEqual(c.cmd, process.execPath);
+    assert.ok(Array.isArray(c.args), '引数は配列');
+    assert.deepStrictEqual(c.args, [path.resolve(EXT, '..', 'marp-present', 'present.mjs'), md, '--page', '1'], '原稿のパスは 1 つの引数のまま渡る');
+    assert.ok(!c.o.shell, 'shell: true にしない');
+    assert.strictEqual(c.o.cwd, W, 'repoRoot はワークスペースフォルダの中に限る（外の theme/academic.css まで上がらない）');
+    assert.strictEqual((state.terminals || []).length, 0, '統合ターミナルに命令行を送らない');
+    assert.ok(!fs.existsSync(path.join(W, 'PWNED')) && !fs.existsSync(path.join(EXT, 'PWNED')));
+  } finally {
+    cp.spawn = origSpawn; vscode.workspace.getWorkspaceFolder = origWf;
+    fs.rmSync(OUT, { recursive: true, force: true });
+  }
 });

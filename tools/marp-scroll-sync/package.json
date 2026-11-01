@@ -17,6 +17,16 @@
     "Other"
   ],
   "main": "./extension.js",
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false,
+      "description": "%capabilities.untrustedWorkspaces%"
+    },
+    "virtualWorkspaces": {
+      "supported": false,
+      "description": "%capabilities.virtualWorkspaces%"
+    }
+  },
   "activationEvents": [
     "onCommand:marpScrollSync.home",
     "onLanguage:markdown",

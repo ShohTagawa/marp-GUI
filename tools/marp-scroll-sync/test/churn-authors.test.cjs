@@ -16,7 +16,7 @@ const deck = (slides) => ['---', 'marp: true', 'theme: academic', '---', ''].con
 
 test('churnOf：touched は全部の版、human は人の版だけ。未コミットの手直しは human に入る', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'churn-authors-'));
-  git(root, ['init', '-q', '-b', 'main']); git(root, ['config', 'user.name', 'Shoh Tagawa']); git(root, ['config', 'user.email', 'tagawa@example.ac.jp']);
+  git(root, ['init', '-q', '-b', 'main']); git(root, ['config', 'user.name', 'Test Author']); git(root, ['config', 'user.email', 'author@example.org']);
   fs.mkdirSync(path.join(root, 'theme'), { recursive: true }); fs.writeFileSync(path.join(root, 'theme', 'academic.css'), '/* @theme academic */');
   const dir = path.join(root, 'slides', '20260101_T_a'); fs.mkdirSync(dir, { recursive: true });
   const md = path.join(dir, '20260101_T_a.md');
@@ -43,6 +43,6 @@ test('churnOf：touched は全部の版、human は人の版だけ。未コミ�
   const c = core.buildCorpus(root, { withChurn: true });
   const e = c.entries.find(x => x.slide === 1);
   assert.equal(e.churn.touched, 4); assert.equal(e.churn.human.touched, 2);
-  assert.ok(core.isClaudeVersion({ email: 'noreply@anthropic.com' }) && !core.isClaudeVersion({ email: 'tagawa@example.ac.jp' }));
+  assert.ok(core.isClaudeVersion({ email: 'noreply@anthropic.com' }) && !core.isClaudeVersion({ email: 'author@example.org' }));
   fs.rmSync(root, { recursive: true, force: true });
 });

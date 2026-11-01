@@ -16,6 +16,13 @@
 // ---------------------------------------------------------------------------
 
 const RAW_TEXT_TAGS = new Set(['style', 'script', 'textarea', 'title']);
+/**
+ * 行の中の改行の目印。プレビューの直接編集で Alt+Enter が入れた <br> は、確定時にこの 1 文字になって届く
+ * （media/preview.js の BR_MARK と同じ値）。原稿には <br> と書く。私用領域の文字なので、原稿にも打鍵にも現れず、
+ * \s でも trim でも消えない（U+2028 などの改行類は \s に当たるので使わない）
+ */
+const BR_MARK = '\uE000';
+const brify = (s) => s.replace(/\uE000/g, '<br>');
 
 /**
  * s[i] === '<' から始まるタグ（開始・終了どちらも）を読み、情報を返す。タグでなければ null。
@@ -685,7 +692,7 @@ function planEdgeEdit(text, D, L, change, line) {
   if (!before.trim() || !following.trim()) return fail('space-boundary', line); // 行頭・行末（字下げや改行の意味が変わりうる）
   if (bc === '\\') return fail('space-boundary', line);
   let out;
-  if (L.kind === 'html') out = encEntities(ins);
+  if (L.kind === 'html') out = brify(encEntities(ins));
   else if (L.kind === 'md') {
     // 強調記号の隣は left/right-flanking の判定が変わりうる。URL（linkify）の隣はリンク先が変わる
     if (/[*_~]/.test(bc) || /[*_~]/.test(ac)) return fail('emphasis-boundary', line);
@@ -694,7 +701,7 @@ function planEdgeEdit(text, D, L, change, line) {
     if ((URLISH.test(runBefore) && !/[>)]$/.test(runBefore)) || (URLISH.test(runAfter) && !/^[<\[(]/.test(runAfter))) return fail('autolink', line);
     const rawLine = text.slice(ls, le);
     const table = /^\s*\|/.test(rawLine) || /\|\s*$/.test(rawLine.replace(/\r$/, ''));
-    out = escapeMarkdown(ins, { entities: /&(?:amp|lt|gt);/.test(text.slice(L.start, L.end)), following, table });
+    out = brify(escapeMarkdown(ins, { entities: /&(?:amp|lt|gt);/.test(text.slice(L.start, L.end)), following, table }));
     const SHORT = new RegExp(SHORTCODE.source, 'g');
     if (((before + out + following).match(SHORT) || []).length > ((before + following).match(SHORT) || []).length) return fail('emoji-shortcode', line);
     const mk = /^[ \t]*(?:>[ \t]?|(?:[-+*]|\d{1,9}[.)])[ \t]+|#{1,6}[ \t]+)*/.exec(before)[0].length;
@@ -702,7 +709,7 @@ function planEdgeEdit(text, D, L, change, line) {
     if (guardLineHead(will) !== will && guardLineHead(was) === was) return fail('line-head', line);
   } else {
     if (/[\\*_`[~$|]/.test(ins)) return fail('unknown-context', line);
-    out = encEntities(ins);
+    out = brify(encEntities(ins));
   }
   // 直前の & と合わせて実体参照の形になるなら書かない（& はこのノードの外にある）
   if (/&[#A-Za-z0-9]{0,32}$/.test(before) && /^&(?:#[0-9]{1,7}|#[xX][0-9a-fA-F]{1,6}|[A-Za-z][A-Za-z0-9]{1,31});/.test(/&[#A-Za-z0-9]{0,32}$/.exec(before)[0] + out + following)) return fail('entity-boundary', line);
@@ -746,7 +753,7 @@ function planTextEdit(sourceText, slideRange, nodes, change) {
   while (s < tt.length - p && s < core.length - p && tt[tt.length - 1 - s] === core[core.length - 1 - s]) s++;
   if (s > 0 && /[\udc00-\udfff]/.test(tt[tt.length - s])) s--;
   let ins = core.slice(p, core.length - s);
-  if (/[\r\n\0]/.test(ins)) return fail('newline', line); // 改行は段落や <br> を生む。1 行の編集だけ受ける
+  if (/[\r\n\0]/.test(ins)) return fail('newline', line); // 改行は段落を生む。1 行の編集だけ受ける（行の中の改行は BR_MARK で届き、<br> と書く）
 
   const rel = (i) => L.bounds[i];
   let es = D.base + rel(p), ee = D.base + rel(tt.length - s);
@@ -760,6 +767,7 @@ function planTextEdit(sourceText, slideRange, nodes, change) {
     return fail('autolink', line);
   }
   if (L.code) {
+    if (ins.indexOf(BR_MARK) !== -1) return fail('newline', line); // コードの中の <br> は文字として出る
     // 言語名つきのフェンスは highlight.js が字句ごとに <span> へ割る。1 文字足すだけで割り方が変わり、
     // 「どのノードが変わるか」を保証できない（実測：const★検 でキーワードでなくなり隣と合体）ので断る
     if (L.code.lang) return fail('code-highlight', line);
@@ -771,7 +779,7 @@ function planTextEdit(sourceText, slideRange, nodes, change) {
     if (L.code.fence && /`{3,}|~{3,}/.test(ins)) return fail('code-delimiter', line);
     out = ins;
   } else if (L.kind === 'html') {
-    out = encEntities(ins);
+    out = brify(encEntities(ins));
   } else if (L.kind === 'md') {
     const atHead = HEAD_MARKERS.test(srcBefore);
     if (atHead) ins = ins.trimStart(); // 行頭の空白 4 つはコードブロックになる
@@ -783,7 +791,7 @@ function planTextEdit(sourceText, slideRange, nodes, change) {
     const rawLine = text.slice(D.lineOff[line], lineEndOff);
     const table = /^\s*\|/.test(rawLine) || /\|\s*$/.test(rawLine.replace(/\r$/, ''));
     const usesEntities = /&(?:amp|lt|gt);/.test(text.slice(L.start, L.end));
-    out = escapeMarkdown(ins, { entities: usesEntities, following, table });
+    out = brify(escapeMarkdown(ins, { entities: usesEntities, following, table }));
     if (atHead) {
       const guarded = guardLineHead(out + following);
       out = guarded.slice(0, guarded.length - following.length);
@@ -811,20 +819,21 @@ function planTextEdit(sourceText, slideRange, nodes, change) {
     // 記号が丸見えになることがある（「と**強調**」の 強調 の頭に「 を足す、が典型。日本語の文字は「文字」扱い）。
     // 記号の並びが「開き」なら left、「閉じ」なら right が要る。編集でそれを失うなら書かない（もともと外れているなら関知しない）。
     const afterCh = text[ee] || '', beforeCh = es > 0 ? text[es - 1] : '';
+    const coreW = brify(core);   // 記号の隣に来る文字は、目印でなく原稿に書く <br> の字で判定する
     if (core && /[*_~]/.test(afterCh) && s === 0) {
       let q = ee; while (text[q] === afterCh) q++;
       const need = delimiterRole(D, ee, afterCh) === 'open' ? 'L' : 'R';
-      if (flanking(tt[tt.length - 1], text[q]).includes(need) && !flanking(core[core.length - 1], text[q]).includes(need)) return fail('emphasis-boundary', line);
+      if (flanking(tt[tt.length - 1], text[q]).includes(need) && !flanking(coreW[coreW.length - 1], text[q]).includes(need)) return fail('emphasis-boundary', line);
     }
     if (core && /[*_~]/.test(beforeCh) && p === 0) {
       let q = es - 1; while (q >= 0 && text[q] === beforeCh) q--;
       const need = delimiterRole(D, q + 1, beforeCh) === 'open' ? 'L' : 'R';
-      if (flanking(text[q], tt[0]).includes(need) && !flanking(text[q], core[0]).includes(need)) return fail('emphasis-boundary', line);
+      if (flanking(text[q], tt[0]).includes(need) && !flanking(text[q], coreW[0]).includes(need)) return fail('emphasis-boundary', line);
     }
   } else {
     // 位置情報の無いノード（near:null）：Markdown か HTML か分からない。どちらでも同じ意味になる文字だけ受ける
     if (/[\\*_`[~$|]/.test(ins)) return fail('unknown-context', line);
-    out = encEntities(ins);
+    out = brify(encEntities(ins));
   }
 
   // 直前に「文字としての &」があり、足した文字（または消した結果くっついた続き）と合わせて実体参照の形になる場合
@@ -877,7 +886,10 @@ function planTextEdit(sourceText, slideRange, nodes, change) {
 
 /**
  * ノード k の nodeValue 上の範囲 [start, end) を原稿の範囲に写す（プレビューで選んだ文字に既存の tune を当てるため）。
- * sel = { k, start, end }。成功：{ ok:true, start, end, line, startCol, endCol }
+ * sel = { k, start, end }。終わりが別のノードなら sel = { k, start, k2, end }（end は k2 の中のオフセット。k2 > k）：
+ * 同じ親の中で隣り合うノードをまたぐ選択（「半**太字の語**後」）。両端を別々に写し、間は原稿をそのまま含める
+ * （丸ごと入る要素は壊れない。親が違う選択は呼び出し側＝プレビューが断る）。
+ * 成功：{ ok:true, start, end, line, startCol, endCol }
  * tune は選択範囲を <span> で包むので、原稿の書き方が表示と違う部分（実体参照・エスケープ）・コードの中・
  * インライン SVG の中・複数行にまたがる範囲は ok:false。
  */
@@ -893,12 +905,24 @@ function planRangeSelect(sourceText, slideRange, nodes, sel) {
   if (ambiguous(D, nodes, sel.k)) return fail('ambiguous', line);
   if (nd.svg) return fail('svg', line);
   if (L.code) return fail('code', line);
-  let a = Math.max(0, Math.min(sel.start, sel.end) - L.lead);
-  let b = Math.min(L.t.length, Math.max(sel.start, sel.end) - L.lead);
-  if (!(b > a)) return fail('empty-range', line);
-  const start = D.base + L.bounds[a], end = D.base + L.bounds[b];
+  const k2 = Number.isInteger(sel.k2) && sel.k2 !== sel.k ? sel.k2 : null;
+  let L2 = L;
+  if (k2 != null) {
+    if (k2 < sel.k) return fail('bad-range', line);
+    const nd2 = nodes[k2]; L2 = D.locs[k2];
+    if (!nd2 || !L2) return fail('not-located', line);
+    if (ambiguous(D, nodes, k2)) return fail('ambiguous', line);
+    if (nd2.svg) return fail('svg', line);
+    if (L2.code) return fail('code', line);
+  }
+  const a = Math.max(0, Math.min(L.t.length, (k2 == null ? Math.min(sel.start, sel.end) : sel.start) - L.lead));
+  const b = Math.max(0, Math.min(L2.t.length, (k2 == null ? Math.max(sel.start, sel.end) : sel.end) - L2.lead));
+  const start = D.base + L.bounds[a], end = D.base + L2.bounds[b];
+  if (!(end > start)) return fail('empty-range', line);
   const seg = text.slice(start, end);
-  if (seg !== L.t.slice(a, b)) return fail('encoded', line);
+  const same = k2 == null ? seg === L.t.slice(a, b)
+    : (text.slice(start, D.base + L.bounds[L.t.length]) === L.t.slice(a) && text.slice(D.base + L2.bounds[0], end) === L2.t.slice(0, b));
+  if (!same) return fail('encoded', line);
   if (/[\r\n]/.test(seg)) return fail('multiline', line);
   const ln = lineOfOffset(D.lineOff, start);
   return { ok: true, start, end, line: ln, startCol: start - D.lineOff[ln], endCol: end - D.lineOff[ln] };
@@ -926,7 +950,7 @@ function planEmptyFill(sourceText, slideRange, target, now) {
   // 空白だけの行は「記号だけの行」ではない（どの要素の行でもない。足すと新しい段落ができる）
   if (!raw.trim() || !/^[ \t]*(?:>[ \t]?)*(?:(?:[-+*]|\d{1,9}[.)])(?:[ \t]+\[[ xX]\])?|#{1,6})?[ \t]*$/.test(raw)) return fail('not-empty', ln);
   if (SHORTCODE.test(ins)) return fail('emoji-shortcode', ln); // planTextEdit と同じ理由
-  const body = guardLineHead(escapeMarkdown(ins, { following: '' }));
+  const body = brify(guardLineHead(escapeMarkdown(ins, { following: '' })));
   const needSpace = raw.length > 0 && !/[ \t]$/.test(raw);
   const edit = { start: eol, end: eol, text: (needSpace ? ' ' : '') + body };
   return { ok: true, edit, edits: [edit], line: ln };
@@ -941,6 +965,7 @@ function applyEdits(text, edits) {
 
 module.exports = {
   attachLineInfo, locateNodes, planTextEdit, planRangeSelect, planEmptyFill,
+  BR_MARK, // 行の中の改行の目印（extension.js の検算と、テストが使う）
   // 以下はテスト・他モジュール用
   injectHlines, maskRegion, escapeMarkdown, applyEdits, lineOffsets,
   eachOpenTag, // lib/style-edit.cjs が injectHlines と同じ数え方で開始タグを数えるため

@@ -282,7 +282,7 @@ test('編集していないときのキー：j/k・矢印でスライド送り�
   });
 });
 
-test('編集中に render → 差し替わらず、確定後に1件だけ適用される', async (t) => {
+test('編集中に render → 差し替わらず、確定後に1件だけ適用される。版が進んでいた入力は捨てずに保留し、同じ文字が戻った描き直しで入れ直す', async (t) => {
   await withPage(t, async (page) => {
     await dbl(page, await textPoint(page, 2, 'のしくみを知る'));
     await page.keyboard.type('途中');
@@ -296,14 +296,26 @@ test('編集中に render → 差し替わらず、確定後に1件だけ適用�
     assert.ok(mid.text.includes('途中'));
     await page.keyboard.press('Enter');
     await sleep(60);
-    const [m] = await posted(page, 'editCommit');
-    assert.equal(m.version, 12, '編集を始めたときの version で送る');
+    // 版が 12 → 14 に進んでいた：この版番号で送っても断られるので送らず、入力を保留する（DESIGN.md 2.2「入力の保留」）
+    assert.deepEqual(await posted(page, 'editCommit'), [], '古い版番号では送らない');
+    const toast = await page.evaluate(() => { const e = document.querySelector('.ss-toast'); return [e.classList.contains('ss-show'), e.textContent]; });
+    assert.ok(toast[0] && /保留しました/.test(toast[1]) && /途中/.test(toast[1]), '保留したことと打った文字を知らせる: ' + toast[1]);
     const end = await page.evaluate(() => { const t = document.getElementById('wrap').textContent; return { nw: t.includes('【新しい保留】'), old: t.includes('【古い保留】'), editing: !!document.querySelector('.ss-editing') }; });
-    assert.deepEqual(end, { nw: true, old: false, editing: false });
+    assert.deepEqual(end, { nw: true, old: false, editing: false }, '保留していた最新の描き直しだけが当たる');
+    // 同じ文字（元の文）に戻った描き直しが届く → 保留していた入力を、新しい版番号・新しいノードで送り直す
+    const r3 = H.renderForMessage(built.md);
+    await send(page, { type: 'render', html: r3.html, css: r3.css, index: 2, version: 15, marks: [] });
+    await sleep(60);
+    const [m] = await posted(page, 'editCommit');
+    assert.ok(m, '入れ直しの editCommit が送られる');
+    assert.equal(m.version, 15);
+    assert.ok(m.changes.length === 1 && /途中/.test(m.changes[0].now) && m.nodes[m.changes[0].k].t === m.changes[0].old, JSON.stringify(m.changes));
+    assert.match(await page.evaluate(() => document.querySelector('.ss-toast').textContent), /入れました/);
+    await clearPosted(page);
     // 次の編集は新しい version で送られる
-    await dbl(page, await textPoint(page, 2, '【新しい保留】'));
+    await dbl(page, await textPoint(page, 2, 'のしくみを知る'));
     await page.keyboard.type('x'); await page.keyboard.press('Enter');
-    assert.equal((await posted(page, 'editCommit'))[1].version, 14);
+    assert.equal((await posted(page, 'editCommit'))[0].version, 15);
   });
 });
 
@@ -482,7 +494,7 @@ test('blur（外をクリック）で確定し、そのクリックでは逆引�
   });
 });
 
-test('プレビューで文字を選択 → tuneSelect（1つのテキストノード内だけ）', async (t) => {
+test('プレビューで文字を選択 → tuneSelect（同じ親の中なら隣のノードまで k2 で。親が違えば unsupported で知らせる）', async (t) => {
   await withPage(t, async (page) => {
     const a = await textPoint(page, 2, 'しくみ', 'start');
     const b = await textPoint(page, 2, 'しくみ', 'end');
@@ -495,12 +507,29 @@ test('プレビューで文字を選択 → tuneSelect（1つのテキストノ�
     assert.equal(m.nodes[m.k].t.slice(m.start, m.end), 'しくみ');
     assert.ok(m.px > 0);
     await clearPosted(page);
-    // 太字をまたぐ選択は送らない
+    // 太字をまたいで、同じ親（li）の中（前半 → 後半）：終わりのノード k2 を添えて送る（原稿では **太字** を丸ごと含む範囲になる）
     const c = await textPoint(page, FX, '前半は普通で', 'start');
     const d = await textPoint(page, FX, 'そして後半', 'end');
     await page.mouse.move(c.x, c.y); await page.mouse.down(); await page.mouse.move(d.x, d.y, { steps: 5 }); await page.mouse.up();
     await sleep(REVEAL_WAIT);
-    assert.deepEqual(await posted(page, 'tuneSelect'), []);
+    let q = await posted(page, 'tuneSelect');
+    assert.equal(q.length, 1, JSON.stringify(q.map(x => x.type)));
+    assert.ok(Number.isInteger(q[0].k2) && q[0].k2 > q[0].k, JSON.stringify([q[0].k, q[0].k2]));
+    assert.equal(q[0].nodes[q[0].k].t.slice(q[0].start), '前半は普通で ');
+    assert.equal(q[0].nodes[q[0].k2].t.slice(0, q[0].end), ' そして後半');
+    assert.ok(!q[0].unsupported);
+    await clearPosted(page);
+    // 太字の内側から外側へ（始まりと終わりの親が違う）：原稿で <span> が要素をまたぐので写せない。unsupported で知らせる
+    await sleep(700);   // 直前のドラッグと同じ位置で続けて離すとダブルクリック（detail 2）になり、編集の入口と取られる
+    await page.evaluate(() => window.getSelection().removeAllRanges());   // 選択の中で押すと文字のドラッグ（drag and drop）になり、新しい選択が始まらない
+    const e = await textPoint(page, FX, 'ここは太字', 'start');
+    await page.mouse.move(e.x, e.y); await page.mouse.down(); await page.mouse.move(d.x, d.y, { steps: 5 }); await page.mouse.up();
+    await sleep(REVEAL_WAIT);
+    q = await posted(page, 'tuneSelect');
+    assert.equal(q.length, 1, JSON.stringify(q));
+    assert.equal(q[0].unsupported, true);
+    assert.match(q[0].message, /境目/);
+    assert.equal(q[0].nodes, undefined, '写せない選択にはノードを付けない');
   });
 });
 

@@ -33,5 +33,7 @@
   "config.adaptivePaste": "When pasting a slide copied from another deck, offer a paste option that adapts it to this deck (copies its assets, brings along deck-specific CSS, follows this deck's color palette).",
   "config.saveAfterEdit": "Save the file immediately after this extension writes to the source (direct edits on the preview, box moves, slide operations, inserts, marks, layout changes, size/color, etc.). An unsaved buffer can conflict with external tools that rewrite the same file on disk, such as AI coding assistants. Undo with Cmd+Z (Ctrl+Z) still works.",
   "config.home.onStartup": "When a folder containing theme/academic.css (marp-GUI) is opened and no Marp source is shown yet, open the Home screen (recent, shelves, most-edited, search).",
-  "config.home.openPreview": "When a card on the Home screen opens a source, also open the synced preview beside it."
+  "config.home.openPreview": "When a card on the Home screen opens a source, also open the synced preview beside it.",
+  "capabilities.untrustedWorkspaces": "Edits the opened folder's Markdown files and runs the Node scripts under tools/, so it works only in folders you trust.",
+  "capabilities.virtualWorkspaces": "Reads and writes local files and runs local Node scripts, so it does not work on virtual file systems."
 }

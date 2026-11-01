@@ -12,7 +12,7 @@ Marp のスライドを、**VS Code のプレビュー上でさわって作る**
 - 📄 PDF（ベクター・文字がにじまない）と ▶ プレゼン（Chrome で全画面）
 - テーマ `tsutawaru-academic`：『伝わるデザインの基本』のルールに沿った、囲みの少ない学術スライド
 
-mac / Windows で使えます。
+mac / Windows で使えます（テストは Ubuntu でも走ります）。Node.js 20 以上。
 
 > **ご注意**：このソフトウェアは無償で「現状のまま（AS IS）」提供しており、いかなる保証もありません。法律が認める最大限の範囲で、使用によって生じた損害について、作者および貢献者は責任を負いません。詳しくは下の「[免責事項](#免責事項)」をご覧ください。
 
@@ -188,21 +188,30 @@ npm test
 ```
 
 - 純粋なロジック（スライドの分割・原稿への対応付け・スライド操作・折りたたみ・ライブラリ・索引・配置案・ホーム画面）は、`slides/` の見本デック 3 本（`sample-layouts`・`sample-parts`・`sample-lecture`）だけを使います。
-- プレビューを実際に動かす試験（直接編集・箱の編集・ギャラリー・通し試験）は、手元の Google Chrome と `puppeteer-core`（`npm install` で入ります）を使います。Chrome が見つからないときは、その試験だけ skip になります。
-- 全部で 324 件。手元の Chrome ありで約 5 分（ファイルを 1 つずつ直列に走らせます。速さの予算を測る試験があるためです）。
+- プレビューを実際に動かす試験（直接編集・箱の編集とトリミング・ギャラリー・通し試験）は、手元の Google Chrome と `puppeteer-core`（`npm install` で入ります）を使います。Chrome が見つからないときは、その試験だけ skip になります。
+- 全部で 346 件（畳んだ表示の模擬を書き出す 1 件は、`FOLDED_VIEW_OUT` を指定したときだけ走ります）。手元の Chrome ありで約 5 分（ファイルを 1 つずつ直列に走らせます。速さの予算を測る試験があるためです）。
 - GitHub Actions（`.github/workflows/test.yml`）が macOS・Windows・Ubuntu × Node 20・22 で同じテストを回します（共有ランナーでは速さの試験だけ skip）。
 - 見本デック `sample-lecture` は、テストが頼る構造（表・インライン SVG・QR の列・`_class` の有無）を 1 本に集めた「講義の見本」です。中身は架空です。
+- `npm run bench` は、同じ仕組みで「操作から描き直しまで」の時間を測ります（結果は [docs/benchmark.md](docs/benchmark.md)）。`npm run screenshots` は `docs/img/` の画面写真を撮り直し、`npm run demo:ranking` は小さな一時 git リポジトリを作って、ライブラリが手直しの回数でスライドを並べる様子を見せます。
 
 ## 中身
 
 ```
-theme/            academic.css（土台）と tsutawaru-academic.css（推奨テーマ）
-slides/           見本デック 2 本（sample-layouts / sample-parts）と共有画像
+theme/            テーマ 5 つ：academic.css（土台）・tsutawaru-academic.css（推奨）・
+                  tsutawaru-simple.css・tsutawaru-simple-cud.css（色覚の多様性に配慮した配色）・ponchie.css（1 枚の全体像）
+slides/           見本デック 13 本：sample-hydrogen・-academic・-ponchie・-tsutawaru-simple・
+                  -tsutawaru-simple-cud の英語版と日本語版（-ja）、sample-layouts（配置クラス）・
+                  sample-parts（部品）・sample-lecture（試験用）。共有画像は assets/
+docs/             DESIGN.en.md・design-rules.md（lint の規則）・benchmark.md・security-review.md・examples/
 tools/
   marp-scroll-sync/   VS Code 拡張：同期プレビュー・直接編集・配置案・スライド操作
   marp-pdf/           ベクターPDF（分割印刷→結合）と、📄/▶ ボタンの VS Code 拡張
   marp-present/       Chrome で全画面プレゼン
   marp-library.mjs    既存スライドの検索・挿入（プレビューの ＋ から使われる）
+  marp-png.mjs        全ページを PNG に
+  tsutawaru-lint.mjs  デザイン規則の点検（メッセージは --lang en|ja）
+  demo/               手直しの回数で並べる様子の実演（npm run demo:ranking）
+  run-tests.mjs       テストを 1 ファイルずつ直列に走らせる（npm test。Node.js 20 以降で動く）
   setup.mjs           セットアップ本体（インストーラーが呼ぶ）
 install-mac.command / install-windows.bat
 ```
@@ -231,4 +240,4 @@ Apache License 2.0（[LICENSE](LICENSE)）。テーマ・拡張・ツールと�
 - 法律上どうしても責任を免れることができない場合でも、その責任は、利用者がこのソフトウェアに支払った金額（無償のため 0 円）を上限とします。
 - このソフトウェアは原稿ファイルを直接書き換えます。大切な原稿は、ご自身でバックアップを取ってからお使いください。
 - Marp は原稿中の HTML をそのまま描画します。出どころのわからない、または信頼できないデック（.md ファイル）を開くときは、中身を確かめてからにしてください。どのファイルを開くかは、利用者ご自身の責任で判断してください。
-- このソフトウェアは AI 駆動開発で作成しており、AI を使ってセキュリティの確認を行っていますが、安全性について作者は保証できません。
+- コードの大部分は、作者の仕様に沿って AI のコーディングエージェントが書きました。346 件の自動テスト（`npm test`）で確かめ、リポジトリの GitHub Actions のワークフローが Ubuntu・macOS・Windows × Node.js 20・22 で同じテストを回します。セキュリティの点検の結果は、まだ直していない項目も含めて [docs/security-review.md](docs/security-review.md) にあります。テストと点検で不具合や脆弱性は減らせますが、無くせるわけではありません。

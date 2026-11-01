@@ -15,6 +15,7 @@ const vscode = require('vscode');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const cp = require('child_process');   // cp.spawn は呼ぶ時に引く（試験が差し替えられるように）
 const { Marp } = require('@marp-team/marp-core');
 const { slideStartLines, slideIndexForLine, lineRangeForSlide, splitDeck, slideMeta } = require('./lib/slide-split.cjs');
 
@@ -56,7 +57,9 @@ let slideStarts = [];      // プレビュー対象の各スライド開始行(0
 let renderTimer = null;
 let revealDeco = null;     // クリック逆引き時の一時ハイライト用デコレーション
 let revealDecoTimer = null;
-let presentTerminal = null; // プレゼン用HTML生成を流す統合ターミナル
+let presentOut = null;      // ▶ プレゼンの出力チャンネル「Marp Present」
+/** ▶ が動かすスクリプト：この拡張と同じリポジトリに同梱の物に固定する（原稿のフォルダ側の tools/ は使わない。docs/security-review.md SEC-02） */
+const PRESENT_SCRIPT = path.resolve(__dirname, '..', 'marp-present', 'present.mjs');
 
 // --- サイズ/色 微調整（tune）用の状態 ---
 const TUNE_CLASS = 'ss-tune';
@@ -183,13 +186,19 @@ function themeFiles(repoRoot) {
  */
 function repoRootFor(doc) {
   const docDir = path.dirname(doc.uri.fsPath);
+  // 原稿の入ったワークスペースフォルダより上へはたどらない（docs/security-review.md SEC-01）。
+  // ワークスペースの外の原稿（フォルダを開かずにファイルだけ開いた）では、従来どおり 8 階層まで上へたどる
+  const wf = vscode.workspace.getWorkspaceFolder ? vscode.workspace.getWorkspaceFolder(doc.uri) : undefined;
+  const limit = wf && wf.uri && wf.uri.fsPath ? path.resolve(wf.uri.fsPath) : null;
+  const inside = (d) => { const r = path.relative(limit, d); return r === '' || (!r.startsWith('..') && !path.isAbsolute(r)); };
   for (let d = docDir, i = 0; i < 8; i++) {
+    if (limit && !inside(d)) break;
     if (fs.existsSync(path.join(d, 'theme', 'academic.css'))) return d;
     const up = path.dirname(d);
     if (up === d) break;
     d = up;
   }
-  return vscode.workspace.getWorkspaceFolder(doc.uri)?.uri.fsPath || docDir;
+  return limit || docDir;
 }
 
 /**
@@ -456,13 +465,18 @@ function openPreview(context) {
         return;
       }
 
+      if (m.type === 'clipboard') {   // 保留した入力を入れられなかったとき、文字を失わないよう渡す
+        Promise.resolve().then(() => vscode.env && vscode.env.clipboard ? vscode.env.clipboard.writeText(String(m.text || '')) : null).catch(() => {});
+        return;
+      }
+
       if (m.type === 'tune') {
         const ed = panelEditor();
         if (!ed) { vscode.window.showInformationMessage('プレビュー対象の Markdown エディタを表示してから操作してください。'); return; }
-        if (m.op === 'inc') applyTune(ed, { dPx: +1 });
-        else if (m.op === 'dec') applyTune(ed, { dPx: -1 });
-        else if (m.op === 'color') applyTune(ed, { color: m.value });
-        else if (m.op === 'clear') applyTune(ed, { clear: true });
+        if (m.op === 'inc') applyTune(ed, { dPx: +1, fromPreview: true });
+        else if (m.op === 'dec') applyTune(ed, { dPx: -1, fromPreview: true });
+        else if (m.op === 'color') applyTune(ed, { color: m.value, fromPreview: true });
+        else if (m.op === 'clear') applyTune(ed, { clear: true, fromPreview: true });
         return;
       }
 
@@ -539,7 +553,7 @@ const PREVIEW_EDIT_TYPES = new Set(['editCommit', 'bulletDelete', 'tuneSelect', 
 /** 書き戻せなかった理由（lib/source-map.cjs の reason）→ プレビューに出す文言 */
 const REASON_TEXT = {
   stale: '原稿が先に変わりました。もう一度お試しください',
-  newline: '改行は入れられません（1行で入力してください）',
+  newline: '改行は入れられません（行の中で折り返すなら Alt+Enter＝<br>。段落は原稿で分けてください）',
   autolink: 'リンクの中です。原稿の該当行で直してください',
   'code-highlight': 'コードの中です。原稿の該当行で直してください',
   'code-delimiter': 'コードの区切り記号に触れる編集です。原稿の該当行で直してください',
@@ -552,8 +566,8 @@ const REASON_TEXT = {
 };
 const REASON_DEFAULT = 'この文字は原稿の位置を確定できませんでした。原稿の該当行で直してください（原稿は変えていません）';
 
-function postEditResult(ok, message) {
-  if (panel) panel.webview.postMessage({ type: 'editResult', ok, message });
+function postEditResult(ok, message, extra) {
+  if (panel) panel.webview.postMessage(Object.assign({ type: 'editResult', ok, message }, extra || {}));
 }
 
 /** プレビュー由来の移動に折りたたみを追従させる（今のスライドを開き、前のスライドを畳む） */
@@ -680,7 +694,11 @@ async function handlePreviewEdit(m) {
   if (m.type === 'undo' || m.type === 'redo') return handleUndoRedo(doc, m.type);
   // プレビューが送る index や行番号は「表示している描画」のもの。原稿が先に変わっていたら別のスライドに当たるので、全部ここで断る
   const indexOnly = m.type === 'slideOp' || m.type === 'libraryInsert' || m.type === 'corpusInsert' || m.type === 'layoutApply';
-  if (indexOnly ? staleForSlideOp(m, doc) : staleVersion(m, doc)) { postEditResult(false, REASON_TEXT.stale); return; }
+  if (indexOnly ? staleForSlideOp(m, doc) : staleVersion(m, doc)) {
+    // 文字の編集（editCommit）は捨てない：プレビュー側が保留し、描き直しのあとで同じ文字のノードへ入れ直す（retry）。それ以外は断る
+    postEditResult(false, REASON_TEXT.stale, m.type === 'editCommit' ? { retry: true } : undefined);
+    return;
+  }
   if (m.type === 'slideOp') return runSlideOp(doc, m.op, m.index);
   if (m.type === 'libraryInsert') {
     if (!library) { postEditResult(false, 'ライブラリの部品を読み込めませんでした'); return; }
@@ -725,7 +743,11 @@ async function handleEditCommit(doc, m) {
       return;
     }
     for (const e of (plan.edits && plan.edits.length ? plan.edits : (plan.edit ? [plan.edit] : []))) edits.push(e);
-    if (!expect && Number.isInteger(c.k) && String(c.now || '').trim()) expect = { index: m.index, k: c.k, text: c.now };
+    if (!expect && Number.isInteger(c.k) && String(c.now || '').trim()) {
+      // Alt+Enter の <br> が入ると、描き直した後は <br> の前までがノード k になる。検算はその前半と比べる（前半が空なら検算しない）
+      const head = String(c.now).split(sourceMap.BR_MARK || '\uE000')[0];
+      if (head.trim()) expect = { index: m.index, k: c.k, text: head };
+    }
   }
   // ノードを空にする変更が混じると、描き直した後のノード番号が前へずれる。比べる相手が決まらないので検算しない
   if ((m.changes || []).some(c => c && Number.isInteger(c.k) && !String(c.now || '').trim())) expect = null;
@@ -812,13 +834,20 @@ async function handleBulletDelete(doc, m) {
 /** プレビューで選択した文字を、原稿側でも選択する。以後は既存のサイズ/色（tune）の経路がそのまま使える */
 async function handleTuneSelect(doc, m) {
   if (!sourceMap) return;
+  // 写せない選択のときは、原稿側に残っている古い選択（単クリックの行全体など）へ色が付かないよう、選択を畳んでおく
+  const giveUp = (message) => {
+    const ed0 = panelEditor();
+    if (ed0) { ed0.selection = new vscode.Selection(ed0.selection.start, ed0.selection.start); postTuneState(ed0); }
+    postEditResult(false, message);
+  };
+  if (m.unsupported) { giveUp(m.message || 'この選択には色やサイズを付けられません'); return; }
   const text = doc.getText();
   const starts = slideStartLines(text);
   if (starts[m.index] === undefined) return;
   const r = sourceMap.planRangeSelect(text, lineRangeForSlide(starts, m.index, doc.lineCount),
-    Array.isArray(m.nodes) ? m.nodes : [], { k: m.k, start: m.start, end: m.end });
+    Array.isArray(m.nodes) ? m.nodes : [], { k: m.k, start: m.start, k2: m.k2, end: m.end });
   if (!r || !r.ok) {
-    postEditResult(false, 'この選択は原稿の位置を確定できません。原稿側で文字を選んでからサイズ/色を変えてください');
+    giveUp('この選択は原稿の位置を確定できません。原稿側で文字を選んでからサイズ/色を変えてください');
     return;
   }
   const ed = await ensureEditor(doc);
@@ -1066,6 +1095,39 @@ function trimToContent(lineText, s, e) {
   return [s, e];
 }
 
+const EMPH_TAG = { '**': 'b', '__': 'b', '*': 'i', '_': 'i', '~~': 's' };
+/** 行の中の強調記号（* _ ~ の並び）を、同じ並びどうしで内側から対にする（CommonMark の近似） */
+function emphasisPairs(lineText) {
+  const runs = []; const re = /[*_~]+/g; let m;
+  while ((m = re.exec(lineText))) runs.push({ s: m.index, e: m.index + m[0].length, run: m[0] });
+  const stack = [], pairs = [];
+  for (const r of runs) {
+    const top = stack[stack.length - 1];
+    if (top && top.run === r.run) { stack.pop(); pairs.push({ open: top, close: r, run: r.run }); } else stack.push(r);
+  }
+  return pairs;
+}
+/**
+ * 強調の記号の内側に span を入れると、記号の隣が < > になって強調が外れる（CommonMark の flanking。「前**太字**後」のように
+ * 日本語が隣だと必ず外れる＝実測。「- **見出し**：」のように記号の外が空白・句読点なら外れない）。
+ * 記号ちょうどの内側を選んだときは記号ごと包む（<span>**太字**</span>）。強調の途中（記号に片側だけ接する）は、
+ * その対の記号を <b>/<i>/<s> に替えてから選んだ所だけ包む。戻り値 { line, s, e }（line は記号を替えたときだけ変わる）
+ */
+function fitEmphasis(lineText, s, e) {
+  for (const p of emphasisPairs(lineText)) {
+    const atOpen = p.open.e === s, atClose = p.close.s === e;
+    if (atOpen && atClose) return { line: lineText, s: p.open.s, e: p.close.e };
+    if ((atOpen && e <= p.close.s) || (atClose && s >= p.open.e)) {
+      const tag = EMPH_TAG[p.run];
+      if (!tag) break;   // *** など混ざった並びは触らない（従来どおり包む）
+      const line = lineText.slice(0, p.open.s) + '<' + tag + '>' + lineText.slice(p.open.e, p.close.s) + '</' + tag + '>' + lineText.slice(p.close.e);
+      const d = tag.length + 2 - p.run.length;
+      return { line, s: s + d, e: e + d };
+    }
+  }
+  return { line: lineText, s, e };
+}
+
 /** 選択範囲に font-size/color を適用（連打が競合しないよう直列化） */
 function applyTune(editor, opts) {
   tuneChain = tuneChain.then(() => applyTuneInner(editor, opts)).catch(() => {});
@@ -1083,6 +1145,8 @@ async function applyTuneInner(editor, opts) {
   const lineText = editor.document.lineAt(lineNo).text;
   let sCol = sel.start.character, eCol = sel.end.character;
   if (sCol === eCol) { // 空選択 → カーソル位置の単語に広げる
+    // プレビューのツールバーから：選択が無い（写せなかった・畳んだ）ときに、カーソルの単語や行末へ空の span を書かない
+    if (opts.fromPreview) { postEditResult(false, 'プレビューで文字を選んでから色やサイズを変えてください'); return; }
     const wr = editor.document.getWordRangeAtPosition(sel.start);
     if (wr) { sCol = wr.start.character; eCol = wr.end.character; }
     else { vscode.window.showInformationMessage('変更したい文字を選択してください。'); return; }
@@ -1113,15 +1177,22 @@ async function applyTuneInner(editor, opts) {
     if (opts.clear) { vscode.window.showInformationMessage('この箇所にはサイズ/色は設定されていません。'); return; }
     [sCol, eCol] = trimToContent(lineText, sCol, eCol);
     if (sCol >= eCol) { vscode.window.showInformationMessage('装飾できる文字がありません。'); return; }
-    const inner = lineText.slice(sCol, eCol);
+    const fit = fitEmphasis(lineText, sCol, eCol);
+    sCol = fit.s; eCol = fit.e;
+    const inner = fit.line.slice(sCol, eCol);
     let fontPx = null, color = null;
     if (opts.dPx != null) fontPx = clampPx((lastClickedPx != null ? lastClickedPx : DEFAULT_PX) + opts.dPx);
     if (opts.color !== undefined && opts.color) color = opts.color;
     const style = buildTuneStyle({ fontPx, color });
     if (!style) return;
     const open = '<span class="' + TUNE_CLASS + '" style="' + style + '">';
-    newText = open + inner + '</span>';
-    editStart = sCol; editEnd = eCol;
+    if (fit.line !== lineText) {   // 強調の記号を <b> などに替えた：行ごと書き換える
+      editStart = 0; editEnd = lineText.length;
+      newText = fit.line.slice(0, sCol) + open + inner + '</span>' + fit.line.slice(eCol);
+    } else {
+      newText = open + inner + '</span>';
+      editStart = sCol; editEnd = eCol;
+    }
     reInner = [sCol + open.length, sCol + open.length + inner.length];
   }
 
@@ -1212,39 +1283,43 @@ async function present() {
   await doc.save(); // marp-cli はディスクから読むので未保存分を反映
 
   const mdPath = doc.uri.fsPath;
-  const deckDir = path.dirname(mdPath);
   const repoRoot = repoRootFor(doc);
-  // 画像の相対参照(./src, ../assets)がそのまま解決できるよう、出力は md と同じディレクトリに置く
-  const outHtml = path.join(deckDir, '.marp-present.html');
-
-  // 統合ターミナルで実行する。child_process と違い実シェル環境(PATH完備)を継ぎ、
-  // 出力も見えるので無音ハングしない。
-  // 描画→ブラウザ起動は tools/marp-present/present.mjs に任せる（theme/*.css を全部渡し、
-  // Chrome の場所を OS ごとに自動検出。mac の `open` / Windows の `start` の違いも吸収）。
-  // present.mjs が無い（このリポジトリ外で使っている）ときだけ従来の npx + open/start に戻る。
-  const presentScript = path.join(repoRoot, 'tools', 'marp-present', 'present.mjs');
-  let cmd;
-  if (fs.existsSync(presentScript)) {
-    cmd = `node ${JSON.stringify(presentScript)} ${JSON.stringify(mdPath)} --page ${page}`;
-  } else {
-    const themeArgs = themeFiles(repoRoot)
-      .map(p => `--theme-set ${JSON.stringify(p)}`)
-      .join(' ');
-    const openUrl = `file://${outHtml}#${page}`;
-    const opener = process.platform === 'win32' ? `start "" ${JSON.stringify(openUrl)}`
-                 : process.platform === 'darwin' ? `open ${JSON.stringify(openUrl)}`
-                 : `xdg-open ${JSON.stringify(openUrl)}`;
-    const joiner = process.platform === 'win32' ? ';' : '&&';
-    cmd = `npx --yes @marp-team/marp-cli@latest ${JSON.stringify(mdPath)} `
-        + `${themeArgs} --html --allow-local-files -o ${JSON.stringify(outHtml)} `
-        + `${joiner} ${opener}`;
+  if (!fs.existsSync(PRESENT_SCRIPT)) {
+    vscode.window.showErrorMessage('tools/marp-present/present.mjs が見つかりません（marp-GUI の tools/ ごと置いてください）。');
+    return;
   }
-
-  if (!presentTerminal || presentTerminal.exitStatus !== undefined) {
-    presentTerminal = vscode.window.createTerminal({ name: 'Marp Present', cwd: repoRoot });
+  // 描画→ブラウザ起動は tools/marp-present/present.mjs に任せる（theme/*.css を全部渡し、Chrome の場所を OS ごとに自動検出）。
+  // シェルを通さず、引数の配列で渡す：原稿のパスに $( ) や ` や % があっても展開されない（docs/security-review.md SEC-02）。
+  // 拡張ホストの execPath は Electron。ELECTRON_RUN_AS_NODE=1 で node として動く（素の node では無視される）。
+  // node.exe を直接起動するので、Windows の .cmd（npx など）を経由しない
+  const args = [PRESENT_SCRIPT, mdPath, '--page', String(page)];
+  if (!presentOut) presentOut = vscode.window.createOutputChannel('Marp Present');
+  if (presentOut.clear) presentOut.clear();
+  presentOut.appendLine('$ node ' + args.map(a => JSON.stringify(a)).join(' '));
+  let child;
+  try {
+    child = cp.spawn(process.execPath, args, {
+      cwd: repoRoot, stdio: ['ignore', 'pipe', 'pipe'], windowsHide: true,
+      env: Object.assign({}, process.env, { ELECTRON_RUN_AS_NODE: '1' }),
+    });
+  } catch (e) {
+    presentOut.appendLine('[起動できません] ' + (e && e.message || e));
+    vscode.window.showErrorMessage('Marp: プレゼンを起動できませんでした（出力「Marp Present」を見てください）。');
+    return;
   }
-  presentTerminal.show(true);
-  presentTerminal.sendText(cmd);
+  const onData = (b) => presentOut.append(String(b));
+  if (child.stdout) child.stdout.on('data', onData);
+  if (child.stderr) child.stderr.on('data', onData);
+  child.on('error', (e) => {
+    presentOut.appendLine('[起動できません] ' + (e && e.message || e));
+    if (presentOut.show) presentOut.show(true);
+    vscode.window.showErrorMessage('Marp: プレゼンを起動できませんでした（出力「Marp Present」を見てください）。');
+  });
+  child.on('close', (code) => {
+    if (code === 0) return;
+    if (presentOut.show) presentOut.show(true);
+    vscode.window.showErrorMessage('Marp: プレゼンの描画に失敗しました（exit=' + code + '。出力「Marp Present」を見てください）。');
+  });
 }
 
 function gotoSlide() {

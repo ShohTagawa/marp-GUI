@@ -308,6 +308,44 @@ T('4. Shift+Enter：確定＋下に箇条書き＋編集開始 → 打鍵 → En
   } finally { await S.close(); }
 });
 
+// ---------- 4b. 行の中の改行 ----------
+T('4b. Alt+Enter：行の中の改行 → 原稿には <br>、表示は 2 行。1 行だけ変わり、undo 1 回で戻る', async () => {
+  const S = await session(LEC);
+  try {
+    const t0 = S.doc.getText();
+    const si = slideOf(t0, '- 「原稿＋プレビュー」のしくみを知る');
+    const altEnter = async () => { await S.page.keyboard.down('Alt'); await S.page.keyboard.press('Enter'); await S.page.keyboard.up('Alt'); };
+    const liHtml = () => S.page.evaluate((i) => {
+      const sec = document.querySelectorAll('div.marpit > svg[data-marpit-svg]')[i].querySelector('section');
+      const li = Array.from(sec.querySelectorAll('li')).find(l => l.textContent.includes('のしくみを知る'));
+      return li ? li.innerHTML : null;
+    }, si);
+    const brCount = async () => ((await liHtml()) || '').split('<br').length - 1;
+    assert.equal(await brCount(), 0);
+    // 末尾で Alt+Enter → 打鍵 → Enter：<br> の後ろに文字が入る（Chrome は末尾の br の前へキャレットを戻すので、置き場の br を足す。
+    // 文字を打つと Chrome がその置き場を捨てる＝実測なので、数ではなく「打った文字が br の後ろにある」ことを見る）
+    await expectOneLineEdit(S, si, 'のしくみを知る', '', {
+      beforeKey: async () => {
+        await altEnter();
+        assert.equal(await brCount(), 2, 'Alt+Enter の直後：<br> と置き場の br: ' + await liHtml());
+        await S.page.keyboard.type('追');
+        const html = await liHtml();
+        assert.ok(/のしくみを知る<br data-ss-br="">追/.test(html), '打った文字は <br> の後ろ: ' + html);
+      },
+      expectLine: (l) => l.replace('のしくみを知る', 'のしくみを知る<br>追'), shownSub: '追',
+    });
+    assert.equal(await brCount(), 0, 'undo 後は br が無い');
+    // 行の途中で Alt+Enter → Enter：文字を打たなくても <br> が入る
+    await expectOneLineEdit(S, si, 'プレビュー」', '', { beforeKey: altEnter, expectLine: (l) => l.replace('プレビュー」の', 'プレビュー」<br>の') });
+    // 末尾で Alt+Enter だけ → Enter：後ろに何も無い <br> は捨てる（原稿は変わらない）
+    const r = await editText(S, si, 'のしくみを知る', '', { beforeKey: altEnter });
+    assert.equal(r.after, t0, '末尾だけの <br> は書かない');
+    assert.equal(S.sinceE(r.mk, 'editCommit').length, 0, '変化が無いので送らない');
+    assert.deepEqual(failed(S, r.mk), []);
+    noErrors(S, '4b');
+  } finally { await S.close(); }
+});
+
 // ---------- 5. 書けない編集 ----------
 T('5. 書けない編集：自動リンク・インラインコード・コードブロック・改行の混入', async () => {
   const S = await session(LEC, { synth: true });
@@ -353,21 +391,35 @@ T('5b. 改行入りの貼り付けは1行にして入る（paste）', async () =
 });
 
 // ---------- 6. version 不一致 ----------
-T('6. 編集中に原稿が先に変わった（version 不一致）→ 書かれない', async () => {
+T('6. 編集中に原稿が先に変わった（version 不一致）→ 捨てずに保留し、描き直しのあとで入れる。同じ行が変わっていたら時間切れでクリップボードへ', async () => {
   const S = await session(LEC);
   try {
     const t = S.doc.getText();
     const si = slideOf(t, '- 実際にテストを行ってみる');
+    const ln = lineOf(t, '- 実際にテストを行ってみる');
+    // 別の行が先に変わった：保留 → 描き直しのあとで入る（原稿側の打鍵も残る）
     let typed;
-    const r = await editText(S, si, '実際にテストを行ってみる', '！', {
+    let r = await editText(S, si, '実際にテストを行ってみる', '！', {
       beforeKey: async () => { typed = S.doc.getText().replace('今日のテーマは', '本日のテーマは'); assert.notEqual(typed, t); S.typeInDoc(typed); },
     });
-    assert.equal(r.after, typed, 'プレビューの編集は書かれない（原稿側の打鍵だけが残る）');
-    const bad = failed(S, r.mk);
-    assert.equal(bad.length, 1);
-    assert.match(bad[0].message, /原稿が先に変わりました/);
     await H.sleep(900); await S.settle(Q);
-    assert.ok(!(await H.slideText(S.page, si)).includes('行ってみる！'), '表示に打った文字が残らない');
+    assert.equal(S.doc.lineAt(ln).text, '- 実際にテストを行ってみる！', '保留した入力が入る');
+    assert.ok(S.doc.getText().includes('本日のテーマは'), '原稿側の打鍵も残る');
+    assert.ok((await H.slideText(S.page, si)).includes('行ってみる！'), '表示にも入る');
+    assert.deepEqual(failed(S, r.mk).filter(m => !m.retry), [], 'retry 以外の ok:false は来ない');
+    // 同じ行が別の文になった：入れられないので保留 → 時間切れで文字をクリップボードへ渡して知らせる
+    await S.page.evaluate(() => { window.__ssHoldMs = 1500; });
+    const mk = S.mark();
+    r = await editText(S, si, '行ってみる！', '？', {
+      beforeKey: async () => { S.typeInDoc(S.doc.getText().replace('- 実際にテストを行ってみる！', '- 実際にテストを行う')); },
+    });
+    await H.sleep(2500); await S.settle(Q);
+    assert.equal(S.doc.lineAt(ln).text, '- 実際にテストを行う', '別の文になった行には書かない');
+    assert.ok(!S.doc.getText().includes('行ってみる！？'));
+    const clip = S.sinceE(mk, 'clipboard');
+    assert.equal(clip.length, 1, '文字はクリップボードへ: ' + JSON.stringify(S.sinceE(mk).map(m => m.type)));
+    assert.ok(clip[0].text.includes('？'), clip[0].text);
+    assert.match((await H.pageInfo(S.page)).toast, /クリップボード/);
     noErrors(S, '6');
   } finally { await S.close(); }
 });
@@ -663,6 +715,48 @@ T('10. プレビューで文字を選択 → 原稿の選択が同じ文字 → 
     }, si);
     assert.equal(color, 'rgb(200, 97, 28)', 'LEC の --accent（#C8611C）で描かれる');
     noErrors(S, '10');
+  } finally { await S.close(); }
+});
+
+T('10b. 強調の中・またぐ選択に色：記号ごと包む／途中は <b> に替えて包む／同じ親なら範囲ごと包む／境目をまたぐ選択は断る', async () => {
+  const S = await session(LEC, { synth: true });
+  try {
+    const t0 = S.doc.getText();
+    const si = slideOf(t0, '## E2E 合成スライド');
+    const ln = lineOf(t0, '- 前半**太字の語**後半の文');
+    const drag = async (subA, subB) => {
+      const a = await H.textPoint(S.page, si, subA, { where: 'start' });
+      const b = await H.textPoint(S.page, si, subB || subA, { where: 'end' });
+      await S.page.mouse.move(a.x, a.y); await S.page.mouse.down(); await S.page.mouse.move(b.x, b.y, { steps: 6 }); await S.page.mouse.up();
+      await S.settle(Q);
+    };
+    const red = async () => { await S.page.evaluate(() => document.querySelector('.ss-sw[data-c="var(--accent)"]').click()); await S.settle(Q); };
+    const literal = async () => /\*\*/.test(await H.slideText(S.page, si));
+    const SP = '<span class="ss-tune" style="color:var(--accent) !important">';
+    // A. 太字ちょうどを選ぶ → 記号ごと包む（**<span> だと、日本語が隣の強調は外れて ** が生で出る）
+    await drag('太字の語'); await red();
+    assert.equal(S.doc.lineAt(ln).text, `- 前半${SP}**太字の語**</span>後半の文`);
+    assert.equal(await literal(), false, '** が生で見えない');
+    await undoFromPreview(S); assert.equal(S.doc.getText(), t0);
+    // B. 太字の途中 → 記号を <b> に替えて、選んだ所だけ包む
+    await drag('字の語'); await red();
+    assert.equal(S.doc.lineAt(ln).text, `- 前半<b>太${SP}字の語</span></b>後半の文`);
+    assert.equal(await literal(), false);
+    await undoFromPreview(S); assert.equal(S.doc.getText(), t0);
+    // C. 太字をまたいで、同じ親（li）の中（半 → 後半）→ 原稿の範囲ごと包む
+    let mk = S.mark(); await drag('半', '後半');
+    assert.equal(S.sinceE(mk, 'tuneSelect').length, 1, 'またぐ選択も tuneSelect が届く');
+    await red();
+    assert.equal(S.doc.lineAt(ln).text, `- 前${SP}半**太字の語**後半</span>の文`);
+    assert.equal(await literal(), false);
+    await undoFromPreview(S); assert.equal(S.doc.getText(), t0);
+    // D. 境目をまたぐ（前半 → 太字の語）→ 断って知らせる。そのあと色を押しても原稿は変わらない（空の span や行全体に付かない）
+    mk = S.mark(); await drag('前半', '太字の語');
+    const bad = failed(S, mk);
+    assert.ok(bad.length && /境目/.test(bad[0].message), JSON.stringify(bad));
+    await red();
+    assert.equal(S.doc.getText(), t0, '断った後に色を押しても書かない');
+    noErrors(S, '10b');
   } finally { await S.close(); }
 });
 

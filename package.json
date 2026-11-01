@@ -22,7 +22,7 @@
     "lint": "node tools/tsutawaru-lint.mjs",
     "library": "node tools/marp-library.mjs index && node tools/marp-library.mjs thumbs && node tools/marp-library.mjs corpus",
     "corpus": "node tools/marp-library.mjs corpus",
-    "test": "node --test --test-concurrency=1 \"tools/marp-scroll-sync/test/*.test.cjs\"",
+    "test": "node tools/run-tests.mjs",
     "bench": "node tools/marp-scroll-sync/bench/latency.bench.cjs",
     "screenshots": "node tools/marp-scroll-sync/bench/screenshots.cjs",
     "demo:ranking": "node tools/demo/revision-ranking-demo.mjs"

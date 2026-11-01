@@ -12,6 +12,8 @@
 const vscode = require('vscode');
 const fs = require('fs');
 const path = require('path');
+/** 索引を作る CLI。拡張のフォルダ（tools/marp-scroll-sync）の隣の tools/marp-library.mjs に固定する */
+const BUNDLED_CLI = path.resolve(__dirname, '..', '..', 'marp-library.mjs');
 const core = require('./corpus-core.cjs');
 const lib = require('./library-core.cjs');
 
@@ -88,8 +90,11 @@ function register(context, api) {
   }
   function spawnBuild(repoRoot) {
     if (child) return false;                                  // 多重起動しない
-    const cli = path.join(repoRoot, 'tools', 'marp-library.mjs');
-    if (!fs.existsSync(cli)) return false;
+    // 動かすのは、この拡張と同じリポジトリに同梱の tools/marp-library.mjs（BUNDLED_CLI）だけ。原稿のフォルダ側の
+    // tools/marp-library.mjs は「marp-GUI の作業フォルダか」の目印に見るだけで、実行しない（受け取ったデックのフォルダに
+    // 同梱のスクリプトを動かさない。docs/security-review.md SEC-01）。リポジトリは --root でデータとして渡す
+    const cli = BUNDLED_CLI;
+    if (!fs.existsSync(path.join(repoRoot, 'tools', 'marp-library.mjs')) || !fs.existsSync(cli)) return false;
     const spawn = typeof api.spawn === 'function' ? api.spawn : require('child_process').spawn;
     try {
       // 拡張ホストの execPath は Electron。ELECTRON_RUN_AS_NODE=1 で node として動く（素の node では無視される）

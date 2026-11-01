@@ -7,7 +7,7 @@
 //   npm run screenshots -- --out <dir>   # write <dir>/{en,ja}/ instead
 //
 // Uses the same harness as test/e2e.test.cjs: the real extension.js on the VS Code stub and the
-// real Webview HTML in a local headless Chrome (puppeteer-core), at 800 CSS px and device scale 2.
+// real Webview HTML in a local headless Chrome (puppeteer-core), at 800 x 560 CSS px and device scale 2.
 // The decks are the sample decks slides/sample-hydrogen (en) and slides/sample-hydrogen-ja (ja),
 // copied to a temporary repository first, so nothing in slides/ is written. The preview's buttons
 // and messages are in Japanese in both sets (the Webview is not localised).
@@ -26,7 +26,7 @@ const path = require('path');
 const { pathToFileURL } = require('url');
 const H = require('../test/helpers/e2e-harness.cjs');
 
-const W = 800, HGT = 500, SCALE = 2;
+const W = 800, HGT = 560, SCALE = 2;   // tall enough for slide buttons + slide + size/colour bar
 const DECKS = { en: 'sample-hydrogen', ja: 'sample-hydrogen-ja' };
 
 function parseArgs(argv) {
@@ -61,7 +61,12 @@ async function selectSlide(S, i) {
   await S.waitFor(() => S.page.evaluate((i) => window.ssPreview.current() === i, i), 'slide selected', 3000);
   await S.settle(400);
 }
-const shot = (page, file, clip) => page.screenshot({ path: file, type: 'png', captureBeyondViewport: false, clip: clip || { x: 0, y: 0, width: W, height: HGT } });
+/** Screenshot of the viewport (clip is given in viewport coordinates; puppeteer wants document coordinates) */
+async function shot(page, file, clip) {
+  const c = clip || { x: 0, y: 0, width: W, height: HGT };
+  const off = await page.evaluate(() => ({ x: window.scrollX, y: window.scrollY }));
+  await page.screenshot({ path: file, type: 'png', captureBeyondViewport: false, clip: { x: c.x + off.x, y: c.y + off.y, width: c.width, height: c.height } });
+}
 
 async function deckShots(browser, repo, deck, dir) {
   const S = await H.openSession({ browser, mdPath: repo.md[deck], width: W, height: HGT });
@@ -80,14 +85,6 @@ async function deckShots(browser, repo, deck, dir) {
 
     // 02 direct edit: double-click the first body paragraph of slide 2
     await selectSlide(S, 1);
-    const p = await S.page.evaluate(() => {
-      const sec = window.ssPreview.sectionOf(window.ssPreview.slides()[1]);
-      const el = sec.querySelector('li p, li, p');
-      el.scrollIntoView({ block: 'center', behavior: 'instant' });
-      const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT); const n = w.nextNode();
-      const rg = document.createRange(); rg.setStart(n, 0); rg.setEnd(n, Math.min(4, n.nodeValue.length));
-      const b = rg.getBoundingClientRect(); return { x: b.left + b.width / 2, y: b.top + b.height / 2 };
-    });
     await scrollSlide(S.page, 1, 40);
     const q = await S.page.evaluate(() => {
       const sec = window.ssPreview.sectionOf(window.ssPreview.slides()[1]);
@@ -96,12 +93,11 @@ async function deckShots(browser, repo, deck, dir) {
       const rg = document.createRange(); rg.setStart(n, 0); rg.setEnd(n, Math.min(4, n.nodeValue.length));
       const b = rg.getBoundingClientRect(); return { x: b.left + b.width / 2, y: b.top + b.height / 2 };
     });
-    void p;
     await S.page.mouse.click(q.x, q.y, { clickCount: 2, delay: 30 });
     await S.waitFor(() => S.page.evaluate(() => !!document.querySelector('.ss-editing')), 'edit starts', 3000);
     await S.page.keyboard.press('End');
     await frames(S.page, 3);
-    await shot(S.page, path.join(dir, '02-direct-edit.png'), { x: 0, y: 0, width: W, height: 433 });
+    await shot(S.page, path.join(dir, '02-direct-edit.png'), { x: 0, y: 0, width: W, height: 480 });
     await S.page.keyboard.press('Escape');
     await S.settle(400);
 
@@ -161,9 +157,12 @@ async function deckShots(browser, repo, deck, dir) {
     await S.page.keyboard.up('Alt');
     const tag = await S.page.evaluate(() => { const x = window.ssBoxEdit.selected(); return x && x.target ? x.target.tag : null; });
     if (tag !== 'svg') throw new Error('06-box-edit: the figure could not be selected');
+    // the first click on a shape inside the figure shows a hint toast; let it fade before the shot
+    await S.waitFor(() => S.page.evaluate(() => !document.querySelector('.ss-toast.ss-show')), 'toast hidden', 6000);
+    await new Promise((r) => setTimeout(r, 800));   // the fade-out transition
     await S.page.mouse.move(W - 2, HGT - 2);
     await frames(S.page, 4);
-    await shot(S.page, path.join(dir, '06-box-edit.png'), { x: 0, y: 0, width: W, height: 463 });
+    await shot(S.page, path.join(dir, '06-box-edit.png'), { x: 0, y: 0, width: W, height: 500 });
     await S.page.keyboard.press('Escape');
     if (S.consoleErrors.length || S.extErrors.length) throw new Error('errors while taking screenshots: ' + JSON.stringify(S.consoleErrors.concat(S.extErrors)).slice(0, 400));
   } finally { await S.close(); }
@@ -184,12 +183,9 @@ async function slidesGrid(browser, repo, deck, file) {
   fs.writeFileSync(tmp, html);
   const page = await browser.newPage();
   try {
-    await page.setViewport({ width: 800, height: 312, deviceScaleFactor: SCALE });
+    await page.setViewport({ width: 1600, height: 625, deviceScaleFactor: 1 });
     await page.goto(pathToFileURL(tmp).href, { waitUntil: 'load' });
     await page.evaluate(() => document.fonts.ready);
-    await frames(page, 3);
-    // the grid is 1600 x 625 CSS px at scale 1; render it at 1600 px wide
-    await page.setViewport({ width: 1600, height: 625, deviceScaleFactor: 1 });
     await frames(page, 3);
     await page.screenshot({ path: file, type: 'png', clip: { x: 0, y: 0, width: 1600, height: 625 } });
   } finally { await page.close(); fs.rmSync(tmp, { force: true }); }

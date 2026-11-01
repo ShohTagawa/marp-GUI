@@ -9,6 +9,8 @@
 const vscode = require('vscode');
 const fs = require('fs');
 const path = require('path');
+/** 台帳とサムネイルを作る CLI。拡張のフォルダ（tools/marp-scroll-sync）の隣の tools/marp-library.mjs に固定する */
+const BUNDLED_CLI = path.resolve(__dirname, '..', '..', 'marp-library.mjs');
 const core = require('./library-core.cjs');
 
 const SECTION = 'marpScrollSync';
@@ -240,15 +242,38 @@ function register(context, api) {
     await insert(editor, pick.id, after, { keepColors });
   }
 
+  let libOut = null;   // 出力チャンネル「Marp Library」
   function cmdRebuildLibrary() {
     const doc = vscode.window.activeTextEditor && vscode.window.activeTextEditor.document;
     const wf = vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders[0];
     const repoRoot = doc && doc.uri.scheme === 'file' ? repoRootFor(doc) : (wf ? wf.uri.fsPath : null);
-    if (!repoRoot || !fs.existsSync(path.join(repoRoot, 'tools', 'marp-library.mjs'))) { vscode.window.showErrorMessage('tools/marp-library.mjs が見つかりません。'); return; }
-    const term = vscode.window.createTerminal({ name: 'Marp Library', cwd: repoRoot });
-    term.show(true);
-    // `;` 区切りは zsh / bash / PowerShell のどれでも通る（thumbs の最後に台帳も更新される）
-    term.sendText('node tools/marp-library.mjs index; node tools/marp-library.mjs thumbs');
+    // 動かすのは、この拡張と同じリポジトリに同梱の tools/marp-library.mjs（BUNDLED_CLI）だけ。原稿の側の tools/ は
+    // 「marp-GUI の作業フォルダか」の目印に見るだけ。シェルを通さず引数の配列で起動し、リポジトリは --root で渡す
+    //（docs/security-review.md SEC-01）。index → thumbs の順に 1 つずつ
+    if (!repoRoot || !fs.existsSync(path.join(repoRoot, 'tools', 'marp-library.mjs')) || !fs.existsSync(BUNDLED_CLI)) { vscode.window.showErrorMessage('tools/marp-library.mjs が見つかりません。'); return; }
+    const spawn = typeof api.spawn === 'function' ? api.spawn : require('child_process').spawn;
+    if (!libOut) libOut = vscode.window.createOutputChannel('Marp Library');
+    if (libOut.clear) libOut.clear();
+    if (libOut.show) libOut.show(true);
+    const steps = ['index', 'thumbs'];
+    const fail = (msg) => { libOut.appendLine(msg); vscode.window.showErrorMessage('ライブラリの作り直しに失敗しました（出力「Marp Library」を見てください）。'); };
+    const run = (i) => {
+      if (i >= steps.length) { vscode.window.showInformationMessage('ライブラリの台帳とサムネイルを作り直しました。'); return; }
+      const args = [BUNDLED_CLI, steps[i], '--root', repoRoot];
+      libOut.appendLine('$ node ' + args.map(a => JSON.stringify(a)).join(' '));
+      let ch;
+      try {
+        // 拡張ホストの execPath は Electron。ELECTRON_RUN_AS_NODE=1 で node として動く（素の node では無視される）
+        ch = spawn(process.execPath, args, { cwd: repoRoot, stdio: ['ignore', 'pipe', 'pipe'], windowsHide: true, env: Object.assign({}, process.env, { ELECTRON_RUN_AS_NODE: '1' }) });
+      } catch (e) { fail('[起動できません] ' + (e && e.message || e)); return; }
+      const onData = (b) => libOut.append(String(b));
+      if (ch.stdout) ch.stdout.on('data', onData);
+      if (ch.stderr) ch.stderr.on('data', onData);
+      let done = false;
+      ch.on('error', (e) => { if (done) return; done = true; fail('[起動できません] ' + (e && e.message || e)); });
+      ch.on('close', (code) => { if (done) return; done = true; if (code === 0) run(i + 1); else fail('[exit=' + code + ']'); });
+    };
+    run(0);
   }
 
   // ---- marksFor（プレビューの ★ 表示用） ---------------------------------------

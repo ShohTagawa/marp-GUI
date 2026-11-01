@@ -64,7 +64,8 @@ slides/_library/shelf.json  棚（呼び名と並び順。git で追跡する）
   - ノード k が特定でき、原稿のその位置の文字列が old（または実体参照化した old）と一致するときだけ編集を返す。前後の空白は 1 バイトも変えない。
   - `encoded` なら now も `& < >` を実体参照にする。Markdown 由来（near.kind==='md' かつインライン HTML の外）のときは、編集で **増えた** `* _ \` < [` だけをバックスラッシュでエスケープする。
   - 失敗時は `{ ok:false, reason, line }`（line は案内先の行。分かる範囲で）。
-- `planRangeSelect(...)`：ノード k の [startOffset, endOffset) を原稿の範囲に写す（プレビューで選択した文字にサイズ/色を当てるため）。実体参照を含むノードでは ok:false。
+- `planRangeSelect(...)`：ノード k の [startOffset, endOffset) を原稿の範囲に写す（プレビューで選択した文字にサイズ/色を当てるため）。終わりが別のノードなら `{ k, start, k2, end }`（同じ親の中の隣のノードまで。両端を別々に写し、間は原稿をそのまま含める）。実体参照を含むノードでは ok:false。
+- サイズ/色の `<span>` を入れる側（`extension.js` の `fitEmphasis`）：強調記号の内側に span を入れると記号の隣が `<` `>` になって強調が外れる（CommonMark の flanking。「前**太字**後」のように日本語が隣だと必ず外れる＝実測。「- **見出し**：」のように外が空白・句読点なら外れない）。記号ちょうどの内側なら記号ごと包み、途中（片側だけ記号に接する）なら、その対の記号を `<b>`/`<i>`/`<s>` に替えて行ごと書き換えてから包む。対は `[*_~]+` の並びを同じ文字列どうしで内側から合わせる近似（`***` など混ざった並びは触らない）。プレビューのツールバーからの操作で原稿側の選択が空なら、カーソルの単語や行末に空の span を書かず断る（選択を写せなかった直後に色を押した事故の対策）。
 
 実測値（推敲済みの3デック・4,890ノード）：この方式で 100% 特定。html_block 内は parse5 の位置情報と 100% 一致。
 
@@ -74,6 +75,8 @@ slides/_library/shelf.json  棚（呼び名と並び順。git で追跡する）
 - 編集の開始：テキストの上で **ダブルクリック**。対象は「クリックされたテキストノードを直接含む、最も近いブロック要素」（li / p / h1〜h6 / td / th / div / blockquote / figcaption など。span・strong・a などインライン要素は親へ遡る）。その要素に一時的に `contenteditable="plaintext-only"` と `spellcheck="false"` を付ける。**section 全体には絶対に付けない**（全選択→1文字でスライドが全消去されるのを実測）。
 - インライン SVG の `<text>` / `<tspan>` は contenteditable が効かないので、同じ位置に小さな入力欄を重ねる（オーバーレイ方式）。確定時の流れは同じ。
 - 確定：Enter（`isComposing` でなく keyCode!==229）と blur。破棄：Esc（スナップショットから元に戻す）。Shift+Enter または Cmd/Ctrl+Enter は、対象が li のとき「確定して、下に新しい箇条書きを作り、その編集を始める」。空の li で Backspace は「その箇条書きを消す」。
+- 行の中の改行：Alt+Enter（mac は Option+Enter）でキャレットの位置に `<br data-ss-br>` を入れて編集を続ける。要素の末尾では Chrome がキャレットを br の前へ戻す（末尾の br は置き場扱い）ので、置き場の `<br data-ss-pad>` を後ろに足す。確定の直前に `markBreaks()` が br を目印の文字 U+E000（`BR_MARK`。私用領域なので `\s` でも `trim` でも消えない）のテキストノードに置き換えてから照合し、`lib/source-map.cjs` が原稿に `<br>` と書く（コードの中は `newline` で断る）。置き場と、後ろに何も無い br は捨てる。検算（expect）は `<br>` の前までの文字と比べる。
+- **入力の保留**（2026-10-30 追加。編集中に原稿が先に変わったとき「原稿が先に変わりました」で打った文を捨てない）：確定時に編集中の描き直しを保留していた（版が進んでいた）か、拡張が `stale` を `retry:true` 付きで断ったら、editCommit を捨てずに `held` に置く。確定時に保留していた描き直しがあれば、まずそれを当ててその場で入れ直しを試す（当たれば知らせず送るだけ。自分の直前の確定の描き直しが編集中に届いただけ、という場合がこれ）。駄目なら「保留しました」と知らせ、描き直し（render / patch）が届くたびに `retryHeld` が、同じ枚（枚が前に挿入されてずれたときは、元と同じ文字の並びの隣の枚）で `old` と同じ文字のノードを探し（複数あれば元の番号の所だけ）、新しい `nodes`・版番号で送り直す。見つからなければ 2 分（`window.__ssHoldMs`）まで待ち、時間切れか 5 回失敗で、文字を `clipboard` メッセージで拡張へ渡し（`vscode.env.clipboard`）トーストで知らせる。空の要素への入力（emptyTarget）は同じ行番号の空の要素が残っているときだけ入れ直す。Shift+Enter の箇条書きの追加は入れ直さない（文字だけ）。
 - 確定時：開始時に取ったスナップショット（ノードの同一性で照合）と比べて `changes:[{k, old, now}]` を作る。新しくできたテキストノードは、同じ親を持つ直前（無ければ直後）のノードへの追記として扱う。どちらも無ければ `unsupported`。元のノードが消えていたら now:'' として扱う。
 - 編集中は `render` メッセージを 1 件だけ保留し、確定/破棄の直後に適用する。既存の keydown（j/k/矢印）と click のハンドラは、編集中と `isContentEditable` のとき何もしない。
 - 描画後の検算：拡張が `expect:{ index, k, text }` を render に添える。再描画後にノード k の文字が text と違えば「表示と原稿がずれました（Cmd+Z で戻せます）」と出す。
@@ -86,7 +89,8 @@ slides/_library/shelf.json  棚（呼び名と並び順。git で追跡する）
 |---|---|---|
 | →拡張 | `editCommit` | `{ index, version, nodes:[{t,near,svg}], changes:[{k,old,now}], then:'none'|'newBullet', line, lineEnd }`（line/lineEnd は編集要素の data-line / data-line-end。無ければ null） |
 | →拡張 | `bulletDelete` | `{ index, version, line, lineEnd }` |
-| →拡張 | `tuneSelect` | `{ index, version, nodes, k, start, end, px }` → 原稿側でその範囲を選択し、以後は既存の tune 経路 |
+| →拡張 | `tuneSelect` | `{ index, version, nodes, k, start, end, px }`（終わりが隣のノードなら `k2` も）→ 原稿側でその範囲を選択し、以後は既存の tune 経路。写せない選択（親が違う）は `{ unsupported:true, message }` で送り、拡張は原稿側の選択を畳んで知らせる（古い選択に色が付かないように） |
+| →拡張 | `clipboard` | `{ text }` → `vscode.env.clipboard` へ（保留した入力を入れられなかったとき、文字を失わないため） |
 | →拡張 | `slideOp` | `{ op:'new'|'duplicate'|'delete'|'moveUp'|'moveDown'|'mark'|'library', index, version }` |
 | →拡張 | `libraryInsert` | `{ id, index, version }`（index の次に挿入） |
 | →Webview | `render` | 既存＋ `{ version, marks:[bool…], expect? }` |

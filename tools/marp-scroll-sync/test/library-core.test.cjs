@@ -148,9 +148,9 @@ test('markSlideEdit: デック全文に対する差分 1 件。グローバル c
 });
 
 test('suggestId: 題名の英数字とイベント略号から作り、既存 id は連番で避ける', () => {
-  const p = 'slides/20260623_LEC_15min04_workspace-studio/20260623_LEC_15min04_workspace-studio.md';
-  assert.strictEqual(core.suggestId('Workspace Studio とは', p, 3, []), 'lec-workspace-studio');
-  assert.strictEqual(core.suggestId('Workspace Studio とは', p, 3, ['lec-workspace-studio']), 'lec-workspace-studio-2');
+  const p = 'slides/20260101_LEC_talk01_sync-preview/20260101_LEC_talk01_sync-preview.md';
+  assert.strictEqual(core.suggestId('Sync Preview とは', p, 3, []), 'lec-sync-preview');
+  assert.strictEqual(core.suggestId('Sync Preview とは', p, 3, ['lec-sync-preview']), 'lec-sync-preview-2');
   assert.match(core.suggestId('今回の構成', p, 3, []), /^lec-.*-3$/);
 });
 
@@ -555,25 +555,42 @@ test('library-vscode: insert は本文＋frontmatter style を 1 つの Workspac
   fs.rmSync(R.root, { recursive: true, force: true });
 });
 
-test('library-vscode: 診断（混入する印に Warning）と rebuildLibrary（統合ターミナルで CLI）', async () => {
+test('library-vscode: 診断（混入する印に Warning）と rebuildLibrary（同梱の CLI を引数の配列で起動。原稿側の tools/ は実行しない＝SEC-01）', async () => {
   const R = mkRepo();
   fs.mkdirSync(path.join(R.root, 'tools'), { recursive: true });
-  fs.writeFileSync(path.join(R.root, 'tools', 'marp-library.mjs'), '');
+  // 原稿の側に置かれた tools/marp-library.mjs（受け取ったフォルダに同梱されていた、という想定）。目印に見るだけで、実行してはいけない
+  fs.writeFileSync(path.join(R.root, 'tools', 'marp-library.mjs'), 'throw new Error("must not run")\n');
   const leaky = path.join(R.root, 'slides', '20260404_P_x', '20260404_P_x.md');
   stub.reset();
   const doc = stub.makeDocument(fs.readFileSync(leaky, 'utf8'), { fsPath: leaky });
   stub.makeEditor(doc, { active: true });
   const ctx = stub.makeContext();
-  libVscode.register(ctx, { isMarpDoc: () => true, repoRootFor: () => R.root });
+  const spawned = [];
+  const spawn = (cmd, args, o) => {
+    const h = {}; const ch = { on: (ev, fn) => { h[ev] = fn; return ch; }, h, cmd, args, o };
+    spawned.push(ch); return ch;
+  };
+  libVscode.register(ctx, { isMarpDoc: () => true, repoRootFor: () => R.root, spawn });
   const list = stub.state.diagnostics.get('marp-library').get(doc.uri.toString());
   assert.strictEqual(list.length, 1);
   assert.strictEqual(list[0].range.start.line, 14);
   assert.strictEqual(list[0].severity, stub.vscode.DiagnosticSeverity.Warning);
   assert.match(list[0].message, /発表者ノートに出ます/);
   await stub.vscode.commands.executeCommand('marpScrollSync.rebuildLibrary');
-  assert.strictEqual(stub.state.terminals.length, 1);
-  assert.strictEqual(stub.state.terminals[0].options.cwd, R.root);
-  assert.match(stub.state.terminals[0].sent[0], /marp-library\.mjs index; node tools\/marp-library\.mjs thumbs/);
+  const bundled = path.join(REPO, 'tools', 'marp-library.mjs');
+  assert.strictEqual(stub.state.terminals.length, 0, 'シェル（統合ターミナル）に命令行を送らない');
+  assert.strictEqual(spawned.length, 1, 'index から 1 つずつ');
+  assert.ok(Array.isArray(spawned[0].args), '引数は配列');
+  assert.deepStrictEqual(spawned[0].args, [bundled, 'index', '--root', R.root], '動かすのは拡張と同じリポジトリの CLI。原稿のリポジトリは --root で渡すだけ');
+  assert.ok(!spawned[0].args[0].startsWith(R.root + path.sep), '原稿の側の tools/marp-library.mjs は実行しない');
+  assert.strictEqual(spawned[0].cmd, process.execPath);
+  assert.ok(!spawned[0].o.shell, 'shell: true にしない');
+  assert.strictEqual(spawned[0].o.cwd, R.root);
+  spawned[0].h.close(0);
+  assert.strictEqual(spawned.length, 2, 'index が終わったら thumbs');
+  assert.deepStrictEqual(spawned[1].args, [bundled, 'thumbs', '--root', R.root]);
+  spawned[1].h.close(0);
+  assert.strictEqual(spawned.length, 2);
   stub.disposeContext(ctx);
   fs.rmSync(R.root, { recursive: true, force: true });
 });

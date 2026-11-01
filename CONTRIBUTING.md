@@ -20,7 +20,7 @@ Do not attach decks that contain confidential material.
 npm ci
 npm ci --prefix tools/marp-scroll-sync
 npm run lint -- slides      # design-rule lint on the sample decks
-npm test                    # 324 tests; Chrome-driven tests are skipped when Chrome is not found
+npm test                    # 346 tests; Chrome-driven tests are skipped when Chrome is not found
 ```
 
 GitHub Actions runs the same commands on Ubuntu, macOS and Windows with Node 20 and 22 (`.github/workflows/test.yml`).

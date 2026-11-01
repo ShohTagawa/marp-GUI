@@ -33,5 +33,7 @@
   "config.adaptivePaste": "別のデックからコピーしたスライドを貼るとき、「貼り付け先に合わせて貼り付け」（素材のコピー・デック固有CSSの同梱・配色の追従）を選べるようにする。",
   "config.saveAfterEdit": "プレビューの直接編集・箱の移動・スライド操作・挿入・印・配置案・サイズ/色など、この拡張が原稿に書いたあと、すぐファイルを保存する（未保存のまま置くと、外で原稿を書き換える Claude Code などとぶつかる）。取り消しは Cmd+Z（Ctrl+Z）でそのまま効く。",
   "config.home.onStartup": "theme/academic.css のあるフォルダ（marp-GUI）を開いたとき、Marp の原稿がまだ表示されていなければホーム（最近・棚・手を入れた順・検索）を出す。",
-  "config.home.openPreview": "ホームのカードを押して原稿を開いたとき、同期プレビューも横に開く。"
+  "config.home.openPreview": "ホームのカードを押して原稿を開いたとき、同期プレビューも横に開く。",
+  "capabilities.untrustedWorkspaces": "開いたフォルダの Markdown を書き換え、tools/ 配下の Node スクリプトを実行するため、信頼したフォルダでだけ動かす。",
+  "capabilities.virtualWorkspaces": "手元のファイルを読み書きし、手元の Node スクリプトを実行するため、仮想ファイルシステムの上では動かない。"
 }

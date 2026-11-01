@@ -388,6 +388,41 @@ test('planTextEdit: 古い old・範囲外の k・改行入りの入力は書か
   assert.deepStrictEqual([miss.ok, miss.reason, miss.line], [false, 'not-located', 7]);
 });
 
+test('planTextEdit / planEmptyFill: 行の中の改行の目印（BR_MARK）は <br> と書く。コードの中は断る', () => {
+  const ranges = slideRanges(SYN);
+  const BR = SM.BR_MARK;
+  assert.strictEqual(BR, '\uE000');
+  // Markdown の中：目印は <br>、ほかの文字は今までどおりエスケープ
+  const head = [{ t: '同じ文 同じ文', near: { kind: 'md', start: 7, end: 8 }, svg: false }];
+  let r = SM.planTextEdit(SYN, ranges[0], head, { k: 0, old: head[0].t, now: '同じ文' + BR + '同じ文' });
+  assert.ok(r.ok, JSON.stringify(r));
+  assert.strictEqual(SM.applyEdits(SYN, r.edits).split('\n')[7], '# 同じ文<br>同じ文');
+  r = SM.planTextEdit(SYN, ranges[0], head, { k: 0, old: head[0].t, now: head[0].t + BR + '*次' });
+  assert.ok(r.ok, JSON.stringify(r));
+  assert.strictEqual(SM.applyEdits(SYN, r.edits).split('\n')[7], '# 同じ文 同じ文<br>\\*次');
+  // HTML の要素の中：<br> のまま（&lt;br&gt; にしない）
+  const p = { kind: 'md', start: 9, end: 10 };
+  const nodes = [
+    head[0],
+    { t: '同じ文 と 同じ文 と ', near: p, svg: false }, { t: '同じ文', near: p, svg: false },
+    { t: ' と ', near: p, svg: false }, { t: '同じ文', near: p, svg: false }, { t: ' と同じ文', near: p, svg: false },
+  ];
+  r = SM.planTextEdit(SYN, ranges[0], nodes, { k: 4, old: '同じ文', now: '同じ' + BR + '文' });
+  assert.ok(r.ok, JSON.stringify(r));
+  assert.ok(SM.applyEdits(SYN, r.edits).split('\n')[9].includes('<span class="hl">同じ<br>文</span>'));
+  // コードの中：断る（<br> が文字として出る）
+  const lines = SYN.split('\n');
+  const cl = lines.findIndex(l => l.startsWith('インライン `const a = 1;`'));
+  const code = [{ t: 'const a = 1;', near: { kind: 'md', start: cl, end: cl + 1 }, svg: false }];
+  r = SM.planTextEdit(SYN, ranges[2], code, { k: 0, old: code[0].t, now: 'const a' + BR + ' = 1;' });
+  assert.strictEqual(r.reason, 'newline', JSON.stringify(r));
+  // 空の箇条書き：- a<br>b
+  const li = lines.indexOf('- ');
+  r = SM.planEmptyFill(SYN, ranges[5], { kind: 'md', line: li, lineEnd: li + 1 }, 'a' + BR + 'b');
+  assert.ok(r.ok, JSON.stringify(r));
+  assert.strictEqual(SM.applyEdits(SYN, r.edits).split('\n')[li], '- a<br>b');
+});
+
 test('planEmptyFill: 記号だけの行の末尾に足す。それ以外は書かない', () => {
   const ranges = slideRanges(SYN);
   const lines = SYN.split('\n');
@@ -695,6 +730,15 @@ test('合成デック: 個別の型（同じ語・リンク・表・実体参照
   assert.strictEqual(SM.planRangeSelect(SYN, deck.ranges[3], deck.nodes[3], { k: kn, start: 0, end: 6 }).reason, 'encoded');
   assert.strictEqual(SM.planRangeSelect(SYN, deck.ranges[4], deck.nodes[4], { k: find(4, n => n.svg), start: 0, end: 2 }).reason, 'svg');
   assert.strictEqual(SM.planRangeSelect(SYN, deck.ranges[2], deck.nodes[2], { k: find(2, n => n.t === 'const a = 1;'), start: 0, end: 2 }).reason, 'code');
+  // 終わりが別のノード（k2）：同じ行で、間の **同じ文** を丸ごと含む
+  {
+    const k3 = find(0, n => n.t === ' と ');
+    assert.ok(k3 > kp);
+    const s2 = SM.planRangeSelect(SYN, deck.ranges[0], deck.nodes[0], { k: kp, start: 6, k2: k3, end: 2 });
+    assert.ok(s2.ok, JSON.stringify(s2));
+    assert.deepStrictEqual([SYN.slice(s2.start, s2.end), s2.line, s2.startCol], ['同じ文 と **同じ文** と', 9, 6]);
+    assert.strictEqual(SM.planRangeSelect(SYN, deck.ranges[0], deck.nodes[0], { k: k3, start: 0, k2: kp, end: 2 }).reason, 'bad-range');
+  }
 
   // 断る型
   const refuse = async (i, k, core, reason) => { const r = await roundTrip(deck, i, k, core, 'exact'); assert.strictEqual(r.refused, reason); };

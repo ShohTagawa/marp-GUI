@@ -12,7 +12,7 @@ Your source stays plain Markdown. In the preview you can double-click text to fi
 - 📄 PDF (vector, so text stays sharp) and ▶ Present (full screen in Chrome)
 - Theme `tsutawaru-academic`: academic slides with few boxes, following the rules of the Japanese book 『伝わるデザインの基本』 ("Basics of Design That Communicates")
 
-Works on macOS and Windows.
+Works on macOS and Windows (the test suite also runs on Ubuntu). Node.js 20 or later.
 
 > **Note:** The extension's buttons, menus, and messages are currently in Japanese only. Screenshots may show Japanese labels in the interface.
 
@@ -192,21 +192,30 @@ npm test
 ```
 
 - The pure-logic tests (slide splitting, source mapping, slide operations, folding, library, index, layout variants, home screen) use only the three sample decks in `slides/` (`sample-layouts`, `sample-parts`, `sample-lecture`).
-- The tests that drive the real preview (direct editing, box editing, gallery, end-to-end flows) need a local Google Chrome and `puppeteer-core` (installed by `npm install`). If Chrome is not found, only those tests are skipped.
-- 324 tests in total; about 5 minutes with a local Chrome (files run one at a time, because some tests measure timing budgets).
+- The tests that drive the real preview (direct editing, box editing and cropping, gallery, end-to-end flows) need a local Google Chrome and `puppeteer-core` (installed by `npm install`). If Chrome is not found, only those tests are skipped.
+- 346 tests in total (one, which writes a mock-up of the folded editor, is skipped unless `FOLDED_VIEW_OUT` is set); about 5 minutes with a local Chrome (files run one at a time, because some tests measure timing budgets).
 - GitHub Actions (`.github/workflows/test.yml`) runs the same suite on macOS, Windows and Ubuntu with Node 20 and 22 (the timing-budget tests are skipped on shared runners).
 - The sample deck `sample-lecture` is a fictional lecture deck that gathers the structures the tests rely on (an HTML table, inline SVG, a QR column, slides with and without `_class`).
+- `npm run bench` measures the time from a gesture to the repainted preview on the same harness (results: [docs/benchmark.md](docs/benchmark.md)); `npm run screenshots` re-takes the screenshots in `docs/img/`; `npm run demo:ranking` builds a small temporary git repository and shows how the library ranks slides by their revision history.
 
 ## Contents
 
 ```
-theme/            academic.css (base) and tsutawaru-academic.css (recommended theme)
-slides/           two sample decks (sample-layouts / sample-parts) and shared images
+theme/            five themes: academic.css (base), tsutawaru-academic.css (recommended),
+                  tsutawaru-simple.css, tsutawaru-simple-cud.css (colour-universal palette), ponchie.css (one-page overview)
+slides/           13 sample decks: sample-hydrogen, -academic, -ponchie, -tsutawaru-simple and
+                  -tsutawaru-simple-cud in English and Japanese (-ja); sample-layouts (layout classes),
+                  sample-parts (parts), sample-lecture (test fixture); shared images in assets/
+docs/             DESIGN.en.md, design-rules.md (lint rules), benchmark.md, security-review.md, examples/
 tools/
   marp-scroll-sync/   VS Code extension: synced preview, direct editing, layout options, slide operations
   marp-pdf/           vector PDF (print in chunks, then merge) and the VS Code extension for the 📄/▶ buttons
   marp-present/       full-screen presentation in Chrome
   marp-library.mjs    search and insert existing slides (used by the ＋ in the preview)
+  marp-png.mjs        every page as PNG
+  tsutawaru-lint.mjs  design-rule lint (English or Japanese messages: --lang en|ja)
+  demo/               revision-ranking demo (npm run demo:ranking)
+  run-tests.mjs       runs the test files one at a time (npm test; works on Node.js 20 and later)
   setup.mjs           the setup itself (called by the installers)
 install-mac.command / install-windows.bat
 ```
@@ -235,4 +244,4 @@ The following restates, for clarity, the points of Section 7 (Disclaimer of Warr
 - Where liability cannot be excluded by law, any such liability is limited to the amount you paid for this software (which is zero, as it is free).
 - This software rewrites your source files directly. Please keep your own backups of important files.
 - Marp renders the HTML in a deck as is. Before opening a deck (.md file) from an unknown or untrusted source, check its contents. Deciding which files to open is your own responsibility.
-- This software was built with AI-driven development, and its security has been reviewed with the help of AI. Even so, the author cannot guarantee its security.
+- Most of the code was written with an AI coding agent from the author's specifications. It is checked by 346 automated tests (`npm test`); the repository's GitHub Actions workflow runs them on Ubuntu, macOS and Windows with Node.js 20 and 22. A security review is recorded in [docs/security-review.md](docs/security-review.md), including the findings that are still open. Tests and reviews reduce defects and vulnerabilities but cannot rule them out.

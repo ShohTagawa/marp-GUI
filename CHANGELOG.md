@@ -16,7 +16,7 @@ Extensions: synchronized preview `marp-scroll-sync` 0.4.0 (was 0.3.0); PDF/prese
 - **Layout variants** also work for slides whose body is wrapped in `<div class="body">`, and ignore source lines (`.attr`, `.cite`, `.src-row`) when counting items.
 - **Themes:** `tsutawaru-simple` (no header band, a hatched band instead), `tsutawaru-simple-cud` (the same with a colour-universal palette) and `ponchie` (one-page overview figures), five themes in all.
 - **Sample decks:** `sample-hydrogen` (English, 12 slides, with two library marks and a shelf) and `sample-hydrogen-ja`; `sample-academic`, `sample-ponchie`, `sample-tsutawaru-simple`, `sample-tsutawaru-simple-cud`, each in English and Japanese; `sample-lecture`, a fictional deck used by the tests. 13 sample decks in all.
-- **Tests:** the test suite of the synchronized-preview extension (`npm test`, Node.js test runner; Chrome-driven tests are skipped when Chrome is not found) and a GitHub Actions workflow that runs it on Ubuntu, macOS and Windows with Node.js 20 and 22.
+- **Tests:** the test suite of the synchronized-preview extension (`npm test`, which runs `tools/run-tests.mjs`: it lists the test files itself, because Node.js 20 does not expand glob arguments to `node --test`; Chrome-driven tests are skipped when Chrome is not found) and a GitHub Actions workflow that runs it on Ubuntu, macOS and Windows with Node.js 20 and 22.
 - **Benchmark:** `npm run bench` measures the time from a gesture to the repainted preview (direct edit, layout thumbnails, layout switch, insert popup, slide operations, box drag, typing in the source); results in `docs/benchmark.md`.
 - **Tools:** `npm run screenshots` re-takes the screenshots in `docs/img/`; `npm run demo:ranking` shows the revision ranking of the library on a temporary git repository.
 - **Lint:** messages in English or Japanese (`--lang en|ja`; default from the locale); every rule and its source listed in `docs/design-rules.md`; example deck `docs/examples/lint-sample.md`.
@@ -40,11 +40,14 @@ Extensions: synchronized preview `marp-scroll-sync` 0.4.0 (was 0.3.0); PDF/prese
 
 ### Security
 
-- The PDF/present extension does not run in untrusted or virtual workspaces, and its `nodePath` / `chromePath` settings can only be set per machine, not by a workspace.
+- The PDF/present extension's `nodePath` / `chromePath` settings can only be set per machine, not by a workspace (SEC-03).
 - Presenting no longer starts Chrome with `--allow-file-access-from-files`.
 - Windows: the `cmd /c start` fallback of `openInBrowser` percent-encodes cmd metacharacters; `shellSync` refuses arguments that are not plain words.
 - Lockfiles: non-breaking updates from `npm audit fix` (`source-map-js` 1.2.2; `markdown-it` 14.3.3, `@xmldom/xmldom` 0.9.12, `speech-rule-engine` 4.1.5, `ip-address` 10.7.5). The advisories that remain need `puppeteer-core` 25 or a newer Marp release and are listed in `SECURITY.md`.
-- Open findings (the background index build runs `tools/marp-library.mjs` from the folder treated as the repository root; "Present" in the synchronized preview sends a command line to a terminal; the Webview CSP allows `https:` and inline styles) are listed in `docs/security-review.md`.
+- The synchronized preview runs only the scripts bundled with this repository: the background index build and "rebuild library" start `tools/marp-library.mjs` from next to the extension (not from the deck's folder) with an argument array, and the repository root is no longer looked for above the workspace folder (SEC-01).
+- "Present" in the synchronized preview starts `present.mjs` with `child_process.spawn` and an argument array instead of typing a command line into a terminal; the `npx --yes @marp-team/marp-cli@latest` fallback is gone (SEC-02).
+- Both extensions declare that they do not run in untrusted or virtual workspaces (SEC-04).
+- The remaining open finding (the Webview CSP allows `https:` and inline styles, SEC-06) is listed in `docs/security-review.md`.
 
 ## [1.0.0] — 2026-10-03
 

@@ -40,6 +40,8 @@
   let pendingPatch = null;  // 編集中に届いた patch（1件にまとめて保留する。あとから render が来たら render が勝つ）
   let revealTimer = null;   // 単クリック逆引きの遅延送信（ダブルクリックが来たら取り消す）
   let lastCommit = null;    // 直前に送った editCommit の戻し方。拡張が断ったら（editResult ok:false）表示を元へ戻す
+  let lastSent = null;      // 直前に送った editCommit の中身（描き直しで lastCommit が消えても残す。stale で断られたら保留に回す）
+  let held = null;          // 原稿が先に変わって入れられなかった入力。描き直しのたびに入れ直しを試す（DESIGN.md 2.2「入力の保留」）
   let lastFinishAt = 0;     // 直前に編集を終えた時刻。編集を終わらせたクリックで逆引きしないため
 
   // ---------- 小物 ----------
@@ -191,12 +193,12 @@
 
   // ---------- トースト ----------
   let toastTimer = null;
-  function toast(message, isError) {
+  function toast(message, isError, ms) {
     toastEl.textContent = String(message || '');
     toastEl.classList.toggle('ss-err', !!isError);
     toastEl.classList.add('ss-show');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toastEl.classList.remove('ss-show'), 3000);
+    toastTimer = setTimeout(() => toastEl.classList.remove('ss-show'), Number.isFinite(ms) ? ms : 3000);
   }
 
   // ---------- スライドの強調・スクロール・重ねる UI の配置 ----------
@@ -509,6 +511,8 @@
     'img', 'video', 'audio', 'iframe', 'pre', 'style', 'script', 'input', 'textarea', 'select', 'button']);
   function tagOf(el) { return el && el.tagName ? el.tagName.toLowerCase() : ''; }
   function blank(s) { return !s || !s.trim(); }
+  /** 行の中の改行の目印（lib/source-map.cjs の BR_MARK と同じ値）。Alt+Enter で入れた <br> は、確定時にこの 1 文字にして送る */
+  const BR_MARK = '\uE000';
   /** 直下、またはインライン要素越しに、文字を持っているか（子のブロックの中の文字は数えない） */
   function hasInlineText(el) {
     for (const c of el.childNodes) {
@@ -650,7 +654,7 @@
   function isEmptyBullet(e) {
     if (!e.bullet) return false;
     if (!blank(e.el.textContent)) return false;
-    return !e.el.querySelector('img, svg, video, ul, ol');
+    return !e.el.querySelector('img, svg, video, ul, ol, br[data-ss-br]');
   }
   function onEditKey(ev) {
     // 既存の window keydown（j/k/矢印でスライド送り）へ流さない。"jack" が "ac" になるのを実測
@@ -658,7 +662,11 @@
     // IME 変換中の Enter は変換の確定。編集の確定にしない
     if (ev.isComposing || ev.keyCode === 229) return;
     const e = edit; if (!e) return;
-    if (ev.key === 'Enter') {
+    if (ev.key === 'Enter' && ev.altKey) {
+      // Alt+Enter（mac は Option+Enter）＝行の中の改行。確定せず、キャレットの位置に <br> を入れて編集を続ける（原稿には <br> と書く）
+      ev.preventDefault();
+      insertLineBreak(e);
+    } else if (ev.key === 'Enter') {
       ev.preventDefault();
       const more = ev.shiftKey || ev.metaKey || ev.ctrlKey;
       finishEdit(true, (more && e.bullet) ? 'newBullet' : 'none');
@@ -671,6 +679,52 @@
       finishEdit(false, 'none');
       post({ type: 'bulletDelete', index: e.index, version: e.version, line: e.line, lineEnd: e.lineEnd });
     }
+  }
+  /** br より後ろに、見える中身（文字・画像・図・動画・別の br）があるか */
+  function contentAfter(br, el) {
+    const r = document.createRange();
+    r.setStartAfter(br); r.setEnd(el, el.childNodes.length);
+    const frag = r.cloneContents();
+    return !blank(frag.textContent) || !!frag.querySelector('img, svg, video, br:not([data-ss-pad])');
+  }
+  /**
+   * Alt+Enter：キャレットの位置に <br data-ss-br> を入れて、編集を続ける。要素の末尾では Chrome がキャレットを br の前へ
+   * 戻し、次に打った文字が br の前に入る（末尾の br は置き場扱い）ので、置き場の <br data-ss-pad> を後ろに足す。
+   * 確定の直前に markBreaks() が br を目印の文字に置き換え、置き場は捨てる
+   */
+  function insertLineBreak(e) {
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount) return;
+    const r = sel.getRangeAt(0);
+    if (!e.el.contains(r.commonAncestorContainer)) return;
+    r.deleteContents();
+    const br = document.createElement('br');
+    br.setAttribute('data-ss-br', '');
+    r.insertNode(br);
+    if (!contentAfter(br, e.el)) {
+      const pad = document.createElement('br');
+      pad.setAttribute('data-ss-pad', '');
+      br.after(pad);
+    }
+    r.setStartAfter(br); r.collapse(true);
+    sel.removeAllRanges(); sel.addRange(r);
+  }
+  /**
+   * 確定の直前：Alt+Enter で入れた <br data-ss-br> を、目印の文字（BR_MARK）のテキストノードに置き換える（要素のままだと
+   * diffEdit が隣のノードへの追記として扱えない）。置き場の br と、後ろに何も無い br は捨てる（末尾の <br> は何も表示しない）。
+   * 戻り値は元に戻す関数。照合が済んだら br へ戻し、描き直しが届くまで目印の字を見せない
+   */
+  function markBreaks(e) {
+    const el = e.el;
+    for (const pad of Array.from(el.querySelectorAll('br[data-ss-pad]'))) pad.remove();
+    const swapped = [];
+    for (const br of Array.from(el.querySelectorAll('br[data-ss-br]'))) {
+      if (!contentAfter(br, el)) { br.remove(); continue; }
+      const t = document.createTextNode(BR_MARK);
+      br.replaceWith(t);
+      swapped.push([t, br]);
+    }
+    return () => { for (const [t, br] of swapped) if (t.parentNode) t.replaceWith(br); };
   }
   /**
    * スナップショットと今の DOM を比べて changes を作る。
@@ -767,6 +821,96 @@
     }
     return { changes };
   }
+  // ---------- 入力の保留：原稿が先に変わっても、打った文字を捨てない ----------
+  /** 保留する時間（ms）。過ぎても入れられなければ、文字をクリップボードへ渡して諦める（試験は window.__ssHoldMs で短くする） */
+  function holdMs() { return Number.isFinite(window.__ssHoldMs) ? window.__ssHoldMs : 120000; }
+  /** 変更の「打った文字」（old→now の差分。消しただけなら now 全体）を 1 行に */
+  function typedOf(changes) {
+    const parts = [];
+    for (const c of changes || []) {
+      const o = String(c.old || ''), n = String(c.now || '');
+      let p = 0; while (p < o.length && p < n.length && o[p] === n[p]) p++;
+      let s = 0; while (s < o.length - p && s < n.length - p && o[o.length - 1 - s] === n[n.length - 1 - s]) s++;
+      const ins = n.slice(p, n.length - s).trim();
+      parts.push(ins || n.trim());
+    }
+    return parts.filter(Boolean).join(' ');
+  }
+  function shortTyped(changes) { const t = typedOf(changes); return '「' + t.slice(0, 40) + (t.length > 40 ? '…' : '') + '」'; }
+  /** 送れなかった editCommit を保留する。描き直しが届くたび（と時間切れに）retryHeld が入れ直しを試す */
+  function holdEdit(msg, undo, quiet) {
+    if (held && held.timer) clearTimeout(held.timer);
+    // 表示には打った文字を残したまま保留する（消すと「萎える」）。undo は諦めるときに表示を元へ戻す手
+    held = { changes: msg.changes, emptyTarget: !!msg.emptyTarget, index: msg.index, line: msg.line, lineEnd: msg.lineEnd,
+      oldNodes: msg.nodes || [], since: Date.now(), tries: 0, timer: null, undo: typeof undo === "function" ? undo : null, announced: false };
+    held.timer = setTimeout(() => retryHeld(true), holdMs());
+    if (!quiet) announceHold(held);   // quiet＝その場で入れ直せるか先に試す（描き直しを当ててから）。駄目なら呼び出し側が知らせる
+  }
+  function announceHold(h) {
+    h.announced = true;
+    toast('原稿が先に変わったので、入力を保留しました：' + shortTyped(h.changes) + '。原稿が落ち着いたら入れます', false, 6000);
+  }
+  /** 保留した入力を、いまの表示（描き直し後）の同じ文字のノードへ写す。写せなければ null */
+  function rebaseHeld(h) {
+    const ss = slides();
+    const order = [h.index, h.index - 1, h.index + 1, h.index - 2, h.index + 2].filter(i => i >= 0 && i < ss.length);
+    for (const idx of order) {
+      const section = sectionOf(ss[idx]); if (!section) continue;
+      const all = collect(section);
+      // 隣の枚は「元の枚と同じ文字の並び」のとき（枚が前に挿入されてずれた）だけ候補にする。元の枚は一部が変わっていてもよい
+      if (idx !== h.index && !(all.length === h.oldNodes.length && all.every((n, j) => n.t === h.oldNodes[j].t))) continue;
+      const changes = [];
+      let ok = true;
+      for (const c of h.changes) {
+        if (c.k == null) {   // 空の要素への入力：同じ行番号の空の要素が残っているときだけ
+          const el = section.querySelector('[data-line="' + h.line + '"][data-line-end="' + h.lineEnd + '"]');
+          if (!el || !blank(el.textContent)) { ok = false; break; }
+          changes.push(c); continue;
+        }
+        // 表示に打った文字（now）が残っている枚（描き直しで差し替わらなかった）も、元の文字（old）に戻った枚も受ける
+        const cands = []; all.forEach((n, j) => { if (n.t === c.old || n.t === c.now) cands.push(j); });
+        const j = cands.indexOf(c.k) >= 0 ? c.k : (cands.length === 1 ? cands[0] : -1);   // 同じ文字が複数あれば、元の番号の所だけ
+        if (j < 0) { ok = false; break; }
+        changes.push({ k: j, old: c.old, now: c.now });
+      }
+      if (ok) {
+        // 拡張へ渡すノードの文字は原稿と同じ（old）でなければ位置を写せない。表示に now が残っている所は old に戻して渡す
+        const nodes = wireNodes(all);
+        for (const c of changes) if (c.k != null && nodes[c.k] && nodes[c.k].t !== c.old) nodes[c.k] = Object.assign({}, nodes[c.k], { t: c.old });
+        return { index: idx, nodes, changes };
+      }
+    }
+    return null;
+  }
+  /** 描き直しのたびに呼ぶ。final＝時間切れ（入れられなければ文字をクリップボードへ渡して諦める） */
+  function retryHeld(final) {
+    try { retryHeldInner(final); } catch (e) { console.error("[ss] retryHeld: " + (e && e.stack || e)); }
+  }
+  function retryHeldInner(final) {
+    const h = held; if (!h) return;
+    if (edit && !final) return;   // 別の編集の最中は、その確定のあとで
+    const r = (h.tries < 5) ? rebaseHeld(h) : null;
+    if (r) {
+      clearTimeout(h.timer); held = null; h.tries++;
+      const msg = { type: 'editCommit', index: r.index, version, nodes: r.nodes, changes: r.changes, then: 'none', line: h.line, lineEnd: h.lineEnd };
+      if (h.emptyTarget) msg.emptyTarget = true;
+      lastCommit = { undo: null, fromHold: h };
+      lastSent = Object.assign({}, msg, { tries: h.tries });
+      post(msg);
+      if (h.announced) toast('保留していた入力を入れました', false);
+      return;
+    }
+    if (!final && Date.now() - h.since < holdMs()) return;
+    clearTimeout(h.timer); held = null;
+    if (h.undo) { try { h.undo(); } catch (_) { /* 無視 */ } }   // 表示に残していた打った文字を元へ戻す（原稿には無い）
+    giveUpHeld(h.changes);
+  }
+  /** 入れられなかった入力を、失わないようクリップボードへ渡して知らせる */
+  function giveUpHeld(changes) {
+    post({ type: 'clipboard', text: (changes || []).map(c => String(c.now || '')).join('\n') });
+    toast('保留していた入力を入れられませんでした（その行が別の文になりました）。文字はクリップボードに入れました：' + shortTyped(changes), true, 10000);
+  }
+
   function finishEdit(commit, then) {
     const e = edit;
     if (!e || e.finishing) return;
@@ -777,8 +921,8 @@
     el.removeEventListener('blur', e.onBlur);
     el.removeEventListener('paste', e.onPaste);
     el.removeEventListener('drop', e.onDrop);
-    let res = { changes: [] };
-    if (commit) res = diffEdit(e);
+    let res = { changes: [] }, heldNow = false;
+    if (commit) { const restoreBreaks = markBreaks(e); res = diffEdit(e); restoreBreaks(); }
     el.removeAttribute('contenteditable');
     if (e.spell0 == null) el.removeAttribute('spellcheck'); else el.setAttribute('spellcheck', e.spell0);
     dropClass(el, 'ss-editing');
@@ -794,10 +938,20 @@
       const msg = { type: 'editCommit', index: e.index, version: e.version, nodes: e.nodes, changes: res.changes,
         then: then || 'none', line: e.line, lineEnd: e.lineEnd };
       if (res.emptyTarget) msg.emptyTarget = true;
-      lastCommit = { undo: () => { if (el.isConnected) el.innerHTML = e.html0; } };
-      post(msg);
+      const newer = (m) => !!m && Number.isInteger(m.version) && Number.isInteger(e.version) && m.version > e.version;
+      if (res.changes.length && (newer(pendingRender) || newer(pendingPatch))) {
+        // 編集中に原稿が先に変わった（版の進んだ描き直しを保留している）。この版番号で送っても断られるので捨てずに保留し、
+        // まず保留していた描き直しを当て（下の flushPending）、同じ文字が残っていればその場で入れ直す。残っていなければ知らせて待つ
+        holdEdit(msg, () => { if (el.isConnected) el.innerHTML = e.html0; }, true);
+        heldNow = true;
+      } else {
+        lastCommit = { undo: () => { if (el.isConnected) el.innerHTML = e.html0; } };
+        lastSent = Object.assign({}, msg);
+        post(msg);
+      }
     }
-    flushPending();
+    flushPending();   // 保留していた描き直しを当てる。その末尾で retryHeld が走り、保留した入力を入れ直せればその場で送る
+    if (heldNow && held) announceHold(held);
   }
   function flushPending() {
     const m = pendingRender, pm = pendingPatch;
@@ -913,30 +1067,47 @@
   }
 
   // ---------- プレビューで選んだ文字へのサイズ/色（tuneSelect） ----------
+  /** Range の端（要素の中の位置のこともある：行頭から・行末まで引いたとき）を、テキストノードとその中のオフセットに寄せる */
+  function textEdge(node, offset, isEnd) {
+    if (!node) return null;
+    if (node.nodeType === 3) return { node, offset };
+    if (node.nodeType !== 1) return null;
+    let c = isEnd ? node.childNodes[offset - 1] : node.childNodes[offset];
+    while (c && c.nodeType === 1) c = isEnd ? c.lastChild : c.firstChild;
+    if (!c || c.nodeType !== 3) return null;
+    return { node: c, offset: isEnd ? c.nodeValue.length : 0 };
+  }
   document.addEventListener('mouseup', (ev) => {
     if (edit || inUi(ev.target) || ev.detail > 1) return;   // ダブルクリックの単語選択は編集の入口なので送らない
-    if (!(ev.target && ev.target.closest && ev.target.closest('svg[data-marpit-svg]'))) return;
-    setTimeout(() => {   // 選択範囲が確定してから読む
+    setTimeout(() => {   // 選択範囲が確定してから読む（スライドの外で離しても、選択そのものから枠を決める）
       if (edit) return;
       const sel = window.getSelection();
       if (!sel || sel.isCollapsed || sel.rangeCount < 1) return;
-      const a = sel.anchorNode;
-      // 1つのテキストノードの中で完結した選択だけ（またいだ選択は原稿の範囲に写せない）
-      if (!a || a.nodeType !== 3 || a !== sel.focusNode) return;
-      const pe = a.parentElement;
+      const r = sel.getRangeAt(0);
+      const A = textEdge(r.startContainer, r.startOffset, false), B = textEdge(r.endContainer, r.endOffset, true);
+      if (!A || !B) return;
+      const pe = A.node.parentElement;
       const frame = pe && pe.closest('svg[data-marpit-svg]');
       const section = sectionOf(frame);
-      if (!section || !section.contains(a)) return;
+      if (!section || !section.contains(A.node) || !section.contains(B.node)) return;
       const all = collect(section);
-      const k = all.findIndex(n => n.node === a);
-      if (k < 0) return;
-      const start = Math.min(sel.anchorOffset, sel.focusOffset);
-      const end = Math.max(sel.anchorOffset, sel.focusOffset);
-      if (end <= start) return;
-      let px = null; try { px = parseFloat(getComputedStyle(pe).fontSize) || null; } catch (_) { /* 無視 */ }
+      const k = all.findIndex(n => n.node === A.node), k2 = all.findIndex(n => n.node === B.node);
+      if (k < 0 || k2 < 0 || k2 < k) return;
+      const start = A.offset, end = B.offset;
+      if (k === k2 && end <= start) return;
+      const index = slides().indexOf(frame);
       clearTimeout(revealTimer); revealTimer = null;   // 行全体の選択で上書きされないように
       navMode = false;
-      post({ type: 'tuneSelect', index: slides().indexOf(frame), version, nodes: wireNodes(all), k, start, end, px });
+      // 始まりと終わりの親が違う選択（太字の内側から外側へ、など）は、原稿で <span> が要素をまたいでしまう。断って知らせる
+      if (k !== k2 && pe !== B.node.parentElement) {
+        post({ type: 'tuneSelect', index, version, unsupported: true,
+          message: '太字などの境目をまたぐ選択には色やサイズを付けられません。境目の内側か外側だけを選んでください' });
+        return;
+      }
+      let px = null; try { px = parseFloat(getComputedStyle(pe).fontSize) || null; } catch (_) { /* 無視 */ }
+      const msg = { type: 'tuneSelect', index, version, nodes: wireNodes(all), k, start, end, px };
+      if (k2 !== k) msg.k2 = k2;   // 同じ親の中で隣のノードまで（「半**太字の語**後」）。拡張は両端を別々に写す
+      post(msg);
     }, 0);
   });
 
@@ -1845,6 +2016,7 @@
     if (Array.isArray(m.marks)) marks = m.marks;
     highlight(Number.isInteger(m.index) ? m.index : 0); // 差し替え時はスクロールせず強調のみ（揺らさない）
     if (m.expect) verify(m.expect);
+    retryHeld(false);
     scheduleOverflow(true);
     notifyRender('render', null);
   }
@@ -1902,6 +2074,7 @@
     if (posSig(slides()) !== before) layout();   // 位置も印も変わらなければ、＋ や操作ボタンは置き直さない
     else { if (markBtn) markBtn.classList.toggle('ss-on', !!marks[cur]); setBadge(); }
     if (m.expect) verify(m.expect);
+    retryHeld(false);
     overflowFor(indices);
     notifyRender('patch', indices);
   }
@@ -1934,9 +2107,19 @@
     }
     else if (m.type === 'tuneState') setTuneState(m);
     else if (m.type === 'editResult') {
+      if (!m.ok && m.retry && lastSent && lastSent.type === 'editCommit') {
+        // 原稿が先に変わっていた（描き直しがまだ届いていない、または届く前に確定した）。捨てずに保留し、描き直しのあとで入れ直す
+        const sent = lastSent, undo = lastCommit && lastCommit.undo; lastSent = null; lastCommit = null;
+        if ((sent.tries || 0) >= 5) { if (undo) { try { undo(); } catch (_) { /* 無視 */ } } giveUpHeld(sent.changes); return; }
+        holdEdit(sent, undo); held.tries = sent.tries || 0;
+        if (Number.isInteger(version) && Number.isInteger(sent.version) && version > sent.version) retryHeld(false);   // 描き直しは届いていた
+        return;
+      }
+      const fromHold = (!m.ok && lastCommit && lastCommit.fromHold) ? lastCommit.fromHold : null;
       // 書き戻せなかったときは原稿が変わらず再描画も来ない。打った文字が表示にだけ残らないよう元へ戻す
-      if (!m.ok && lastCommit && !edit) { try { lastCommit.undo(); } catch (_) { /* 無視 */ } }
+      if (!m.ok && lastCommit && lastCommit.undo && !edit) { try { lastCommit.undo(); } catch (_) { /* 無視 */ } }
       if (!m.ok) lastCommit = null;
+      if (fromHold) { if (fromHold.undo) { try { fromHold.undo(); } catch (_) { /* 無視 */ } } giveUpHeld(fromHold.changes); return; }   // 保留から入れ直したが別の理由で断られた：文字を渡して知らせる
       toast(m.message || (m.ok ? '反映しました' : '反映できませんでした'), !m.ok);
     }
     else if (m.type === 'startEdit') startEditAtLine(m.line);
