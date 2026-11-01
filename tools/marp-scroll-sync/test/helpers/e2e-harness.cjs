@@ -42,7 +42,7 @@ function copyDir(from, to, filter) {
  */
 function makeRepo(root, decks) {
   const abs = path.resolve(root);
-  if (abs === REPO_ROOT || abs.startsWith(REPO_ROOT + path.sep) || REPO_ROOT.startsWith(abs + path.sep) || abs.split(path.sep).length < 4) {
+  if (abs === REPO_ROOT || abs.startsWith(REPO_ROOT + path.sep) || REPO_ROOT.startsWith(abs + path.sep) || abs.split(path.sep).length < 3) {
     throw new Error('試験用リポジトリはリポジトリの外（scratchpad / 一時フォルダ）に作る: ' + root);
   }
   fs.rmSync(root, { recursive: true, force: true });

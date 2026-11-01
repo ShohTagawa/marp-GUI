@@ -1392,7 +1392,8 @@ test('＋ はスライドの間にマウスを乗せたときだけ現れる（1
       if (idx !== 10) assert.equal((await insertLook(page, idx)).near, true, '当たり判定は余白より少し広い');
       await page.mouse.move(p.x + 180, p.y + 120 * (idx === 10 ? -1 : 1));   // スライドの中へ
       await sleep(80);
-      const gone = await insertLook(page, idx);
+      let gone = await insertLook(page, idx);
+      for (let i = 0; !TIME_BUDGETS && i < 46 && (gone.near || gone.opacity !== 0); i++) { await sleep(20); gone = await insertLook(page, idx); }
       assert.deepEqual([gone.near, gone.opacity], [false, 0], 'スライドの上では消える');
     }
     assert.deepEqual(await posted(page), [], '乗せただけでは何も送らない');

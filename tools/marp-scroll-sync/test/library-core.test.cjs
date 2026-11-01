@@ -327,7 +327,7 @@ test('adaptSlide → parts-deck teal：素材コピー（同名別内容は -2�
   assert.ok(!/var\(--accent, var\(/.test(t));
   assert.match(t, /example\.com\/#C8611C/);                                 // URL のフラグメントは触らない
   assert.match(t, /本物のノート #C8611C/);                                  // コメントの中も触らない
-  assert.deepStrictEqual(plan.assetCopies.map((c) => path.relative(R.root, c.to)).sort(),
+  assert.deepStrictEqual(plan.assetCopies.map((c) => path.relative(R.root, c.to).split(path.sep).join('/')).sort(),
     ['slides/grp/20260202_DST_b/src/bg-tile.png', 'slides/grp/20260202_DST_b/src/qr-2.png']);
   assert.ok(plan.warnings.some((w) => /qr-2\.png/.test(w)));
   assert.ok(plan.warnings.some((w) => /テーマが違います/.test(w)));
