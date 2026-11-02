@@ -17,7 +17,7 @@ const SPLIT = require('../lib/slide-split.cjs');
 
 const LEC = 'sample-lecture';   // 見本：academic・橙（--accent #C8611C）
 const LAY = 'sample-layouts';   // 見本：academic・20 枚
-const DEST = 'sample-parts';    // 見本：academic（既定配色）＝別配色の貼り付け先
+const DEST = 'sample-tsutawaru-simple';    // 見本：tsutawaru-simple＝別テーマ・別配色の貼り付け先
 const WORK = process.env.SS_E2E_DIR || path.join(os.tmpdir(), 'marp-scroll-sync-e2e');
 const Q = 400;   // settle の静穏時間。単クリック逆引きの 250ms 待ちより長くする
 
@@ -644,7 +644,7 @@ T('8. 9. 印（★）→ 別テーマ・別配色のデックへ libraryInsert',
     const img = /src="(\.\/src\/slido-qr[^"]*)"/.exec(body);
     assert.ok(img, '素材の参照がある');
     assert.ok(fs.existsSync(path.join(path.dirname(S.doc.uri.fsPath), img[1])), '素材が貼り付け先の src/ に入る');
-    assert.ok(S.asked.message.some(m => /テーマ|theme/i.test(m.message)), 'テーマ違いの警告が出る: ' + JSON.stringify(S.asked.message.map(m => m.message)));
+    assert.ok(S.asked.message.some(m => /テーマが違います/.test(m.message)), 'テーマ違いの警告が出る: ' + JSON.stringify(S.asked.message.map(m => m.message)));
     assert.deepEqual(H.marpRender(t1).comments.slice(2), H.marpRender(t0).comments.slice(1), '後ろのスライドのノートはそのまま');
     await S.doc.save();   // SS_E2E_KEEP=1 のとき、この md を marp-cli で PNG にして目視する
     await undoFromPreview(S);
