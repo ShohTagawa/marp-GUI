@@ -1,0 +1,20 @@
+{
+  "exclude": [
+    "slides/_library/corpus.json",
+    "slides/_library/index.json",
+    "slides/_library/thumbs/**",
+    "**/out/**",
+    "**/rec/**",
+    "**/*.png",
+    "**/*.jpg",
+    "**/*.pdf",
+    "**/*.bak",
+    "**/*.mov",
+    "**/*.mp4",
+    "node_modules/**",
+    "**/node_modules/**",
+    "package-lock.json",
+    "**/package-lock.json"
+  ],
+  "include": []
+}

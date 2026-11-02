@@ -27,22 +27,28 @@ test('churnOf：touched は全部の版、human は人の版だけ。未コミ�
   commit('[claude] Edit', 'Claude Code <noreply@anthropic.com>');
   fs.writeFileSync(md, deck(['# 自己紹介\n\n- 一行目\n- Claude が足した行\n- 人が足した行', '# 二枚目\n\n- 変えない']));
   commit('手直し');
-  fs.writeFileSync(md, deck(['# 自己紹介\n\n- 一行目\n- Claude が足した行\n- 人が足した行\n- Claude 2', '# 二枚目\n\n- 変えない']));
-  commit('[claude] Edit 2', 'Claude Code <noreply@anthropic.com>');
+  fs.writeFileSync(md, deck(['# 自己紹介\n\n- 一行目\n- Claude が足した行\n- 人が足した行\n- Argon が足した行', '# 二枚目\n\n- 変えない']));
+  commit('[argon] edit_file', 'Argon <200291788+gemini-code-assist@users.noreply.github.com>');
   const r = core.churnOf(root, md);
   const s1 = r.rows[0];
   assert.equal(s1.touched, 3, '3 つの版で内容が変わった');
-  assert.equal(s1.human.touched, 1, '人の版は 1 つ');
+  assert.equal(s1.human.touched, 1, '人の版は 1 つ（Claude / Argon は除く）');
   assert.ok(s1.human.churn >= 1 && s1.human.churn < s1.churn);
   assert.equal(r.rows[1].touched, 0); assert.equal(r.rows[1].human.touched, 0);
   // 未コミットの手直し → human に入る
-  fs.writeFileSync(md, deck(['# 自己紹介\n\n- 一行目\n- Claude が足した行\n- 人が足した行\n- Claude 2\n- 未保存の手直し', '# 二枚目\n\n- 変えない']));
+  fs.writeFileSync(md, deck(['# 自己紹介\n\n- 一行目\n- Claude が足した行\n- 人が足した行\n- Argon が足した行\n- 未保存の手直し', '# 二枚目\n\n- 変えない']));
   const r2 = core.churnOf(root, md);
   assert.equal(r2.rows[0].touched, 4); assert.equal(r2.rows[0].human.touched, 2);
   // buildCorpus でも entry.churn.human に乗る（repoHistory 経由）
   const c = core.buildCorpus(root, { withChurn: true });
   const e = c.entries.find(x => x.slide === 1);
   assert.equal(e.churn.touched, 4); assert.equal(e.churn.human.touched, 2);
-  assert.ok(core.isClaudeVersion({ email: 'noreply@anthropic.com' }) && !core.isClaudeVersion({ email: 'author@example.org' }));
+  assert.ok(
+    core.isClaudeVersion({ email: 'noreply@anthropic.com' }) &&
+    core.isClaudeVersion({ email: '200291788+gemini-code-assist@users.noreply.github.com' }) &&
+    core.isClaudeVersion({ email: 'noreply@google.com' }) &&
+    core.isClaudeVersion({ email: 'argon@google.com' }) &&
+    !core.isClaudeVersion({ email: 'author@example.org' })
+  );
   fs.rmSync(root, { recursive: true, force: true });
 });

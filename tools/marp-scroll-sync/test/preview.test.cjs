@@ -15,6 +15,13 @@ const H = require('./helpers/preview-harness.cjs');
 const OUT = process.env.SS_SHOT_DIR || fs.mkdtempSync(path.join(os.tmpdir(), 'ss-preview-'));
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 const REVEAL_WAIT = 450;   // 逆引きの遅延（250ms）より十分長く
+/** get() の値が ok を満たすまで最大 ms 待って、最後の値を返す。判定は呼び出し側の assert のまま（共有ランナーの遅さを吸収するだけ） */
+async function waitFor(get, ok, ms = 3000) {
+  const end = Date.now() + ms;
+  let v = await get();
+  while (!ok(v) && Date.now() < end) { await sleep(20); v = await get(); }
+  return v;
+}
 
 let browser = null, built = null, FX = -1;
 before(async () => {
@@ -1228,7 +1235,8 @@ test('はみ出しバッジ：ssDetectOverflow があれば ⚠ と overflowRepo
     assert.equal(await page.evaluate(() => window.__ofCalls), 0);
     await page.keyboard.press('Escape');
     await sleep(900);
-    assert.equal(await page.evaluate(() => window.__ofCalls), 11);
+    // 検知は 10 枚ずつ空き時間に進むので、遅いランナーでは 11 枚目が次の空き時間になる
+    assert.equal(await waitFor(() => page.evaluate(() => window.__ofCalls), (n) => n >= 11), 11);
     assert.deepEqual((await posted(page, 'overflowReport')).map(m => m.slides), [[]]);
   });
 });
@@ -1601,7 +1609,8 @@ test('ポップアップの検索：150ms まとめて送り、結果に置き�
     await page.evaluate(() => document.querySelector('.ss-insert[data-index="2"]').click());
     await page.keyboard.type('zzz');
     await sleep(260);
-    await answer(page, await lastSearch(page), fx, { items: [], total: 0 });
+    // 遅いランナーではデバウンス明けの送信が間に合わず、前の検索へ答えて捨てられることがある
+    await answer(page, await waitFor(() => lastSearch(page), (s) => s.query === 'zzz'), fx, { items: [], total: 0 });
     assert.match(await page.evaluate(() => document.querySelector('.ss-pop .ss-pop-note').textContent), /該当するスライドがありません/);
     for (let i = 0; i < 3; i++) await page.keyboard.press('Backspace');
     await sleep(260);
@@ -1943,7 +1952,7 @@ test('公開 API：window.ssPreview（slides / sectionOf / current / post / vers
     assert.equal((await galState(page)).open, false);
     // isEditing
     await dbl(page, await textPoint(page, 2, 'のしくみを知る'));
-    assert.equal(await page.evaluate(() => window.ssPreview.isEditing()), true);
+    assert.equal(await waitFor(() => page.evaluate(() => window.ssPreview.isEditing()), (v) => v), true);
     await page.keyboard.press('Escape');
   });
 });

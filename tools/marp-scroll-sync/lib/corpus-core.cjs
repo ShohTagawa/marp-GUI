@@ -94,8 +94,12 @@ function repoHistory(repoRoot, bin) {
 
 // ───────────────────────── 添削量（churn） ─────────────────────────
 
-/** AI 名義のコミットか（Claude Code が既定で付ける author のメール）。人の手直しと分けて数えるため。追加の目印は CLAUDE_AUTHORS に足す */
-const CLAUDE_AUTHORS = [/noreply@anthropic\.com$/i];
+/** AI 名義のコミットか（Claude Code / Argon 等が既定で付ける author のメール）。人の手直しと分けて数えるため。追加の目印は CLAUDE_AUTHORS に足す */
+const CLAUDE_AUTHORS = [
+  /noreply@anthropic\.com$/i,
+  /^(?:argon|antigravity|noreply)@(?:google|deepmind)\.com$/i,
+  /gemini-code-assist(?:\[bot\])?@users\.noreply\.github\.com$/i,
+];
 const isClaudeVersion = (v) => !!(v && typeof v.email === 'string' && CLAUDE_AUTHORS.some((re) => re.test(v.email)));
 
 const normLines = (lines) => lines.map((l) => l.trim()).filter((l) => l && !/^<!--\s*_?class:/.test(l) && !/^_lib:/.test(l));

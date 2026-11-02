@@ -6,8 +6,7 @@ size: 16:9
 header: '<div class="hdr-left">同期プレビュー入門</div><img class="hdr-logo" src="../assets/logo-placeholder.png" alt="ロゴ">'
 footer: ''
 style: |
-  :root { --hdr-left-w: 23%; --accent: #C8611C; --accent-dark: #8f3f12; --accent-soft: #FBEAD9; }
-  section .page-title { left: 20%; width: 38%; }
+  :root { --hdr-left-w: 23%; --pt-center: 39%; --pt-width: 38%; --accent: #C8611C; --accent-dark: #8f3f12; --accent-soft: #FBEAD9; }
   /* ===== 開始の前に：QR を右に置く行 ===== */
   .sec-qr-row { display: flex; align-items: center; gap: 16px; }
   .sec-qr-row .sq-text { flex: 1; min-width: 0; }
