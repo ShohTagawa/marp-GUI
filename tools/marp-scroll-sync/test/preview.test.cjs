@@ -1585,13 +1585,13 @@ test('ポップアップの検索：150ms まとめて送り、結果に置き�
     await page.keyboard.type('jk');
     assert.deepEqual(await posted(page), [], 'デバウンス中は送らない。j/k でスライドも動かない');
     await sleep(260);
-    const s1 = await lastSearch(page);
+    const s1 = await waitFor(() => lastSearch(page), (s) => s && s.query === 'jk');
     assert.deepEqual([s1.query, s1.sort, s1.limit], ['jk', 'relevance', 9]);
     assert.deepEqual(s1.haveCss.slice().sort(), Object.keys(fx.css).sort(), '受信済みの css は送り直させない');
     assert.deepEqual((await popState(page)).heads, ['検索中…']);
     await page.keyboard.type(' 重み');
     await sleep(260);
-    const s2 = await lastSearch(page);
+    const s2 = await waitFor(() => lastSearch(page), (s) => s.query === 'jk 重み');
     assert.ok(s2.reqId > s1.reqId && s2.query === 'jk 重み');
     // 古い応答（最初の空の語・1 つ前の語）は捨てる
     await answer(page, first, fx, { items: fx.items.slice(0, 9) });
@@ -1614,7 +1614,7 @@ test('ポップアップの検索：150ms まとめて送り、結果に置き�
     assert.match(await page.evaluate(() => document.querySelector('.ss-pop .ss-pop-note').textContent), /該当するスライドがありません/);
     for (let i = 0; i < 3; i++) await page.keyboard.press('Backspace');
     await sleep(260);
-    g = await popState(page);
+    g = await waitFor(() => popState(page), (st) => st.heads[0] === '棚');
     assert.deepEqual([g.heads, g.shelf.length], [['棚', '手を入れた順'], 9]);
     // 閉じたあとに届いた応答でも例外を出さない
     const late = await lastSearch(page);
