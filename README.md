@@ -232,7 +232,13 @@ install-mac.command / install-windows.bat
 
 VS Code 拡張はマーケットプレイスを通さず、このフォルダを `~/.vscode/extensions/`（および Antigravity IDE の `~/.antigravity-ide/extensions/`）に登録（リンク）して使います。外すときは `marp-gui.scroll-sync` と `marp-gui.pdf` を削除してください（リンクなので、本体は消えません）。
 
-## 設計の背景と謝辞（中島聡さんへ）
+## 設計の背景と謝辞
+
+### Marp（Yuki Hattori さん / Marp Team）へ
+
+`marp-GUI` は、**[Yuki Hattori さん（@yhatt）](https://github.com/yhatt)** と **[Marp Team](https://github.com/marp-team)** が開発し MIT ライセンスで公開されている **[Marp（Markdown Presentation Ecosystem）](https://marp.app/)**（`@marp-team/marp-core`・`@marp-team/marpit`・`@marp-team/marp-cli`）の基盤の上に成り立っています。Markdown と CSS だけで美しく拡張性の高いスライドを組める仕組みを作り、長年にわたりメンテナンスし続けてくださっていることに深く感謝いたします。
+
+### 中島聡さんへ
 
 本ツールの「AI と人間が共有する器（DSL）として CSS テーマと制限付き Markdown を定義し、重いレンダリングや PDF・動画合成は手元の Mac / PC の決定論的ハーネスに任せる」という設計思想、およびオンデマンド講義動画パイプラインにおけるアバター合成は、**中島聡さん（[@snakajima](https://x.com/snakajima) / Receptron）** の記事 **「バイブなもの作りの時代」** と、オープンソースとして公開された **[AvatarScript](https://github.com/receptron/avatarscript)**・**[MulmoCast](https://github.com/receptron/mulmocast-cli)**（ならびに shinshin86 さんの **[Mesh Avatar Studio](https://x.com/shinshin86/status/2106593371762651346)**）から多大な示唆と恩恵を受けています。
 

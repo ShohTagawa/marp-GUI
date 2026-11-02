@@ -237,7 +237,13 @@ install-mac.command / install-windows.bat
 
 The VS Code extensions are not installed through the Marketplace. Instead, this folder is registered (linked) into `~/.vscode/extensions/` (and `~/.antigravity-ide/extensions/` for Antigravity IDE). To remove them, delete `marp-gui.scroll-sync` and `marp-gui.pdf` from that folder (they are links, so the files in this folder are not deleted).
 
-## Design Background & Acknowledgments (to Satoshi Nakajima)
+## Design Background & Acknowledgments
+
+### To Marp (Yuki Hattori & Marp Team)
+
+`marp-GUI` is built on top of **[Marp (Markdown Presentation Ecosystem)](https://marp.app/)** (`@marp-team/marp-core`, `@marp-team/marpit`, and `@marp-team/marp-cli`), created and maintained by **[Yuki Hattori (@yhatt)](https://github.com/yhatt)** and the **[Marp Team](https://github.com/marp-team)** under the MIT License. We are deeply grateful for their work in creating and maintaining such a clean, extensible foundation for building slides with Markdown and CSS.
+
+### To Satoshi Nakajima
 
 The architectural philosophy of `marp-GUI` — defining CSS themes and constrained Markdown as a shared container/DSL for both LLMs and humans while offloading heavy rendering, PDF export, and video synthesis to deterministic local harnesses — as well as the avatar-narrated lecture video pipeline, was deeply inspired by **Satoshi Nakajima's ([@snakajima](https://x.com/snakajima) / Receptron)** article *"バイブなもの作りの時代" (The Era of Vibe Making)* and his open-source projects **[AvatarScript](https://github.com/receptron/avatarscript)** and **[MulmoCast](https://github.com/receptron/mulmocast-cli)** (along with shinshin86's **[Mesh Avatar Studio](https://x.com/shinshin86/status/2106593371762651346)**).
 
