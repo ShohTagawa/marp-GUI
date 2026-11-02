@@ -247,7 +247,7 @@ VS Code 拡張はマーケットプレイスを通さず、このフォルダを
 ### 開発に使用した AI
 
 - **設計**：GPT-5、GPT-5.1
-- **実装**：GPT-5、GPT-5.1、Claude Opus（4.5 / 4.6）、Gemini（Claude Code / Antigravity IDE）
+- **実装**：GPT-5、GPT-5.1、Claude Opus（4.5 / 4.6 / 4.7）、Gemini（Claude Code / Antigravity IDE）
 
 ## ご寄付のお願い
 
@@ -272,4 +272,4 @@ Apache License 2.0（[LICENSE](LICENSE)）。テーマ・拡張・ツールと�
 - このソフトウェアは原稿ファイルを直接書き換えます。大切な原稿は、ご自身でバックアップを取ってからお使いください。
 - サポートはできる範囲で行うものです。作者には、質問への回答・不具合の修正・更新の提供を行う義務はなく、このソフトウェアは予告なく変更・提供終了することがあります。困ったときは、まず「[うまく行かないとき](#6-うまく行かないとき)」を見て、それでも解決しなければ [CONTRIBUTING.md](CONTRIBUTING.md) の手順で GitHub の issue にお知らせください。
 - Marp は原稿中の HTML をそのまま描画します。出どころのわからない、または信頼できないデック（.md ファイル）を開くときは、中身を確かめてからにしてください。どのファイルを開くかは、利用者ご自身の責任で判断してください。
-- コードの大部分は、作者の仕様に沿って AI（設計：GPT-5、GPT-5.1／実装：GPT-5、GPT-5.1、Claude Opus 4.5 / 4.6、Gemini）が書きました。346 件の自動テスト（`npm test`）で確かめ、リポジトリの GitHub Actions のワークフローが Ubuntu・macOS・Windows × Node.js 20・22 で同じテストを回します。セキュリティの点検の結果は、まだ直していない項目も含めて [docs/security-review.md](docs/security-review.md) にあります。テストと点検で不具合や脆弱性は減らせますが、無くせるわけではありません。
+- コードの大部分は、作者の仕様に沿って AI（設計：GPT-5、GPT-5.1／実装：GPT-5、GPT-5.1、Claude Opus 4.5 / 4.6 / 4.7、Gemini）が書きました。346 件の自動テスト（`npm test`）で確かめ、リポジトリの GitHub Actions のワークフローが Ubuntu・macOS・Windows × Node.js 20・22 で同じテストを回します。セキュリティの点検の結果は、まだ直していない項目も含めて [docs/security-review.md](docs/security-review.md) にあります。テストと点検で不具合や脆弱性は減らせますが、無くせるわけではありません。
