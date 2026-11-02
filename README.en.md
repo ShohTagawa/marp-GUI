@@ -2,14 +2,20 @@
 
 [日本語](README.md) | **English**
 
-An environment for building Marp slides **by working directly in the VS Code preview**.
+An environment for building Marp slides **by touching and editing directly in the VS Code or Antigravity IDE preview while collaborating with AI**.
 Your source stays plain Markdown. In the preview you can double-click text to fix it, right-click to pick a layout, and reorder slides.
 
+Because plain Markdown is poured into CSS frameworks, **reusing past slides and maintaining consistent design reproducibility are effortless**. Without overhyping, for university faculty and researchers who prepare and reuse lectures and research talks every week, this workflow is genuinely transformative.
+
+- **▶ 3-Minute Walkthrough Video (English / Google Drive)**: https://drive.google.com/file/d/1d4t_VKh63fnb3AceqcaecJUMgspDi5OD/view?usp=drive_link
+- **▶ 3-Minute Walkthrough Video (Japanese / Google Drive)**: https://drive.google.com/file/d/1S5obECJmNhZShVA3K7ZsOQNkP3o0MVYX/view?usp=sharing ([日本語 README](README.md))
+
+### Key Features
 - Synced preview: shows the slide at your cursor side by side (click it to jump to that line in the source)
 - Direct editing in the preview: double-click text → Enter writes it back to the source
 - Layout variants: right-click a slide → compare options such as three cards or figure-and-text columns, and switch with one click
 - Slide operations: add, duplicate, reorder, delete, and search for and insert existing slides
-- 📄 PDF (vector, so text stays sharp) and ▶ Present (full screen in Chrome)
+- 📄 PDF (vector, so text stays sharp) and ▶ Present (full screen in Chrome with presenter view & speech synthesis)
 
 Works on macOS and Windows (the test suite also runs on Ubuntu). Node.js 20 or later.
 
@@ -35,11 +41,12 @@ This is the synced preview that opens on the right side of VS Code. When you mov
 
 ## 1. What you need (install these first)
 
-| Item | Where to get it |
+| Item | Where to get it / Requirement |
 |---|---|
-| **VS Code** | https://code.visualstudio.com/ |
+| **VS Code** or **Antigravity IDE** | https://code.visualstudio.com/ (+ AI coding plugin/agent) |
+| **Paid AI Plan (Required)** | **Claude Pro (or higher)** or **Antigravity Pro (or higher)** subscription is required to collaborate with the AI on slides and CSS |
 | **Node.js** (LTS version) | https://nodejs.org/en/download |
-| **Google Chrome** (or Edge) | Used for PDF output and presenting |
+| **Google Chrome** (or Edge) | Used for vector PDF output and full-screen presenting |
 
 ## 2. Download
 
@@ -67,7 +74,12 @@ If you are comfortable with the terminal, this one line in the folder does the s
 npm run setup
 ```
 
-If you use an AI coding agent such as **Antigravity IDE** or **Claude Code**, you can also simply open the `marp-GUI` folder and ask the agent in chat: **"Please install the tools in this repository"** — it will run `npm run setup` (installing dependencies and linking the extensions) automatically.
+If you use an AI coding agent such as **Antigravity IDE** or **Claude Code**, you can also simply open the cloned `marp-GUI` folder and ask the agent in chat:
+
+- **macOS**: **"Please install the tools in `tools`"**
+- **Windows**: **"Please install and adapt the tools so they work on Windows"**
+
+It will run the setup and link the extensions for your OS automatically.
 
 > If you move the folder somewhere else, run the installer again (it re-creates the links that register the extensions with VS Code / Antigravity IDE).
 
@@ -169,24 +181,28 @@ header: '<div class="hdr-left">Talk title</div><img class="hdr-logo" src="../ass
   See `sample-layouts.md` for the available layouts and `sample-parts.md` for the parts
 - The key-point band at the bottom is `<div class="takeaway">…</div>`
 
-### How it works: CSS as the container, Markdown as the content
+### Key Idea: Pouring Plain Markdown into CSS Frameworks
 
-Built on top of MIT-licensed [Marp (Marpit)](https://marp.app/), `marp-GUI` separates **the visual container (`theme/*.css` + 12 `_class: lay-*` layout classes)** from **the plain Markdown content**:
+Built on top of MIT-licensed [Marp (Marpit)](https://marp.app/), `marp-GUI` puts **ordinary Markdown inside CSS frameworks (`theme/*.css`) with slide structures organized into CSS classes**:
 
-- **Fixed layout invariants**: The header, slide title, bottom takeaway band (`.takeaway`), and 16:9 frame are locked in CSS so elements never jump between slides.
-- **One-word layout switching (`lay-*`)**: Without touching the body Markdown, changing `<!-- _class: lay-cards3 -->` to `lay-flow` or `lay-fig-right` rearranges the slide. Past slides inserted via the `＋` button automatically adapt to the current deck's CSS theme.
-- **Shared language for GUI and AI**: Every GUI gesture in the preview (double-clicking text, right-clicking to pick a layout, `Alt`+dragging a box) writes back to the Markdown source as a single Undo step (`⌘Z` / `Ctrl+Z`).
-- **Ask the AI to adjust CSS or notes**: Because the structure lives in CSS and Markdown, you can ask your AI agent to tweak spacing or colors in `theme/*.css`, embed inline SVG diagrams, or draft presenter notes (`<!-- ... -->`) at the end of each slide.
+- **Effortless reuse & design reproducibility**: Because the header, slide title, and bottom takeaway band (`.takeaway`) are fixed in CSS and slide structures (three cards, step-by-step flows, side-by-side figures, tables, etc.) are divided into CSS classes, you can switch layouts without touching the Markdown body. Past slides inserted via the `＋` button automatically match your current deck's CSS theme.
+- **Ask the AI to create new CSS themes**: Beyond tweaking spacing on a single page, you can show a reference and tell the AI **"Build a CSS theme in this style"** — it will generate a new `theme/*.css` for you.
+- **Separate human edits and AI edits in Git to continuously improve performance**: Every GUI gesture in the preview (double-clicking text, right-clicking to pick a layout, `Alt`+dragging a box) writes back to the Markdown source as a single Undo step (`⌘Z` / `Ctrl+Z`). **By separating commits made by the AI from commits where you manually refined the slides**, your `git diff` history captures your exact preferences — feeding those diffs back into your AI skills makes slide generation smarter over time.
+- **Minimal starter skills included (designed to grow with you)**: This public release includes only a minimal baseline set of the author's skills and themes. It may feel simple at first, but it is designed to be grown into your own custom environment through your Git history and CSS styles.
 
-## 6. Troubleshooting
+## 6. Troubleshooting & Practical Notes
 
 | Problem | What to do |
 |---|---|
-| ⌘K M does not open the preview / the buttons are missing | Run the installer again → "Developer: Reload Window" in VS Code |
-| 📄 / ▶ do not appear | Check that the .md starts with `marp: true`, and that VS Code has the **marp-GUI folder** open |
+| **Slides or presentation do not display (especially on macOS)** | On macOS, if the folder is placed in a directory where **Google Chrome lacks file access permission** (such as `Desktop` or `Downloads`), Chrome may fail to load the slides or images. Move the folder to a permitted location or grant Chrome access under **System Settings → Privacy & Security → Files and Folders** (or ask the AI to fix it). |
+| **Garbled characters or broken fonts in exported PDF** | Depending on your OS, required fonts (such as `BIZ UDPGothic`) may not be installed. Simply tell the AI: **"Fix the garbled font in the PDF for my OS"** and it will adjust the font settings. |
+| ⌘K M does not open the preview / the buttons are missing | Run the installer again → "Developer: Reload Window" in VS Code / Antigravity IDE |
+| 📄 / ▶ do not appear | Check that the .md starts with `marp: true`, and that the editor has the **marp-GUI folder** open |
 | PDF stops with "Printing failed" | In a terminal, run `npm run pdf:safe -- slides/<deck>/<deck>.md` (splits the job into smaller pieces) |
-| "Node.js not found" | After installing Node.js, reopen VS Code and run the installer again |
+| "Node.js not found" | After installing Node.js, reopen the editor and run the installer again |
 | You want to check the setup | `npm run setup:check` |
+
+> **Questions & Community Contributions**: It is uncertain whether the author can personally answer every question, so we warmly welcome and look forward to answers, fixes, and improvements shared within the community via GitHub Issues and Pull Requests.
 
 ## 7. Using it from the terminal (optional)
 
@@ -245,14 +261,18 @@ The VS Code extensions are not installed through the Marketplace. Instead, this 
 
 ### To Satoshi Nakajima
 
-The architectural philosophy of `marp-GUI` — defining CSS themes and constrained Markdown as a shared container/DSL for both LLMs and humans while offloading heavy rendering, PDF export, and video synthesis to deterministic local harnesses — as well as the avatar-narrated lecture video pipeline, was deeply inspired by **Satoshi Nakajima's ([@snakajima](https://x.com/snakajima) / Receptron)** article *"バイブなもの作りの時代" (The Era of Vibe Making)* and his open-source projects **[AvatarScript](https://github.com/receptron/avatarscript)** and **[MulmoCast](https://github.com/receptron/mulmocast-cli)** (along with shinshin86's **[Mesh Avatar Studio](https://x.com/shinshin86/status/2106593371762651346)**).
+This project and our workflow for generating videos and avatars from slides were started after gaining inspiration and insight from articles in **Satoshi Nakajima's ([@snakajima](https://x.com/snakajima) / Receptron)** newsletter. In addition, the avatar synthesis in our on-demand lecture video pipeline has received tremendous inspiration and benefit from **[AvatarScript](https://github.com/receptron/avatarscript)** and **[MulmoCast](https://github.com/receptron/mulmocast-cli)** released as open source by Satoshi Nakajima (along with shinshin86's **[Mesh Avatar Studio](https://x.com/shinshin86/status/2106593371762651346)**).
 
-For a detailed note of gratitude and architectural comparison (in Japanese), see **[docs/THANKS-nakajima.md](docs/THANKS-nakajima.md)**.
+### To Google DeepMind
+
+The use of Antigravity (Argon) in this research and development is generously supported by **Google DeepMind's researcher support**. We are deeply grateful for their support.
 
 ### AI Models Used in Development
 
+Almost all of the coding for this tool (extensions, scripts, CSS themes, and automated tests) as well as the creation of this README, documentation, and walkthrough videos was done using AI:
+
 - **Design**: GPT-5, GPT-5.1
-- **Implementation**: GPT-5, GPT-5.1, Claude Opus (4.5 / 4.6 / 4.7), Gemini (via Claude Code / Antigravity IDE)
+- **Implementation & README/Docs**: GPT-5, GPT-5.1, Claude Opus (4.5 / 4.6 / 4.7), Gemini (via Claude Code / Antigravity IDE)
 
 ## Supporting Chiba University
 
@@ -275,6 +295,6 @@ The following restates, for clarity, the points of Section 7 (Disclaimer of Warr
 - To the maximum extent permitted by applicable law, the author and contributors shall not be liable for any damages arising out of the use of or inability to use this software, including loss of data, corruption of slides or source files, work stoppage, or any other direct, indirect, incidental, or consequential damages.
 - Where liability cannot be excluded by law, any such liability is limited to the amount you paid for this software (which is zero, as it is free).
 - This software rewrites your source files directly. Please keep your own backups of important files.
-- Support is provided on a best-effort basis. The author is under no obligation to answer questions, fix defects or release updates, and the software may change or be withdrawn at any time without notice. If something goes wrong, see [Troubleshooting](#6-troubleshooting) first, then open a GitHub issue as described in [CONTRIBUTING.md](CONTRIBUTING.md).
+- Support is provided on a best-effort basis, and the author may not be able to answer every question personally; we welcome and look forward to community answers, fixes, and improvements via GitHub Issues and Pull Requests. The author is under no obligation to answer questions, fix defects or release updates, and the software may change or be withdrawn at any time without notice. If something goes wrong, see [Troubleshooting](#6-troubleshooting--practical-notes) first, then open a GitHub issue as described in [CONTRIBUTING.md](CONTRIBUTING.md).
 - Marp renders the HTML in a deck as is. Before opening a deck (.md file) from an unknown or untrusted source, check its contents. Deciding which files to open is your own responsibility.
 - Most of the code was written with AI coding agents (Design: GPT-5, GPT-5.1; Implementation: GPT-5, GPT-5.1, Claude Opus 4.5 / 4.6 / 4.7, Gemini) from the author's specifications. It is checked by 346 automated tests (`npm test`); the repository's GitHub Actions workflow runs them on Ubuntu, macOS and Windows with Node.js 20 and 22. A security review is recorded in [docs/security-review.md](docs/security-review.md), including the findings that are still open. Tests and reviews reduce defects and vulnerabilities but cannot rule them out.
