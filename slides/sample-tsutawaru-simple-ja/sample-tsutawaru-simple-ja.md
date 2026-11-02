@@ -184,6 +184,6 @@ section { --font-jp: var(--font-seed); }
 
 ## 参考文献とクレジット
 
-- 親テーマ tsutawaru-academic の準拠先：高橋佑磨・片山なつ『伝わるデザインの基本 増補改訂3版 よい資料を作るためのレイアウトのルール』技術評論社, 2021（ISBN 978-4-297-11985-0）
+- 親テーマ：theme/tsutawaru-academic.css（Apache-2.0）
 - 書体：BIZ UDPGothic と LINE Seed JP（SIL Open Font License 1.1）。描画のときに Google Fonts から読み込みます。
 - このテーマ：theme/tsutawaru-simple.css（Apache-2.0）

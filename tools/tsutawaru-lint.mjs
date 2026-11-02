@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // SPDX-License-Identifier: Apache-2.0
 // Copyright (c) 2026 Shoh Tagawa
-// tsutawaru-lint — Marp デックを、『伝わるデザインの基本 増補改訂3版』のルールと、このリポジトリの規則に照らして点検する。
+// tsutawaru-lint — Marp デックを、このリポジトリのデザイン規則に照らして点検する。
 //
 //   node tools/tsutawaru-lint.mjs slides/<deck>/<deck>.md
 //   node tools/tsutawaru-lint.mjs slides             # ディレクトリを再帰的に走査
@@ -9,7 +9,7 @@
 //   node tools/tsutawaru-lint.mjs slides --lang en   # 出力の言語 ja|en
 //
 // 判定は「見た目の点検」の代わりにはならない。PNGを目で見る前のふるいとして使う。
-// ルールの一覧・しきい値・本のページは docs/design-rules.md（英語と日本語）。しきい値の根拠は各ルールのコメントにもある。
+// ルールの一覧・しきい値は docs/design-rules.md（英語と日本語）。しきい値の根拠は各ルールのコメントにもある。
 //
 // 水準と終了コード：
 //   error … インラインの style="…"（とフロントマターの header/footer の HTML）で文字が 18px 未満
@@ -28,18 +28,17 @@ import { join, relative, isAbsolute } from 'node:path';
  * しきい値
  * ------------------------------------------------------------------ */
 const RULES = {
-  // p.174「枠を付けるのは最低限に」／p.212「囲みすぎは絶対にNGです。」
+  // 枠を付けるのは最低限にする。
   // 実測（推敲を重ねた4デック・253枚）: 84%が囲み0個、3個以上はわずか5.5%。
   BOX_WARN: 3,
-  // p.202「ルール通りにいかないのは、多くの場合、情報が多すぎたり、内容が洗練されていないことが原因」
+  // 収まらないのは情報過多のサイン。
   // 実測（同上）: 中央値218字・75%tile 330字。400字を超えたら分割を検討する。
   CHARS_WARN: 400,
-  // p.77「スライドなどの資料では、4種類以上のフォントサイズを使わないほうが無難」
+  // 1枚のスライドでは4種類以上のフォントサイズを使わない。
   FONTSIZE_KINDS_WARN: 4,
-  // 文字の下限。このリポジトリの規則（講堂で投影して読める大きさ）で、本の規則ではない。
-  // 本の p.61 はスライド本文の目安を示すだけで、下限は決めていない。
+  // 文字の下限（講堂で投影して読める大きさ）。
   FONTSIZE_MIN: 18,
-  // p.98「丸みは最低限に抑える」／丸みは資料内で統一する
+  // 角丸は小さく、かつ資料内で統一する。
   RADIUS_WARN: 8,
 };
 const MIN = RULES.FONTSIZE_MIN;
@@ -50,7 +49,6 @@ const BOX_CLASS =
   /class="[^"]*(?:box-accent|box-info|box-warn|why-callout|callout-|stepbox|pcard|goal-box|exrow|sec-box|fill\b|rule-box)/g;
 
 // 体言止めになりやすい語尾。AIが書いた文に頻出し、話し言葉から遠ざかる。
-// ※ このリストは書籍の内容ではなく、このリポジトリの運用ルール。
 const TAIGEN_SUFFIX = [
   '化', '性', '力', '点', '策', '法', '面', '感', '度', '観', '論', '型', '率', '差',
   '実現', '推進', '向上', '強化', '促進', '活用', '構築', '確立', '支援', '創出',
@@ -72,30 +70,25 @@ const HYPE_SOFT = [
 ];
 
 /* ------------------------------------------------------------------ *
- * 出力の文言（ja / en）。p.NNN は本のページ。本でない規則には「このリポジトリの規則」と書く
+ * 出力の文言（ja / en）
  * ------------------------------------------------------------------ */
-const BOOK = {
-  ja: 'p.NNN は 高橋佑磨・片山なつ『伝わるデザインの基本 増補改訂3版 よい資料を作るためのレイアウトのルール』技術評論社, 2021（ISBN 978-4-297-11985-0）のページ。',
-  en: 'p.NNN = page in: Takahashi Y, Katayama N. Tsutawaru dezain no kihon [The basics of design that communicates]. Expanded and revised 3rd ed. Gijutsu-Hyōron-sha; 2021. ISBN 978-4-297-11985-0 (in Japanese).',
-};
-
 const T = {
   ja: {
     slide: (n) => `[${n}枚目]`,
     fm: '[フロントマター]',
-    boxes: (n) => [`囲みが${n}個`, '枠を付けるのは最低限に（p.174/p.212）。塗りだけ→細枠だけ→囲まない、の順に落とす'],
-    chars: (n) => [`可視文字数 ${n}字`, '入らないのは情報過多のサイン（p.202）。図表を減らす／文字数を減らす／ページを分割する'],
-    kinds: (n) => [`文字サイズを${n}種類ベタ書き`, '4種類以上のフォントサイズは使わない（p.77）。サイズではなく太さで差をつける'],
-    fsInline: (v) => [v, `文字の下限は${MIN}px（このリポジトリの規則：講堂で投影して読める大きさ）。縮める前にレイアウトを変える`],
+    boxes: (n) => [`囲みが${n}個`, '枠を付けるのは最低限に。塗りだけ→細枠だけ→囲まない、の順に落とす'],
+    chars: (n) => [`可視文字数 ${n}字`, '入らないのは情報過多のサイン。図表を減らす／文字数を減らす／ページを分割する'],
+    kinds: (n) => [`文字サイズを${n}種類ベタ書き`, '4種類以上のフォントサイズは使わない。サイズではなく太さで差をつける'],
+    fsInline: (v) => [v, `文字の下限は${MIN}px（講堂で投影して読める大きさ）。縮める前にレイアウトを変える`],
     fsCss: (v, where) => [`${where === 'fm' ? 'フロントマターの CSS' : '<style> の CSS'} に ${v}`,
-      `スライドの文字に効くなら${MIN}pxの下限を割る（このリポジトリの規則）。セレクタがどの要素に効くかは見ないので warn にとどめる`],
+      `スライドの文字に効くなら${MIN}pxの下限を割る。セレクタがどの要素に効くかは見ないので warn にとどめる`],
     fsSvg: (v, n, drawn) => [`SVG の font-size ${v}（${n}か所・${drawn == null ? 'SVG の単位' : `描画で約${drawn}px`}）`,
-      `図の中の文字も描画で${MIN}px以上にする（このリポジトリの規則）。SVG は拡大縮小で大きさが変わるので warn にとどめる`],
-    radius: (v) => [`border-radius:${v}px`, '丸みは最低限に、かつ資料内で統一（p.98）。テーマの既定は3px'],
-    center: () => ['中央揃え', '使ってよいのは左揃えか両端揃え（p.70）。見出しの中央寄せは1枚に限る（このリポジトリの規則）'],
-    taigen: (t) => [`体言止め「…${t}」`, '述語で言い切る。「〜化」「〜性」「〜の実現」で止めない（このリポジトリの規則）'],
-    hype: (w) => [`煽り語「${w}」`, '事実と根拠で言う。誇張語は外す（このリポジトリの規則）'],
-    soft: (w) => [`常套句「${w}」`, 'AIっぽい定型。具体語に置き換える（このリポジトリの規則）'],
+      `図の中の文字も描画で${MIN}px以上にする。SVG は拡大縮小で大きさが変わるので warn にとどめる`],
+    radius: (v) => [`border-radius:${v}px`, '丸みは最低限に、かつ資料内で統一。テーマの既定は3px'],
+    center: () => ['中央揃え', '基本は左揃えか両端揃え。見出しの中央寄せは1枚に1つまで'],
+    taigen: (t) => [`体言止め「…${t}」`, '述語で言い切る。「〜化」「〜性」「〜の実現」で止めない'],
+    hype: (w) => [`煽り語「${w}」`, '事実と根拠で言う。誇張語は外す'],
+    soft: (w) => [`常套句「${w}」`, 'AIっぽい定型。具体語に置き換える'],
     summary: (pages, dens, med) => `${pages}枚 / 囲み ${dens} 枠per枚 / 文字数の中央値 ${med}字`,
     clean: '指摘なし',
     total: (decks, slides) => `合計（${decks}デック・${slides}枚）: `,
@@ -103,7 +96,7 @@ const T = {
     notFound: (p) => `見つからない: ${p}`,
     badLang: (v) => `--lang は ja か en: ${v ?? '（値が無い）'}`,
     badOpt: (o) => `知らないオプション: ${o}`,
-    footer: [BOOK.ja, '（このリポジトリの規則）は本ではなく、このリポジトリで決めた規則。全ルールの一覧は docs/design-rules.md'],
+    footer: ['全ルールの一覧は docs/design-rules.md'],
     usage: [
       '使い方: node tools/tsutawaru-lint.mjs <file.md|dir>... [--summary] [--lang ja|en]',
       '  --summary   デックごとの集計だけを出す',
@@ -115,27 +108,27 @@ const T = {
     slide: (n) => `[slide ${n}]`,
     fm: '[front matter]',
     boxes: (n) => [`${n} boxed elements`,
-      'Keep boxes to a minimum (handbook p.174, p.212): use a fill only, then a thin rule only, then no box.'],
+      'Keep boxes to a minimum: use a fill only, then a thin rule only, then no box.'],
     chars: (n) => [`${n} visible characters`,
-      'Text that does not fit signals too much information (handbook p.202). Cut figures or text, or split the slide.'],
+      'Text that does not fit signals too much information. Cut figures or text, or split the slide.'],
     kinds: (n) => [`${n} font sizes set inline`,
-      'Use at most three font sizes on a slide (handbook p.77). Vary the weight rather than the size.'],
+      'Use at most three font sizes on a slide. Vary the weight rather than the size.'],
     fsInline: (v) => [v,
-      `Text is never set below ${MIN}px (project rule, for legibility when projected). Change the layout before shrinking text.`],
+      `Text is never set below ${MIN}px (for legibility when projected). Change the layout before shrinking text.`],
     fsCss: (v, where) => [`${v} in ${where === 'fm' ? 'front-matter CSS' : 'a <style> block'}`,
-      `Below the ${MIN}px floor if this rule styles slide text (project rule). A warning, because the lint does not resolve which elements a CSS selector matches.`],
+      `Below the ${MIN}px floor if this rule styles slide text. A warning, because the lint does not resolve which elements a CSS selector matches.`],
     fsSvg: (v, n, drawn) => [`SVG font-size ${v} at ${n} ${n === 1 ? 'place' : 'places'} (${drawn == null ? 'SVG user units' : `about ${drawn}px as drawn`})`,
-      `Text in figures should also be ${MIN}px or larger as drawn (project rule). A warning, because the drawn size depends on how the SVG is scaled.`],
+      `Text in figures should also be ${MIN}px or larger as drawn. A warning, because the drawn size depends on how the SVG is scaled.`],
     radius: (v) => [`border-radius:${v}px`,
-      'Keep corner rounding minimal and uniform (handbook p.98). The theme uses 3px.'],
+      'Keep corner rounding minimal and uniform. The theme uses 3px.'],
     center: () => ['centred text',
-      'Align text left or justified (handbook p.70); at most one centred heading per slide (project rule).'],
+      'Align text left or justified; at most one centred heading per slide.'],
     taigen: (t) => [`nominal ending "…${t}"`,
-      'End the line with a predicate, not a bare noun phrase (project rule; Japanese text only).'],
+      'End the line with a predicate, not a bare noun phrase (Japanese text only).'],
     hype: (w) => [`hype word "${w}"`,
-      'Say it with facts and evidence; drop the exaggeration (project rule; Japanese text only).'],
+      'Say it with facts and evidence; drop the exaggeration (Japanese text only).'],
     soft: (w) => [`stock phrase "${w}"`,
-      'A stock phrase typical of machine-drafted text; use concrete words (project rule; Japanese text only).'],
+      'A stock phrase typical of machine-drafted text; use concrete words (Japanese text only).'],
     summary: (pages, dens, med) => `${pages} ${pages === 1 ? 'slide' : 'slides'} / ${dens} boxes per slide / median ${med} characters per slide`,
     clean: 'clean',
     total: (decks, slides) => `Total (${decks} ${decks === 1 ? 'deck' : 'decks'}, ${slides} ${slides === 1 ? 'slide' : 'slides'}): `,
@@ -143,7 +136,7 @@ const T = {
     notFound: (p) => `not found: ${p}`,
     badLang: (v) => `--lang must be ja or en: ${v ?? '(no value)'}`,
     badOpt: (o) => `unknown option: ${o}`,
-    footer: [BOOK.en, '(project rule) = a rule of this repository, not of the handbook. All rules: docs/design-rules.md'],
+    footer: ['All rules: docs/design-rules.md'],
     usage: [
       'usage: node tools/tsutawaru-lint.mjs <file.md|dir>... [--summary] [--lang ja|en]',
       '  --summary   print one summary line per deck',
@@ -306,9 +299,8 @@ function lintSlide(text, startLine, out, push) {
     return blk.replace(RE_CSS_COMMENT, blank);
   });
 
-  // ---- 囲みの数（p.174 / p.212） ----
-  // .grid2（等幅・等高の整列カード＝p.205 別解2 の型）はグリッド全体で1つと数える。
-  // 本が問題にするのは「バラバラに散った囲み」であって、均等に整列したカード群ではない。
+  // ---- 囲みの数 ----
+  // .grid2（等幅・等高の整列カード）はグリッド全体で1つと数える。
   let boxSrc = clean;
   let gridUnits = 0;
   if (/class="[^"]*\bgrid2\b/.test(clean)) {
@@ -319,7 +311,7 @@ function lintSlide(text, startLine, out, push) {
   out.boxes += boxes;
   if (boxes >= RULES.BOX_WARN) push('warn', slideLine, 'boxes', boxes);
 
-  // ---- 1枚の文字数（p.202） ----
+  // ---- 1枚の文字数 ----
   const chars = visibleText(text).length;
   out.chars.push(chars);
   if (chars > RULES.CHARS_WARN) push('warn', slideLine, 'chars', chars);
@@ -332,7 +324,7 @@ function lintSlide(text, startLine, out, push) {
     const ln = startLine + k;
     const css = raw.replace(RE_CODE_SPAN, blank);
 
-    // 文字サイズ（p.77 の種類数／このリポジトリの下限 18px）
+    // 文字サイズ（種類数／下限 18px）
     // インラインの style="…" は error、<style> の CSS は warn（どの要素に効くかを lint は解かない）
     for (const s of cssSizes(css)) {
       sizes.push(s.px);
@@ -341,17 +333,17 @@ function lintSlide(text, startLine, out, push) {
         else push('error', ln, 'fsInline', s.label);
       }
     }
-    // 角丸（p.98）
+    // 角丸
     for (const m of css.matchAll(/border-radius\s*:\s*(\d+(?:\.\d+)?)px/g)) {
       if (+m[1] > RULES.RADIUS_WARN) push('warn', ln, 'radius', m[1]);
     }
-    // 中央揃え（p.70）— スライドにつき1件だけ報告する
+    // 中央揃え — スライドにつき1件だけ報告する
     if (!centered && /text-align\s*:\s*center/.test(css)) {
       centered = true;
       push('info', ln, 'center');
     }
 
-    // ---- 文体：体言止め・煽り（本の範囲外／このリポジトリの運用ルール） ----
+    // ---- 文体：体言止め・煽り ----
     // 見出し・要点・箇条書きの「1行」だけを対象にする
     const head = raw.match(/^\s*#{2,3}\s+(.+)$/)
       || raw.match(/^\s*<div class="(?:t|lead|takeaway|subhead)[^"]*">(.+?)<\/div>/)
@@ -369,7 +361,7 @@ function lintSlide(text, startLine, out, push) {
     }
   });
 
-  // ---- 文字サイズの種類数（p.77）はスライド単位で判定 ----
+  // ---- 文字サイズの種類数はスライド単位で判定 ----
   const kinds = new Set(sizes).size;
   if (kinds >= RULES.FONTSIZE_KINDS_WARN) push('warn', slideLine, 'kinds', kinds);
 }

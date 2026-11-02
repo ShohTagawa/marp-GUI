@@ -184,6 +184,6 @@ section { --font-jp: var(--font-seed); }
 
 ## References and credits
 
-- The parent theme, tsutawaru-academic, follows: Takahashi Y, Katayama N. Tsutawaru dezain no kihon [The basics of design that communicates]. Expanded and revised 3rd ed. Gijutsu-Hyōron-sha; 2021. ISBN 978-4-297-11985-0 [in Japanese].
+- Parent theme: theme/tsutawaru-academic.css (Apache-2.0).
 - Typefaces: BIZ UDPGothic and LINE Seed JP (SIL Open Font License 1.1), loaded from Google Fonts at render time.
 - This theme: theme/tsutawaru-simple.css (Apache-2.0).

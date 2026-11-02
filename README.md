@@ -10,7 +10,6 @@ Marp のスライドを、**VS Code のプレビュー上でさわって作る**
 - 配置案：スライドを右クリック → 3列カード・図と文の2カラムなどを見比べて1クリックで切り替え
 - スライド操作：追加・複製・並べ替え・削除、既存スライドの検索と挿入
 - 📄 PDF（ベクター・文字がにじまない）と ▶ プレゼン（Chrome で全画面）
-- テーマ `tsutawaru-academic`：『伝わるデザインの基本』のルールに沿った、囲みの少ない学術スライド
 
 mac / Windows で使えます（テストは Ubuntu でも走ります）。Node.js 20 以上。
 
@@ -66,7 +65,9 @@ VS Code が先に開いていた場合は、コマンドパレット（⌘⇧P /
 npm run setup
 ```
 
-> フォルダを別の場所へ動かしたら、もう一度インストーラーを実行してください（VS Code への登録を貼り直します）。
+また、**Antigravity IDE** や **Claude Code** などの AI コーディングエージェントをお使いの場合は、`marp-GUI` フォルダを開いた状態でチャット欄に **「tool にある内容をインストールして」** と伝えるだけでも、自動で `npm run setup`（依存パッケージの導入と拡張機能のリンク）まで完了します。
+
+> フォルダを別の場所へ動かしたら、もう一度インストーラーを実行してください（VS Code / Antigravity IDE への登録を貼り直します）。
 
 ## 4. 使ってみる
 
@@ -164,6 +165,15 @@ header: '<div class="hdr-left">発表タイトル</div><img class="hdr-logo" src
   使える配置は `sample-layouts.md`、部品は `sample-parts.md` を見てください
 - 下端の要点帯は `<div class="takeaway">…</div>`
 
+### 構造の仕組み：CSS の「器」に Markdown を埋める
+
+`marp-GUI` は、MIT ライセンスの [Marp (Marpit)](https://marp.app/) の上に、**「CSS で作った器（`theme/*.css`）の中に、素の Markdown を流し込む」** 構造をとっています。
+
+- **動かさない枠（不変条件）**：見出し・ヘッダー・下端の要点帯（`.takeaway`）・16:9 の外枠は CSS 側で固定されており、本文をどう書き換えても位置がブレません。
+- **配置クラス（`lay-*`）で並べ替え**：原稿の Markdown はそのままに、`<!-- _class: lay-cards3 -->` や `lay-flow`・`lay-fig-right` などの 1 語だけで 12 種類のレイアウトに切り替わります。そのため、過去のスライドを `＋` ボタンから差し込んでも、今のデックの CSS デザインに自動で馴染みます。
+- **GUI 操作も AI 編集も同じ Markdown へ**：プレビュー上でのダブルクリック文字編集・右クリックの配置切り替え・`Alt`＋ドラッグでの枠移動は、すべて元の Markdown 原稿への 1 回の編集（`⌘Z` / `Ctrl+Z` 1 回で戻せる単位）として書き戻されます。
+- **CSS のデザイン調整も AI に依頼可能**：「このページの余白を少し広げて」「カードの配色を落ち着かせて」のように AI エージェントへ頼めば、`theme/*.css` やスライド内の `style`・インライン SVG 図解・発表者ノート（`<!-- ... -->`）まで対話的に調整できます。
+
 ## 6. うまく行かないとき
 
 | 症状 | 対処 |
@@ -220,7 +230,13 @@ tools/
 install-mac.command / install-windows.bat
 ```
 
-VS Code 拡張はマーケットプレイスを通さず、このフォルダを `~/.vscode/extensions/` に登録（リンク）して使います。外すときは `~/.vscode/extensions/marp-gui.scroll-sync` と `marp-gui.pdf` を削除してください（リンクなので、本体は消えません）。
+VS Code 拡張はマーケットプレイスを通さず、このフォルダを `~/.vscode/extensions/`（および Antigravity IDE の `~/.antigravity-ide/extensions/`）に登録（リンク）して使います。外すときは `marp-gui.scroll-sync` と `marp-gui.pdf` を削除してください（リンクなので、本体は消えません）。
+
+## 設計の背景と謝辞（中島聡さんへ）
+
+本ツールの「AI と人間が共有する器（DSL）として CSS テーマと制限付き Markdown を定義し、重いレンダリングや PDF・動画合成は手元の Mac / PC の決定論的ハーネスに任せる」という設計思想、およびオンデマンド講義動画パイプラインにおけるアバター合成は、**中島聡さん（[@snakajima](https://x.com/snakajima) / Receptron）** の記事 **「バイブなもの作りの時代」** と、オープンソースとして公開された **[AvatarScript](https://github.com/receptron/avatarscript)**・**[MulmoCast](https://github.com/receptron/mulmocast-cli)**（ならびに shinshin86 さんの **[Mesh Avatar Studio](https://x.com/shinshin86/status/2106593371762651346)**）から多大な示唆と恩恵を受けています。
+
+詳しい背景と構造の対応については、**[中島聡さんへの感謝と、`marp-GUI` の設計思想について（docs/THANKS-nakajima.md）](docs/THANKS-nakajima.md)** をご覧ください。
 
 ## ご寄付のお願い
 

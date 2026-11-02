@@ -40,22 +40,13 @@ test('表：8〜14 個・名前は lay-*・テーマ §14 に CSS がある', ()
   assert.ok(!/\.lay-[a-z]/.test(css.slice(0, css.indexOf('14. 配置クラス'))));
 });
 
-test('why のページ番号は docs/design-rules.md（英語・日本語の両方）に在るものだけ', () => {
+test('docs/design-rules.md に英語・日本語の節があり、why に書籍のページ番号を含まない', () => {
   const doc = fs.readFileSync(path.join(REPO, 'docs', 'design-rules.md'), 'utf8');
-  // 英語の節が先、日本語の節（# デザインのルール）が後ろ。どちらにも載っていること
   const cut = doc.search(/^# デザインのルール/m);
   assert.ok(cut > 0, 'docs/design-rules.md に日本語の節（# デザインのルール）がある');
-  const parts = { en: doc.slice(0, cut), ja: doc.slice(cut) };
-  let pages = 0;
   for (const v of lv.LAYOUTS.concat([lv.BASE])) {
-    for (const m of v.why.matchAll(/p\.(\d+)/g)) {
-      pages++;
-      for (const [lang, text] of Object.entries(parts)) {
-        assert.ok(new RegExp('p\\.' + m[1] + '(?!\\d)').test(text), `${v.cls}: p.${m[1]} が docs/design-rules.md（${lang}）に無い`);
-      }
-    }
+    assert.ok(v.why && !/p\.\d+/.test(v.why), `${v.cls}: why にページ番号を含まない`);
   }
-  assert.ok(pages > 0, 'why にページ番号が1つ以上ある');
 });
 
 test('analyzeSlide：素の構造を読む', () => {
@@ -133,7 +124,7 @@ test('analyzeSlide：スライド内の <style> は数えない・HTML の <p> �
   assert.deepStrictEqual(of(html), [null, 'lay-fig-right', 'lay-fig-left', 'lay-fig-top']);
 });
 
-test('variantsFor：本の規則で絞る', () => {
+test('variantsFor：デザイン規則で絞る', () => {
   const of = (md) => clsOf(lv.variantsFor(lv.analyzeSlide(md)));
   assert.deepStrictEqual(of(THREE), [null, 'lay-boxed', 'lay-cards3', 'lay-keyrow']);
   assert.deepStrictEqual(of(FOUR), [null, 'lay-cards2']);

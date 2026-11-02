@@ -10,7 +10,6 @@ Your source stays plain Markdown. In the preview you can double-click text to fi
 - Layout variants: right-click a slide → compare options such as three cards or figure-and-text columns, and switch with one click
 - Slide operations: add, duplicate, reorder, delete, and search for and insert existing slides
 - 📄 PDF (vector, so text stays sharp) and ▶ Present (full screen in Chrome)
-- Theme `tsutawaru-academic`: academic slides with few boxes, following the rules of the Japanese book 『伝わるデザインの基本』 ("Basics of Design That Communicates")
 
 Works on macOS and Windows (the test suite also runs on Ubuntu). Node.js 20 or later.
 
@@ -68,7 +67,9 @@ If you are comfortable with the terminal, this one line in the folder does the s
 npm run setup
 ```
 
-> If you move the folder somewhere else, run the installer again (it re-creates the links that register the extensions with VS Code).
+If you use an AI coding agent such as **Antigravity IDE** or **Claude Code**, you can also simply open the `marp-GUI` folder and ask the agent in chat: **"Please install the tools in this repository"** — it will run `npm run setup` (installing dependencies and linking the extensions) automatically.
+
+> If you move the folder somewhere else, run the installer again (it re-creates the links that register the extensions with VS Code / Antigravity IDE).
 
 ## 4. Try it out
 
@@ -168,6 +169,15 @@ header: '<div class="hdr-left">Talk title</div><img class="hdr-logo" src="../ass
   See `sample-layouts.md` for the available layouts and `sample-parts.md` for the parts
 - The key-point band at the bottom is `<div class="takeaway">…</div>`
 
+### How it works: CSS as the container, Markdown as the content
+
+Built on top of MIT-licensed [Marp (Marpit)](https://marp.app/), `marp-GUI` separates **the visual container (`theme/*.css` + 12 `_class: lay-*` layout classes)** from **the plain Markdown content**:
+
+- **Fixed layout invariants**: The header, slide title, bottom takeaway band (`.takeaway`), and 16:9 frame are locked in CSS so elements never jump between slides.
+- **One-word layout switching (`lay-*`)**: Without touching the body Markdown, changing `<!-- _class: lay-cards3 -->` to `lay-flow` or `lay-fig-right` rearranges the slide. Past slides inserted via the `＋` button automatically adapt to the current deck's CSS theme.
+- **Shared language for GUI and AI**: Every GUI gesture in the preview (double-clicking text, right-clicking to pick a layout, `Alt`+dragging a box) writes back to the Markdown source as a single Undo step (`⌘Z` / `Ctrl+Z`).
+- **Ask the AI to adjust CSS or notes**: Because the structure lives in CSS and Markdown, you can ask your AI agent to tweak spacing or colors in `theme/*.css`, embed inline SVG diagrams, or draft presenter notes (`<!-- ... -->`) at the end of each slide.
+
 ## 6. Troubleshooting
 
 | Problem | What to do |
@@ -225,7 +235,13 @@ tools/
 install-mac.command / install-windows.bat
 ```
 
-The VS Code extensions are not installed through the Marketplace. Instead, this folder is registered (linked) into `~/.vscode/extensions/`. To remove them, delete `~/.vscode/extensions/marp-gui.scroll-sync` and `marp-gui.pdf` (they are links, so the files in this folder are not deleted).
+The VS Code extensions are not installed through the Marketplace. Instead, this folder is registered (linked) into `~/.vscode/extensions/` (and `~/.antigravity-ide/extensions/` for Antigravity IDE). To remove them, delete `marp-gui.scroll-sync` and `marp-gui.pdf` from that folder (they are links, so the files in this folder are not deleted).
+
+## Design Background & Acknowledgments (to Satoshi Nakajima)
+
+The architectural philosophy of `marp-GUI` — defining CSS themes and constrained Markdown as a shared container/DSL for both LLMs and humans while offloading heavy rendering, PDF export, and video synthesis to deterministic local harnesses — as well as the avatar-narrated lecture video pipeline, was deeply inspired by **Satoshi Nakajima's ([@snakajima](https://x.com/snakajima) / Receptron)** article *"バイブなもの作りの時代" (The Era of Vibe Making)* and his open-source projects **[AvatarScript](https://github.com/receptron/avatarscript)** and **[MulmoCast](https://github.com/receptron/mulmocast-cli)** (along with shinshin86's **[Mesh Avatar Studio](https://x.com/shinshin86/status/2106593371762651346)**).
+
+For a detailed note of gratitude and architectural comparison (in Japanese), see **[docs/THANKS-nakajima.md](docs/THANKS-nakajima.md)**.
 
 ## Supporting Chiba University
 

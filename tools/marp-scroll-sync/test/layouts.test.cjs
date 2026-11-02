@@ -137,7 +137,7 @@ test('右クリックで配置案が並ぶ：いまの svg の複製・class だ
   assert.strictEqual(s.cards[0].current, true);
   assert.ok(s.cards.every((c) => c.thumbW >= 150 && c.thumbW <= 200), JSON.stringify(s.cards.map((c) => c.thumbW)));
   assert.ok(/lay-cards3/.test(s.cards[2].secClass) && !/lay-/.test(s.cards[0].secClass));
-  assert.ok(/p\.205/.test(s.why), s.why);
+  assert.ok(/配置クラスなし/.test(s.why), s.why);
   assert.strictEqual(await page.evaluate(() => window.ssPreview.slides().length), n, 'サムネイルをスライドに数えない');
   // 本体の class はまだ変わっていない
   assert.ok(!/lay-/.test(await page.evaluate(() => window.ssPreview.sectionOf(window.ssPreview.slides()[1]).className)));

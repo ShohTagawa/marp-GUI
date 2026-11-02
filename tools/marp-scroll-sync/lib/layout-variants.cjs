@@ -6,7 +6,6 @@
 //   - 判定の表（LAYOUTS）はここ 1 か所。ブラウザ側（media/layouts.js）へは browserTable() の JSON を
 //     window.__SS_LAYOUTS__ として渡す。条件の解き方（matches）だけは同じ物を layouts.js にも書いてある
 //     （ここを変えたら layouts.js の matches も直し、test/layouts.test.cjs の突き合わせを回すこと）。
-//   - why に書くページ番号は docs/design-rules.md（英語・日本語の両方）に在るものだけ（test/layout-variants.test.cjs が確かめる）。
 'use strict';
 
 const LAY_RE = /^lay-[a-z0-9][a-z0-9-]*$/;
@@ -30,44 +29,44 @@ const PATTERN_CLASSES = ['cover-hero', 'cover', 'cover-left', 'intro', 'fig', 's
  */
 const LAYOUTS = [
   { cls: 'lay-boxed', label: '塗りで囲む', group: 'list',
-    why: '目標・ねらいの1枚だけ。枠線ではなく塗りで囲みます（p.174 囲みすぎない）',
+    why: '目標・ねらいの1枚だけ。枠線ではなく塗りで囲みます（囲みすぎない）',
     when: { list: true, items: [2, 3], figure: false, maxItemChars: 90 } },
   { cls: 'lay-cards3', label: '3列のカード', group: 'list',
-    why: '3つを同じ重さで横に並べます。枠は位置と大きさを揃えます（p.175）。見比べるのは3つまで',
+    why: '3つを同じ重さで横に並べます。枠は位置と大きさを揃えます。見比べるのは3つまで',
     when: { list: true, items: [3, 3], figure: false, maxItemChars: 60 } },
   { cls: 'lay-keyrow', label: '上罫だけの列', group: 'list',
-    why: '囲まずに、上の罫1本と余白でグループを作ります（p.174）。見比べるのは3つまで',
+    why: '囲まずに、上の罫1本と余白でグループを作ります。見比べるのは3つまで',
     when: { list: true, items: [2, 3], figure: false, maxItemChars: 45 } },
   { cls: 'lay-cards2', label: '2列のカード', group: 'list',
-    why: '4つは 2×2 のまとまりに分けます（p.205 箇条書きは項目ごとにグループ化）',
+    why: '4つは 2×2 のまとまりに分けます（箇条書きは項目ごとにグループ化）',
     when: { list: true, itemsIn: [2, 4], figure: false, maxItemChars: 70 } },
   { cls: 'lay-flow', label: '左→右の流れ', group: 'order',
-    why: '順序を左から右へ一方向に流します。箱は大きさを揃え、矢印は目立たせません（p.206）',
+    why: '順序を左から右へ一方向に流します。箱は大きさを揃え、矢印は目立たせません',
     when: { list: true, items: [2, 4], ordered: true, figure: false, maxItemChars: 45 } },
   { cls: 'lay-steps', label: '番号つきの手順', group: 'order',
-    why: '上から下へ、番号で順序を示します（p.167 囲み・矢印・番号で順序を示す）',
+    why: '上から下へ、番号で順序を示します（囲み・矢印・番号で順序を示す）',
     when: { list: true, items: [2, 5], ordered: true, figure: false } },
   { cls: 'lay-fig-right', label: '文を左・図を右', group: 'fig',
-    why: 'ワイド画面は行長が伸びすぎるので、横に図を置いて行長を抑えます（p.179）',
+    why: 'ワイド画面は行長が伸びすぎるので、横に図を置いて行長を抑えます',
     when: { figure: true, text: true } },
   { cls: 'lay-fig-left', label: '図を左・文を右', group: 'fig',
-    why: '図を先に見せてから文で説明します。視線は左上から右下へ（p.166）。行長も抑えます（p.179）',
+    why: '図を先に見せてから文で説明します。視線は左上から右下へ。行長も抑えます',
     when: { figure: true, text: true } },
   { cls: 'lay-fig-top', label: '図を上に大きく', group: 'fig',
-    why: '図が主役の1枚。関連する図と文を近づけてグループにします（p.154）',
+    why: '図が主役の1枚。関連する図と文を近づけてグループにします',
     when: { figure: true } },
   { cls: 'lay-fig-only', label: '図だけを中央に', group: 'fig',
-    why: '要素を減らして図だけを見せます（p.110）。文は置かず、下の要点の帯で締めます',
+    why: '要素を減らして図だけを見せます。文は置かず、下の要点の帯で締めます',
     when: { figure: true, text: false } },
   { cls: 'lay-lead', label: '1文を大きく', group: 'lead',
-    why: '重要度に応じて大きさと太さを変えます（p.60）。1枚に1文だけのとき',
+    why: '重要度に応じて大きさと太さを変えます。1枚に1文だけのとき',
     when: { lead: true, maxTextChars: 70 } },
   { cls: 'lay-points', label: '要点だけを大きく', group: 'lead',
-    why: '文字を減らし、要点だけを見出しと同じ大きさで縦の中央に置きます（p.60）。1行1要点・5行まで',
+    why: '文字を減らし、要点だけを見出しと同じ大きさで縦の中央に置きます。1行1要点・5行まで',
     when: { list: true, items: [2, 5], figure: false, headBreak: false, maxItemChars: 40 } },
 ];
 
-const BASE = { cls: null, label: '標準', group: 'base', why: '配置クラスなし。原稿の順に上から並べます。箇条書きは小見出しを目立たせ、項目ごとにグループ化します（p.205）' };
+const BASE = { cls: null, label: '標準', group: 'base', why: '配置クラスなし。原稿の順に上から並べます。箇条書きは小見出しを目立たせ、項目ごとにグループ化します' };
 
 const ORDER_HEAD = /^(?:[①-⑳]|(?:step|ステップ|手順)\s*[0-90-9]+|[0-90-9]+\s*[.．)）:：])/i;
 

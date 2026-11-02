@@ -191,5 +191,5 @@ most of the layout classes of the theme tsutawaru-academic. Every figure was dra
 ## Credits
 
 - A sample deck shipped with marp-GUI (Apache License 2.0); the text was written for it and cites no studies. All figures were drawn for this deck.
-- Theme: `theme/tsutawaru-academic.css`. Design rules after Takahashi Y, Katayama N. *Tsutawaru dezain no kihon*. 3rd ed. Gijutsu-Hyōron-sha; 2021 (in Japanese); see `docs/design-rules.md`.
+- Theme: `theme/tsutawaru-academic.css`; see `docs/design-rules.md`.
 - Typeface: BIZ UDPGothic (SIL Open Font License 1.1), from Google Fonts at render time.
