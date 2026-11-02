@@ -1,6 +1,6 @@
 ---
 marp: true
-theme: tsutawaru-academic
+theme: academic
 paginate: true
 size: 16:9
 lang: ja
@@ -11,7 +11,7 @@ footer: ''
 <!-- _class: cover-hero -->
 
 <div class="title-hero">
-<div class="title-small">tsutawaru-academic</div>
+<div class="title-small">academic</div>
 <div class="title-big long">部品の見本</div>
 <div class="title-sub">よく使う部品を1枚ずつ並べました</div>
 </div>

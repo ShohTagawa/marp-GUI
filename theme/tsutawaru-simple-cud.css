@@ -8,8 +8,8 @@
    帯・余白・字間・部品・配置クラスは tsutawaru-simple と同じ。
    原稿はそのままで、frontmatter の theme: を替えるだけで切り替わる。
 
-   ビルド時は4枚とも渡す（npm run png / npm run pdf は theme/*.css を全部渡すので指定不要）：
-     --theme-set theme/academic.css theme/tsutawaru-academic.css \
+   ビルド時は3枚とも渡す（npm run png / npm run pdf は theme/*.css を全部渡すので指定不要）：
+     --theme-set theme/academic.css \
                  theme/tsutawaru-simple.css theme/tsutawaru-simple-cud.css
 
    色の出典：カラーユニバーサルデザイン推奨配色セット ver.4（2018年4月改定）の画面用 RGB 値。
@@ -95,14 +95,14 @@ section.gray {
   --divider-bg: #4D4D4D; --divider-ink: #ffffff;
 }
 
-/* 強調の色を4色目にするプリセット（tsutawaru-academic の em-orange / em-blue）も、同じ考えの値にする */
+/* 強調の色を4色目にするプリセット（academic の em-orange / em-blue）も、同じ考えの値にする */
 section.em-orange { --em: #996800; }
 section.em-blue   { --em: #0055F3; }
 
 /* ============================================================================
    2. 色だけに頼らない
       強調（.hl・*…*）は色＋太字、「不可」（.ng）は色＋太字＋語そのもの、下線マーカー（.mark）は
-      塗り＋太字。どれも tsutawaru-academic の時点で色以外の手がかりを持っている。
+      塗り＋太字。どれも academic の時点で色以外の手がかりを持っている。
       区切りの文字は、地が明るい色のとき太さを保ったまま濃い灰になる。
    ============================================================================ */
 section.divider h2,

@@ -141,7 +141,7 @@ slides/
 ```markdown
 ---
 marp: true
-theme: tsutawaru-academic
+theme: academic
 paginate: true
 header: '<div class="hdr-left">発表タイトル</div><img class="hdr-logo" src="../assets/logo-placeholder.png" alt="ロゴ">'
 ---
@@ -211,7 +211,7 @@ npm test
 ## 中身
 
 ```
-theme/            テーマ 5 つ：academic.css（土台）・tsutawaru-academic.css（推奨）・
+theme/            テーマ 4 つ：academic.css（推奨・配置クラスと部品を含む）・
                   tsutawaru-simple.css・tsutawaru-simple-cud.css（色覚の多様性に配慮した配色）・ponchie.css（1 枚の全体像）
 slides/           見本デック 14 本：sample-getting-started（使い方・英語）、sample-hydrogen・-academic・
                   -ponchie・-tsutawaru-simple・-tsutawaru-simple-cud の英語版と日本語版（-ja）、

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright (c) 2026 Shoh Tagawa
 // 配置案（DESIGN.md 8.3）。同じ Markdown のまま、_class の 1 語（lay-*）で配置を変える。
-//   - 配置クラスの CSS は theme/tsutawaru-academic.css の §14。ここは「どの案を出すか」と「原稿のどこを書き換えるか」だけ。
+//   - 配置クラスの CSS は theme/academic.css の §14。ここは「どの案を出すか」と「原稿のどこを書き換えるか」だけ。
 //   - 純粋関数だけ（vscode 非依存・fs も使わない）。planSetLayout だけが library-core.cjs を遅延 require する。
 //   - 判定の表（LAYOUTS）はここ 1 か所。ブラウザ側（media/layouts.js）へは browserTable() の JSON を
 //     window.__SS_LAYOUTS__ として渡す。条件の解き方（matches）だけは同じ物を layouts.js にも書いてある
@@ -10,7 +10,7 @@
 
 const LAY_RE = /^lay-[a-z0-9][a-z0-9-]*$/;
 
-/** 配置を切り替えない型（本文を div で組む・全画面）。library-core の PATTERN_CLASSES ＋ tsutawaru の全画面型 */
+/** 配置を切り替えない型（本文を div で組む・全画面）。library-core の PATTERN_CLASSES ＋全画面型 */
 const PATTERN_CLASSES = ['cover-hero', 'cover', 'cover-left', 'intro', 'fig', 'summary', 'split', 'message', 'divider',
   'wrap', 'refs', 'qa', 'sec-open', 'slido', 'handson', 'handson-2', 'work'];
 

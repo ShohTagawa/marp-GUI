@@ -481,7 +481,7 @@ function moveSlide(text, index, delta) {
 /**
  * 新規スライドの最小骨格。theme/academic.css に実在するクラスだけを使う
  * （page-title / fig-area / placeholder / caption / takeaway / split-body / left / right / chapter-num と
- *   section.fig / split / message / divider）。tsutawaru-academic など academic を @import するテーマでも崩れない。
+ *   section.fig / split / message / divider）。academic を @import する派生テーマでも崩れない。
  * 箇条書きは3点（1枚で見比べるのは3つまで＝このリポジトリの決まり）。text は区切り --- を含まず、改行は LF。
  */
 function newSlideTemplates() {

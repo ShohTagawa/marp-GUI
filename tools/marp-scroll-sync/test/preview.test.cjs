@@ -858,7 +858,7 @@ test('expect.text が空（全部消した編集）のときは検算しない',
 });
 
 // ---------- ＋ボタン・検索ギャラリー・はみ出しバッジ（DESIGN.md 7.3 / 7.4） ----------
-// 材料は、テーマも配色も違う見本デック 2 本（sample-lecture＝academic＋橙、sample-layouts＝tsutawaru-academic の既定の赤）を marp-core で描いたもの。
+// 材料は、配色の違う見本デック 2 本（sample-lecture＝academic＋橙、sample-layouts＝academic の既定の赤）を marp-core で描いたもの。
 let CORPUS = null;
 const corpus = (per) => (per ? H.corpusFixture({ per }) : (CORPUS || (CORPUS = H.corpusFixture({ per: 4 }))));
 /** 全面ギャラリーを開く（拡張の gallery メッセージ。＋ はポップアップを開くようになった＝DESIGN.md 8.1） */

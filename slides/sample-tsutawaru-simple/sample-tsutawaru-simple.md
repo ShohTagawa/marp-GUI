@@ -34,7 +34,7 @@ Sample deck for marp-GUI. It describes the theme itself; every figure was drawn 
 
 No vertical rule is drawn. Body text is dark grey rather than black.
 
-<div class="takeaway">Write the slides as for tsutawaru-academic</div>
+<div class="takeaway">Write the slides as for academic</div>
 
 ---
 
@@ -184,6 +184,6 @@ section { --font-jp: var(--font-seed); }
 
 ## References and credits
 
-- Parent theme: theme/tsutawaru-academic.css (Apache-2.0).
+- Parent theme: theme/academic.css (Apache-2.0).
 - Typefaces: BIZ UDPGothic and LINE Seed JP (SIL Open Font License 1.1), loaded from Google Fonts at render time.
 - This theme: theme/tsutawaru-simple.css (Apache-2.0).

@@ -187,20 +187,20 @@ test('cssRules: 署名は空白・末尾セミコロン・hex の大文字小文
   assert.notStrictEqual(sig('.a{x:1}'), sig('@media print{.a{x:1}}'));
 });
 
-test('themeClasses: 本物の theme/*.css から。tsutawaru-academic は academic のクラスも含む', () => {
+test('themeClasses: 本物の theme/*.css から。tsutawaru-simple は academic のクラスも含む', () => {
   const tc = core.themeClasses(REPO);
   assert.ok(tc.all.has('takeaway') && tc.all.has('page-title'));
   assert.ok(tc.byTheme.academic.has('takeaway'));
-  assert.ok(tc.byTheme['tsutawaru-academic'].has('page-title') && tc.byTheme['tsutawaru-academic'].has('takeaway'));
+  assert.ok(tc.byTheme['tsutawaru-simple'].has('page-title') && tc.byTheme['tsutawaru-simple'].has('takeaway'));
 });
 
 test('parseDeck: パレットは frontmatter の上書き → テーマの既定', () => {
   const d0 = core.parseDeck('---\nmarp: true\ntheme: academic\n---\n\n# t\n', { repoRoot: REPO });
   assert.strictEqual(d0.palette.accent.toLowerCase(), '#a6192e');
   assert.strictEqual(d0.palette.sectionBg.toLowerCase(), '#faf5f6');
-  const d1 = core.parseDeck('---\nmarp: true\ntheme: tsutawaru-academic\nclass: lead\n---\n\n# t\n', { repoRoot: REPO });
+  const d1 = core.parseDeck('---\nmarp: true\ntheme: academic\nclass: lead\n---\n\n# t\n', { repoRoot: REPO });
   assert.strictEqual(d1.globalClass, 'lead');
-  assert.strictEqual(d1.palette.accent.toLowerCase(), '#a6192e');   // tsutawaru-academic は academic の土台の色
+  assert.strictEqual(d1.palette.accent.toLowerCase(), '#a6192e');
   const d2 = core.parseDeck([
     '---', 'marp: true', 'theme: academic', "header: '<div class=\"hdr-left\">題</div>'",
     'style: |', '  :root { --accent: #C8611C; --accent-dark: #8A3F0E; }', '  .agenda { color: red; }', '',
@@ -807,14 +807,46 @@ test('再発防止(CLI): --root はコマンドの前でもよい／番号の省
 
 // ───────────────────────── 7.2 元の組版を保つ（keepTypo） ─────────────────────────
 
-/** academic の元デック（sec-box・callout・表・デック固有の .attr と feat3）と、tsutawaru / academic / parts-deck の貼り付け先 */
+/** academic の元デック（sec-box・callout・表・デック固有の .attr と feat3）と、sub-academic / academic / parts-deck の貼り付け先 */
 function mkTypoRepo() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'marp-kt-test-'));
-  fs.mkdirSync(path.join(root, 'theme'));
-  for (const n of fs.readdirSync(path.join(REPO, 'theme'))) {
-    if (n.endsWith('.css')) fs.copyFileSync(path.join(REPO, 'theme', n), path.join(root, 'theme', n));
-  }
   const w = (rel, content) => { const p = path.join(root, rel); fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, content); return p; };
+  w('theme/academic.css', [
+    '/* @theme academic */',
+    '@import "default";',
+    ':root { --accent: #A6192E; --accent-dark: #7D1322; --accent-soft: #F8E5EA; --section-bg: #FAF5F6; }',
+    'section { font-size: 24px; line-height: 1.55; letter-spacing: 0.01em; padding: 72px 48px 52px; }',
+    'section h1, section h2 { font-size: 36px; line-height: 1.3; margin: 0 0 14px; }',
+    'section h3 { font-size: 26px; margin: 0 0 8px; }',
+    'section p { margin: 0 0 12px; }',
+    'section ul, section ol { margin: 0 0 12px 1.2em; }',
+    'section li { margin: 4px 0; }',
+    'section .page-title { font-size: 24px; }',
+    '.takeaway { font-size: 28px; padding: 14px 24px; margin: 14px 0 0; }',
+    '.callout-gray { padding: 14px 28px; margin: 12px 0; font-size: 23px; line-height: 1.4; }',
+    'section.summary .sections { display: flex; flex-direction: column; gap: 14px; }',
+    'section.summary .sec-box { padding: 12px 22px; }',
+    'section.summary .sec-box h3 { font-size: 22px; margin: 0 0 4px; }',
+    'section table { font-size: 20px; margin: 8px auto 12px; }',
+    'section table th, section table td { padding: 10px 14px; }',
+  ].join('\n'));
+  w('theme/sub-academic.css', [
+    '/* @theme sub-academic */',
+    '@import "academic";',
+    ':root { --measure: 28em; --gap-para: .85em; --gap-group: 1.5em; }',
+    'section { font-size: 23px; line-height: 1.7; letter-spacing: 0.05em; }',
+    'section > p, section > ul, section > ol { max-width: var(--measure); }',
+    'section h2, section h1 { font-size: 34px; line-height: 1.35; min-height: 1.35em; margin: 0 0 .5em; }',
+    'section h3 { font-size: 26px; margin: 0 0 .25em; line-height: 1.4; }',
+    'section p { margin: 0 0 var(--gap-para); }',
+    'section ul { margin: 0 0 var(--gap-para); }',
+    'section ul > li { margin: 0 0 .45em; }',
+    '.callout-gray, .stepbox, section.summary .sec-box { font-size: 1em; line-height: 1.7; padding: .8em 1em; }',
+    '.stepbox .st { font-size: 1em; }',
+    '.attr { font-size: 19px; line-height: 1.55; margin: .4em 0 0; }',
+    'section table { font-size: 21px; line-height: 1.6; margin: .6em 0 1em; }',
+    'section table th, section table td { padding: .5em .9em; }',
+  ].join('\n'));
   const src = w('slides/20260101_KT_src/20260101_KT_src.md', [
     '---', 'marp: true', 'theme: academic', 'paginate: true', 'style: |',
     '  section.feat3 .sec-box { padding: 8px 22px; }',
@@ -831,11 +863,11 @@ function mkTypoRepo() {
   ].join('\n'));
   const parts = w('slides/20260101_KT_parts/20260101_KT_parts.md', ['---', 'marp: true', 'theme: parts-deck', '---', '', '# 部品', '', '<div class="flowrow"><div class="fbox blue">箱</div></div>', ''].join('\n'));
   const dest = (name, theme) => w(`slides/${name}/${name}.md`, ['---', 'marp: true', `theme: ${theme}`, 'paginate: true', '---', '', '# 先頭', ''].join('\n'));
-  return { root, src, parts, tsu: dest('20260102_KT_tsu', 'tsutawaru-academic'), aca: dest('20260102_KT_aca', 'academic'), cd: dest('20260102_KT_cd', 'parts-deck') };
+  return { root, src, parts, tsu: dest('20260102_KT_tsu', 'sub-academic'), aca: dest('20260102_KT_aca', 'academic'), cd: dest('20260102_KT_cd', 'parts-deck') };
 }
 const ktBlock = (t) => (/\/\* ss-keep-typo:start[\s\S]*?ss-keep-typo:end \*\//.exec(t) || [''])[0];
 
-test('keepTypo：付けなければ本文は従来と 1 バイトも変わらない。勧めの警告は実測済みの組み合わせ（academic→tsutawaru）だけ', () => {
+test('keepTypo：付けなければ本文は従来と 1 バイトも変わらない。勧めの警告は実測済みの組み合わせ（academic→sub-academic）だけ', () => {
   const R = mkTypoRepo();
   const base = { srcMdPath: R.src, slideIndex: 0, repoRoot: R.root, afterIndex: 0 };
   const off = core.adaptSlide({ ...base, destMdPath: R.tsu });
@@ -858,13 +890,13 @@ test('keepTypo：付けなければ本文は従来と 1 バイトも変わらな
   fs.rmSync(R.root, { recursive: true, force: true });
 });
 
-test('keepTypo：academic→tsutawaru は縦の寸法だけを <style scoped> に持ち込む。題・枠・配色・デック固有クラスには触らない', () => {
+test('keepTypo：academic→sub-academic は縦の寸法だけを <style scoped> に持ち込む。題・枠・配色・デック固有クラスには触らない', () => {
   const R = mkTypoRepo();
   const plan = core.adaptSlide({ srcMdPath: R.src, slideIndex: 0, destMdPath: R.tsu, repoRoot: R.root, afterIndex: 0, keepTypo: true });
   const b = ktBlock(plan.slideText);
   assert.ok(b, plan.slideText);
   assert.ok(plan.info.keepTypo > 0);
-  assert.match(b, /ss-keep-typo:start academic → tsutawaru-academic/);
+  assert.match(b, /ss-keep-typo:start academic → sub-academic/);
   assert.match(b, /\nsection \{[^}]*line-height: 1\.55;[^}]*letter-spacing: 0\.01em;/);
   assert.match(b, /--measure: none/);
   // 見出し h3 の行送りは Marp 同梱 default の 1.25（academic は書いていない）
@@ -895,15 +927,15 @@ test('keepTypo：既にある <style scoped> にまとめる。2 回目の挿入
   assert.equal((plan.slideText.match(/<style scoped>/g) || []).length, 1, plan.slideText);
   assert.match(plan.slideText, /td \{ color: red; \}\n\/\* ss-keep-typo:start/);
   assert.match(ktBlock(plan.slideText), /:where\(table\)/);
-  // 入れた先から、もう一度 tsutawaru の別デックへ：塊は 1 つのまま・元テーマ名も覚えている
+  // 入れた先から、もう一度 sub-academic の別デックへ：塊は 1 つのまま・元テーマ名も覚えている
   const after = core.applyAdaptPlan(plan);
   const again = path.join(R.root, 'slides', '20260103_KT_tsu2', '20260103_KT_tsu2.md');
   fs.mkdirSync(path.dirname(again), { recursive: true });
-  fs.writeFileSync(again, '---\nmarp: true\ntheme: tsutawaru-academic\n---\n\n# 先頭\n');
+  fs.writeFileSync(again, '---\nmarp: true\ntheme: sub-academic\n---\n\n# 先頭\n');
   const p2 = core.adaptSlide({ srcMdPath: R.tsu, srcText: after, slideIndex: 1, destMdPath: again, repoRoot: R.root, afterIndex: 0, keepTypo: true });
   assert.equal((p2.slideText.match(/ss-keep-typo:start/g) || []).length, 1, p2.slideText);
   assert.equal((p2.slideText.match(/<style scoped>/g) || []).length, 1);
-  assert.match(p2.slideText, /ss-keep-typo:start academic → tsutawaru-academic/);
+  assert.match(p2.slideText, /ss-keep-typo:start academic → sub-academic/);
   assert.equal(ktBlock(p2.slideText), ktBlock(plan.slideText));
   // 元のテーマ（academic）の先へ入れ直すと、持ち込みは要らないので塊ごと消える（デック自身の scoped は残る）
   const p3 = core.adaptSlide({ srcMdPath: R.tsu, srcText: after, slideIndex: 1, destMdPath: R.aca, repoRoot: R.root, afterIndex: 0, keepTypo: true });

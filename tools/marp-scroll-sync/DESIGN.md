@@ -218,7 +218,7 @@ _lib: day-agenda | 構成, アジェンダ | 2026-09-20
 
 ## 7. 既存スライドの検索と再利用（コーパス）— 2026-09-20 追加
 
-利用者の要望：プレビューのスライドの間に ＋ を置き、**既存の全スライド**から検索して（★ だけでなく「自己紹介」「生成AIの重み」など）、丸ごと入れたい。git の変更履歴で自分がよく手を入れたスライドは使える資産なので、見つけやすくしたい。作り込んだ旧デック（academic / 部品テーマ（非同梱））のスライドを、新しいテーマ（tsutawaru-academic）で使い回したい。
+利用者の要望：プレビューのスライドの間に ＋ を置き、**既存の全スライド**から検索して（★ だけでなく「自己紹介」「生成AIの重み」など）、丸ごと入れたい。git の変更履歴で自分がよく手を入れたスライドは使える資産なので、見つけやすくしたい。作り込んだ旧デックのスライドを、新しいデックで使い回したい。
 
 ### 7.1 索引（lib/corpus-core.cjs。純粋＋fs＋git 呼び出し。vscode 非依存）
 
@@ -255,7 +255,7 @@ _lib: day-agenda | 構成, アジェンダ | 2026-09-20
   - テスト（puppeteer）とプレビューで同じ物を使う。
 - `adaptSlide({ …, keepTypo })`：`keepTypo:true` のとき、元テーマの組版（本文サイズ・行間・行長・箇条書きの間隔など、はみ出しの原因になる差）をそのスライドの `<style scoped>` で持ち込む。何を持ち込むかは実測で決める（作り込んだスライド 12 枚以上を tsutawaru / 部品テーマ（非同梱） の新規デックへ入れ、`ssDetectOverflow` と PNG 目視で、持ち込み前後を比べる）。成り立たないテーマの組み合わせでは何もせず warnings に理由を書く。ヘッダ・フッタ・配色は貼り付け先のまま。
   - 確定した形：持ち込む塊は `<style scoped>` 内の `/* ss-keep-typo:start <元テーマ> → <先テーマ> … */ 〜 /* ss-keep-typo:end */`（消せば貼り付け先の組版に戻る）。`info.keepTypo` に持ち込んだ行数。スライドの題（クラスの付かない h1/h2）は「貼り付け先の枠」として扱い、戻さない（`section.message h1` など型つきの題は本文扱い）。Marp 同梱 default テーマの値（見出しの line-height 1.25、li+li の margin-top .25em）は library-core.cjs に定数で持つ。
-  - 「収まりやすい」の勧め（warnings の `元の組版を保つ…収まりやすい`）は academic → tsutawaru-academic だけ。部品テーマ（非同梱） → tsutawaru-academic は改善するが収まり切らない（実測）。
+  - 「収まりやすい」の勧め（warnings の `元の組版を保つ…収まりやすい`）は実測済みの組み合わせだけ。
 - 既存の警告（テーマ違い）には、はみ出しの実測結果を足せるよう、拡張側が挿入後にプレビューの検知結果を受け取る（7.3）。
 
 ### 7.3 プレビュー（media/preview.js / preview.css）
@@ -324,7 +324,7 @@ _lib: day-agenda | 構成, アジェンダ | 2026-09-20
 
 ### 8.3 配置案：右クリックで「別の配置にしたらどう見えるか」を並べる
 
-パターンごとにコードを書き分けない。**同じ Markdown のまま、`_class` に 1 語足すだけで配置が変わる CSS**（配置クラス `lay-*`）を `theme/tsutawaru-academic.css` の §14 に用意する。デザイン規則の一覧は docs/design-rules.md。
+パターンごとにコードを書き分けない。**同じ Markdown のまま、`_class` に 1 語足すだけで配置が変わる CSS**（配置クラス `lay-*`）を `theme/academic.css` の §14 に用意する。デザイン規則の一覧は docs/design-rules.md。
 
 - 対象は「素の構造」のスライド：section の直下が h1/h2、ul/ol、p、img/figure/インライン svg、`.page-title`、`.takeaway`、`.note` などだけ（レイアウト用の div で包んでいない。`.body` の包みと出典の行は下の「包みと出典の行」のとおり許す）。包んであるスライドでは、使える配置案は出さず、その旨を 1 行で示す。
 - 配置クラスの例（8〜12 個。どれも既存デックで未使用の名前にする）：`lay-list`（見出し＋説明の箇条書き＝既定）／`lay-boxed`（項目を塗りで囲む）／`lay-cards2`（2×2）／`lay-cards3`（3 列）／`lay-keyrow`（上罫だけの 3 列）／`lay-flow`（左→右の箱と矢印）／`lay-steps`（番号つきの縦の手順）／`lay-fig-right`・`lay-fig-left`（図と文の 2 カラム）／`lay-fig-top`（図を上に大きく）／`lay-lead`（1 文を大きく）。2026-09-26 追加：`lay-points`（要点だけ 2〜5 行を 34px で縦の中央に。`headBreak:false`＝見出し＋説明の形でない項目だけ）／`lay-fig-only`（図 1 枚だけを中央に。`text:false`＝文が無いときだけ）。試験の EXTRA スライドの番号は見本デックの枚数 N からの相対で書く。
@@ -336,7 +336,7 @@ _lib: day-agenda | 構成, アジェンダ | 2026-09-20
   - `<div class="body">`（属性は class だけ。語は `body` と `vtop`/`vcenter`/`vspread` だけ。開きタグだけの行で次が空行）は**透過する包み**とみなし、中身で判定する（`WRAP_CLASS`・`WRAP_EXTRA`。結果に `wrapped:true`）。二重の包み・ほかのクラス・style つき・中が HTML のままなら従来どおり `reason:'div'`。
   - `.page-title` `.takeaway` `.note` に加え、`.attr` `.cite` `.src-row`（出典・注記の行）も数えない（`SIDE_CLASSES`。入れ子の div は開閉を数えて丸ごと飛ばす）。画像だけの行の直後に空行なしで `.attr` が続く形も図 1 つと数える。
   - スライド内の `<style>`（scoped も）は読み飛ばす。`<p class="lead">` のような HTML の段落は段落として数え、`<p><img …></p>`（9.6 のトリミングで書き換えた画像）は図として数える（ブラウザ側の判定と合わせるため。トリミングの前後で配置案は変わらない）。
-  - CSS（tsutawaru-academic.css §14-0〜14-10 と、tsutawaru-simple.css の lay-points / lay-lead の上書き）は各規則に `section.lay-x > .body > …` の版を並べ、§14-11 で lay-* のときだけ `.body` を `display:contents` にする。直下の分の詳細度は変えていない。
+  - CSS（academic.css §14-0〜14-10 と、tsutawaru-simple.css の lay-points / lay-lead の上書き）は各規則に `section.lay-x > .body > …` の版を並べ、§14-11 で lay-* のときだけ `.body` を `display:contents` にする。直下の分の詳細度は変えていない。
   - 判定の表 `browserTable()` は `sideClasses` / `wrapClass` / `wrapExtra` も渡し、layouts.js の `analyze` も `.body` の子を展開する（2 か所の論理は同じ。layouts.test.cjs の突き合わせで確かめる）。
   - 同時に直した不具合（§14-6）：`section.lay-fig-right > *` の `max-width:none` が page-title にも当たり、デックの `--pt-max` が消えて広がった page-title 帯が題字帯の末尾の字を隠していた。header・page-title・takeaway を `:where(:not(…))` で外した（詳細度は `*` のまま。試験：layouts.test.cjs の「§14-6」）。
   - 実測：見本デック sample-layouts（20 枚。lay-* と --pt-center を使う）は、この変更の前後で PNG が画素まで同じ。

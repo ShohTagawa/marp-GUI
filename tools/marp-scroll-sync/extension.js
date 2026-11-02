@@ -169,7 +169,7 @@ function rewriteAssets(html, webview, docDir) {
 
 /**
  * repoRoot/theme/*.css を全部拾って絶対パスで返す。
- * 部品テーマ（非同梱） / tsutawaru-academic は `@import "academic"` するので academic.css を先頭に置く。
+ * 派生テーマは `@import "academic"` するので academic.css を先頭に置く。
  * （テーマを増やしてもここを書き換えなくていいように、固定リストにはしない）
  */
 function themeFiles(repoRoot) {

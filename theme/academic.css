@@ -700,3 +700,1068 @@ section.cover-hero .title-photo img { width: 100%; height: 100%; object-fit: cov
 section.cover-hero .title-meta { font-size: 26px; line-height: 1.7; text-align: center; }
 section.cover-hero .title-event { color: var(--accent-dark); font-weight: 700; margin-bottom: 16px; }
 section.cover-hero .title-date { margin-bottom: 16px; }
+
+/* ============================================================================
+   1. 配色 — 合計4色まで。既定は3色運用。
+      ・背景色／文字の基本色／メインの色／強調の色
+      ・4色のうち2色を同じにして3色
+      ・強調色は1色
+      ・彩度の高すぎる原色は避け、赤は朱ではなく“えんじ”寄り #A6192E
+      ・文字は真っ黒ではなく明度を数〜10%上げた灰
+      ・灰色は色数に数えない
+   ============================================================================ */
+:root {
+  /* ① 背景色 */
+  --bg: #ffffff;
+  /* ② 文字の基本色（黒ではない） */
+  --ink: #262626;
+  --text: #262626;              /* academic.css の変数名にも合わせる */
+  --ink-weak: #6E6E6E;          /* 重要度の低い情報 */
+  --muted: #6E6E6E;
+  /* ③ メインの色 — えんじ寄りの赤（原色を避ける） */
+  --accent: #A6192E;
+  --accent-dark: #7D1322;
+  --accent-soft: #F8E5EA;
+  /* ④ 強調の色 — 既定はメインと同じ（＝3色運用）。
+        4色目が要るデックだけ frontmatter で --em を上書きする。
+        色覚多様性に配慮し、4色目はオレンジ #B45309 か青 #2166AC */
+  --em: var(--accent);
+  /* 無彩色（色数に数えない） */
+  --rule: #D6D6D6;              /* 罫線 */
+  --rule-strong: #262626;       /* 表の主罫線 */
+  --fill: #F1F1F1;              /* 塗りだけの囲み */
+  --fill-2: #FAFAFA;            /* ゼブラ表の薄い行 */
+
+  /* 行長の上限（16:9では本文幅はスライド幅の約1/2〜2/3）
+     28em ≒ 644px ≒ 本文領域の55% */
+  --measure: 28em;
+  /* 段落後の間隔 = 0.5行。1.7行送りの半分 */
+  --gap-para: .85em;
+  /* グループ間の間隔（項目内の行間 < 項目同士の間隔） */
+  --gap-group: 1.5em;
+}
+
+/* 4色目を使うプリセット。frontmatter に `class: em-orange` / `class: em-blue` */
+section.em-orange { --em: #B45309; }
+section.em-blue   { --em: #2166AC; }
+
+/* ============================================================================
+   1b. ヘッダー題字・page-title の既定（ふつうの長さの題名なら何も書かなくてよい）
+       既定を「題字帯 23%・page-title 帯 50%・題字帯の右に噛み合わせ」にする。
+
+       デック側で変えたい時だけ frontmatter で上書きする：
+         style: |
+           :root { --hdr-left-w: 30%; --pt-center: 40%; --pt-width: 26%; }
+       ・--hdr-left-w   … 題字帯の幅（既定 23%。文字に追従させるなら fit-content）
+       ・--hdr-left-max … 題字帯の上限幅（超えたら…で省略）
+       ・--pt-center    … page-title 帯の「中心」の位置（書いたときだけ効く。書かなければ題字帯に噛み合わせる）
+       ・--pt-width     … page-title 帯の幅（既定 50%）
+       ・--hdr-gap      … 題字帯と page-title 帯の隙間（既定 -4px＝重ねて白消し）
+   ============================================================================ */
+:root {
+  --hdr-left-w: 23%;    /* 左の題字帯の幅。タイトルの長さに合わせる（文字に追従させるなら fit-content） */
+  --hdr-left-max: 38%;  /* 題字帯の上限幅 */
+  --pt-width: 50%;      /* 中央 page-title 帯の幅（文字が折り返すなら広く） */
+  --pt-max: none;       /* page-title 帯の上限幅（none＝--pt-width のまま） */
+  /* 題字帯と page-title 帯の白い隙間：4px＝隙間あり／0＝密着／-4px＝重ねて白を消す */
+  --hdr-gap: -4px;
+  /* 噛み合わせの左端（触らなくてよい）。--hdr-slant は 22px */
+  --pt-left: calc(var(--hdr-left-w) - var(--hdr-slant, 22px) + var(--hdr-gap));
+}
+section > header .hdr-left {
+  width: var(--hdr-left-w);
+  max-width: var(--hdr-left-max);
+  /* 右端の斜めカットが文字を切らないよう、カット幅ぶんの余白を足す */
+  padding: 0 calc(16px + var(--hdr-slant)) 0 32px;
+}
+/* cover-hero は自動幅に戻す */
+section.cover-hero { --hdr-left-w: fit-content; }
+
+section .page-title {
+  /* left は帯の「中心位置」（translateX(-50%) で左へ戻す）。
+     --pt-center を書いたデック＝その位置（従来）／書かないデック＝題字帯に噛み合わせた帯の中心 */
+  left: var(--pt-center, calc(var(--pt-left) + var(--pt-width) / 2));
+  transform: translateX(-50%);
+  width: var(--pt-width, fit-content);
+  max-width: var(--pt-max);
+  padding: 0 calc(28px + var(--hdr-slant));
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================================================================
+   2. 本文の組版
+      ・行間 = 文字サイズの 0.5〜1文字分（長文0.9・箇条書き0.7）
+      ・字間 = 文字サイズの 5〜10%
+      ・本文は太らせない（細字 400）
+   ============================================================================ */
+section {
+  font-size: 23px;
+  line-height: 1.7;             /* = 0.7文字分 */
+  letter-spacing: 0.05em;       /* = 5% */
+  color: var(--ink);
+  font-weight: 400;             /* 本文は細く */
+  font-feature-settings: "palt" 0;
+}
+
+/* 長めの文章ブロックは行間を広げる（0.9文字分 = 1.9） */
+.longform, .longform p { line-height: 1.9; }
+
+/* 行長を抑える。表・図・グラフは対象外 */
+section > p, section > ul, section > ol,
+.body > p, .body > ul, .body > ol,
+.blist, .lead, .note { max-width: var(--measure); }
+.wide { max-width: none !important; }   /* 意図的に全幅にしたい時の逃げ道 */
+
+/* 段落間隔 = 0.5行。空白行では空けない */
+section p { margin: 0 0 var(--gap-para); }
+section p:last-child { margin-bottom: 0; }
+
+/* 揃えは左揃え（中央揃えは避け、上・左を揃える） */
+section, section.fig h2, section.fig .fig-area, .takeaway { text-align: left; }
+section.fig .fig-area { justify-content: flex-start; }
+
+/* ============================================================================
+   3. 見出しの階層 — サイズは増やさない、強弱は「太さ」で作る
+      ・4種類以上のフォントサイズは使わない
+      ・強調手段（フォント・太さ・サイズ・色）の併用は2つまで
+      ・ジャンプ率 = 見出しサイズ ÷ 本文サイズ
+      ・小見出しと本文は同じサイズにし、差は太さで作る
+
+      1枚のスライドで使ってよいサイズは3種類：
+        見出し(h2 34px) / 本文(23px) / 補足(19px)
+      小見出しはサイズを変えず太字にする（＝サイズの種類を増やさない）
+   ============================================================================ */
+section h2,
+section h1 {
+  font-size: 34px;              /* ジャンプ率 34/23 = 1.5 */
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+  line-height: 1.35;
+  min-height: 1.35em;
+  margin: 0 0 .5em;
+}
+
+/* h3／.sh＝節レベルの小見出し。囲まずに「短い縦罫＋メインの色の太字」で示す。
+   小見出しの直後は空けず、margin-bottom は詰める */
+section h3, .sh {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--accent);
+  border-left: 5px solid var(--accent);
+  padding-left: .45em;
+  margin: 0 0 .25em;            /* 小見出しの直後は空けない */
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+}
+/* 小見出しの前は空ける（グループの区切り）。
+   直前に兄弟要素がある h3 だけに効かせる。タイトル(h2)直後の h3 は詰める。 */
+section * + h3, section * + .sh { margin-top: var(--gap-group); }
+section h1 + h3, section h2 + h3, section .page-title + h3,
+section h1 + .sh, section h2 + .sh, section .page-title + .sh { margin-top: 0; }
+
+/* スライドの主張1文（1スライド1メッセージ） */
+.lead {
+  font-size: 26px; font-weight: 700; color: var(--ink);
+  line-height: 1.5; margin: 0 0 .6em;
+}
+/* 補足・注記（重要度の低い情報は文字サイズを小さくする） */
+.note, .cap, section figure figcaption, .cite {
+  font-size: 19px; color: var(--ink-weak); line-height: 1.55; letter-spacing: 0.03em;
+}
+
+/* ============================================================================
+   4. 箇条書き
+      ・2行目以降のぶら下げ = 1文字分
+      ・項目内の行間 < 項目同士の間隔
+      ・入れ子はインデントでなく「太さ・大きさの強弱」で示し、左端は一直線に揃える
+   ============================================================================ */
+section ul { list-style: none; margin: 0 0 var(--gap-para); padding-left: 0; }
+section ul > li {
+  position: relative;
+  padding-left: 1em;            /* ぶら下げ1文字分 */
+  margin: 0 0 .45em;            /* 項目内(1.7行送り) < 項目間 */
+}
+section ul > li::before {
+  content: "●";
+  position: absolute; left: 0; top: 0;
+  font-size: .42em; line-height: 4.1;
+  color: var(--accent);
+}
+section ol { margin: 0 0 var(--gap-para) 1.4em; padding: 0; }
+section ol > li { margin: 0 0 .45em; padding-left: .1em; }
+section li > ul, section li > ol { margin-top: .35em; margin-bottom: .2em; }
+/* 記号を一切出さない箇条書き */
+.plain > li::before, ul.plain > li::before { content: none; }
+.plain > li, ul.plain > li { padding-left: 0; }
+
+/* .t／.d＝小見出し（同サイズの太字）と説明（細字）。どこでも使える汎用ペア。
+   サイズは本文と同じ＝サイズの種類を増やさない */
+.t { font-weight: 700; color: var(--ink); margin: 0; line-height: 1.6; }
+.d { font-weight: 400; margin: 0; line-height: 1.7; }
+
+/* .blist：.t／.d を余白でグループ化。
+   囲みも記号もインデントも使わない。左端は一直線。 */
+.blist { margin: 0 0 var(--gap-para); }
+.blist .d { margin: 0 0 var(--gap-group); }   /* 項目間はゆったり */
+.blist .d:last-child { margin-bottom: 0; }
+
+/* .grid2：項目4つを 2×2 の塗りカードに分ける。
+   カードは .fill（塗りだけ・枠なし）。等幅・等高・間隔均等。 */
+.grid2 {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 18px var(--gap-group);
+  margin: .6em 0;
+  align-items: stretch;
+}
+.grid2 > * { min-width: 0; }
+
+/* ============================================================================
+   5. 囲み — 枠を付けるのは最低限に
+      囲みたい時の代替は3段階
+        ① 枠線を減らして「塗り」だけで囲む      → .fill
+        ② 白地＋細い枠だけ                       → .rule-box
+        ③ グループ化・揃え・余白で囲む必要をなくす → .group（囲まない）
+      ・色を使うのは「塗り」か「枠」のどちらか一方だけ
+      ・1つの資料の中では囲みの形を1種類に統一する
+      ・角丸は最小限かつ統一 → 半径は 3px 固定・全部品共通
+      ・囲みの内側は上下左右1文字分以上の余白。短い語句なら0.5文字分
+      ・影・グラデーション・立体感は消す
+   ============================================================================ */
+:root { --radius: 3px; }        /* 丸みは1つの値に統一 */
+
+/* ① 塗りだけ（枠線なし） */
+.fill {
+  background: var(--fill); border: none; border-radius: var(--radius);
+  padding: 1em; box-shadow: none;
+}
+/* ② 白地＋細い枠だけ（塗りに色を付けない） */
+.rule-box {
+  background: #fff; border: 1px solid var(--rule); border-radius: var(--radius);
+  padding: 1em; box-shadow: none;
+}
+/* メインの色を1箇所だけ差したい時。塗りか枠のどちらか一方 */
+.fill.accent     { background: var(--accent-soft); }
+.rule-box.accent { border-color: var(--accent); background: #fff; }
+/* 1行の短い語句は余白0.5文字分 */
+.fill.tight, .rule-box.tight { padding: .4em .6em; }
+/* ③ 囲まない。余白と揃えだけでグループを作る */
+.group { margin: 0 0 var(--gap-group); }
+.group:last-child { margin-bottom: 0; }
+
+/* ---- 既存デックの囲み系クラスを“落ち着いた1形式”に寄せる ------------------
+   色ベタ・色枠・影・角丸のばらつきを消し、形は1種類、丸みは統一、影は無し。 */
+.box-accent, .box-info, .box-warn, .why-callout,
+.callout-gray, .callout-green, .callout-pink,
+.callout-orange, .callout-yellow, .callout-blue,
+.stepbox, .goal-box, .exrow, .pcard,
+section.summary .sec-box {
+  background: var(--fill);
+  border: none;
+  border-left: 4px solid var(--rule);
+  border-radius: var(--radius);
+  color: var(--ink);
+  font-weight: 400;
+  font-size: 1em;
+  line-height: 1.7;
+  padding: .8em 1em;
+  box-shadow: none;
+  text-shadow: none;
+}
+/* 最重要の1つだけメインの色を差す（強調色は1色） */
+.box-accent, .callout-pink, .goal-box, .stepbox { border-left-color: var(--accent); }
+.box-warn { border-left-color: var(--ink-weak); }
+.box-accent b, .box-info b, .box-warn b, .why-callout .em,
+.stepbox .st b, .stepbox .st .em, .pcard li b, .pcard p b, .exrow b, .goal-box b {
+  color: var(--em); font-weight: 700;
+}
+.stepbox .st, .pcard ul, .exrow, .why-callout .wh, .goal-box { font-size: 1em; }
+.pcard .pc-h {
+  background: none; color: var(--accent); font-weight: 700;
+  text-align: left; padding: 0 0 .15em; font-size: 1em; border-radius: 0;
+}
+/* カード列は等幅・等高・間隔は均等 */
+.cardrow { display: flex; gap: var(--gap-group); align-items: stretch; margin: .6em 0; }
+.cardrow > .pcard { flex: 1 1 0; min-width: 0; }
+
+/* 役割タグ：枠と塗りの両方に色を付けない → 塗りだけの1形式に統一 */
+.tag, .tag-analyze, .tag-design, .tag-ref, .tag-accent, .tag-soft {
+  display: inline-block; border: none; border-radius: var(--radius);
+  background: var(--fill); color: var(--ink);
+  font-weight: 700; font-size: .8em; padding: .1em .55em;
+  box-shadow: none; letter-spacing: 0.02em;
+}
+.tag-accent, .tag-soft { background: var(--accent-soft); color: var(--accent-dark); }
+.subhead { font-size: 26px; font-weight: 700; margin: 0 0 .25em; }
+.subhead .tag { font-size: .72em; }
+
+/* ============================================================================
+   6. 強調 — 手段は3つだけ、併用は2つまで、強調は最低限
+      ・強調は「太さ」「大きさ」「色」。輪郭・影・立体感・反射は使わない
+      ・落ち着いた色・太字・下線の3種
+      ・3つ以上の併用は避ける
+      ・構造の強調（小見出し）と内容の強調（本文中の重要文）は差別化する
+   ============================================================================ */
+/* 内容の強調（本文中）＝ 黒の太字。色は使わない */
+section strong, section b { font-weight: 700; color: inherit; }
+/* ここぞの1箇所だけ色（強調色は1色） */
+.hl, .hl-dark, .em, em { color: var(--em); font-weight: 700; font-style: normal; }
+/* 下線マーカー */
+.mark {
+  font-weight: 700;
+  background: linear-gradient(transparent 62%, rgba(180,83,9,.28) 62%);
+}
+/* 装飾（影）を消す */
+section *, section .fill, section .rule-box { text-shadow: none !important; }
+section img, section figure { box-shadow: none; }
+
+/* 数字の強調 — 数字は大きく、単位は小さく（単位は数字のおよそ半分） */
+.num  { font-size: 1.8em; font-weight: 700; line-height: 1; letter-spacing: 0;
+        font-variant-numeric: tabular-nums; }
+.unit { font-size: .9em;  font-weight: 400; margin-left: .12em; }   /* ≒ .num の半分 */
+
+/* データ行（横罫だけで区切り、数値は右、単位は小さく） */
+.datarow {
+  display: grid; grid-template-columns: 1fr auto;
+  align-items: baseline; gap: 1em;
+  border-bottom: 1px solid var(--rule);
+  padding: .4em 0;
+}
+.datarow:first-of-type { border-top: 1px solid var(--rule); }
+.datarow > .v { text-align: right; white-space: nowrap; }
+
+/* ============================================================================
+   7. 表 — 罫線は3本だけ、縦罫はゼロ
+      ・必要な罫線＝上端／ヘッダー行とデータ行の間／下端 の3本。縦罫線は0本
+      ・セル内の余白はセル内文字サイズと同程度
+      ・数値は右揃え、単語や文は左揃え
+      ・横に長い表は1行おきに薄い背景（罫線の代わり）
+   ============================================================================ */
+section table {
+  display: table;                                  /* 既定テーマの display:block/width:max-content を戻す */
+  border-collapse: collapse;
+  width: 100%; min-width: 0; max-width: none;
+  margin: .6em 0 1em;
+  font-size: 21px;
+  line-height: 1.6;
+  border-top: 1.5px solid var(--rule-strong);     /* ① 上端 */
+}
+section table tr { border-top: none; border-bottom: none; background-color: transparent; }
+section table th, section table td {
+  border: none;
+  padding: .5em .9em;                              /* ≒ 文字サイズと同程度 */
+  text-align: left; vertical-align: top;
+  letter-spacing: 0.02em;
+}
+section table thead th {
+  font-weight: 700; color: var(--ink); background: transparent;
+  border-bottom: 1.5px solid var(--rule-strong);   /* ② ヘッダー行の下 */
+}
+section table tbody tr:last-child td {
+  border-bottom: 1.5px solid var(--rule-strong);   /* ③ 下端 */
+}
+section table:not(.zebra) tbody tr:nth-child(n),
+section table:not(.zebra) tbody tr:nth-child(n) th,
+section table:not(.zebra) tbody tr:nth-child(n) td { background: transparent; }
+/* 数値列 */
+section table td.n, section table th.n {
+  text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+/* 行数が多い表は、罫線の代わりに1行おきの薄い背景で区切ってもよい。
+   使う時だけ <table class="zebra"> と明示する。 */
+section table.zebra tbody tr:nth-child(even),
+section table.zebra tbody tr:nth-child(even) td { background: var(--fill-2); }
+section table.zebra tbody tr td { border-bottom: none; }
+
+/* ============================================================================
+   8. フロー図 — 悪目立ちさせない
+      ・囲みの塗りや枠線の色は最小限にし、サイズと位置を揃える
+      ・枠の幅・形は文字数に依存させず統一（等幅・等高・ベースライン揃え）
+      ・矢印は簡素な三角形にし、大きさを統一する
+      ・角は直角にする
+   ============================================================================ */
+.flow { display: flex; align-items: stretch; margin: .8em 0 var(--gap-para); }
+.flow > .fbox {
+  flex: 1 1 0; min-width: 0;
+  background: #fff;
+  border: 1.5px solid var(--ink);
+  border-radius: 0;                    /* 角は直角 */
+  padding: .7em .6em;
+  text-align: center;
+  font-size: 1em; font-weight: 400; line-height: 1.45;
+  color: var(--ink);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  box-shadow: none;
+}
+.flow > .fbox .big { font-size: 1.45em; font-weight: 700; display: block; line-height: 1.25; }
+/* 矢印＝小さな黒い三角。大きさは全部同じ */
+.flow > .arw {
+  flex: 0 0 auto; align-self: center; margin: 0 .55em;
+  width: 0; height: 0;
+  border-left: 13px solid var(--ink);
+  border-top: 9px solid transparent;
+  border-bottom: 9px solid transparent;
+}
+/* 旧来の書き方 .flowrow / .farrow も同じ見た目に寄せる */
+.flowrow { display: flex; align-items: center; gap: .55em; margin: .8em 0; flex-wrap: nowrap; }
+.flowrow > .fbox {
+  flex: 1 1 0; min-width: 0; background: #fff; color: var(--ink);
+  border: 1.5px solid var(--ink); border-radius: 0;
+  font-size: 1.1em; font-weight: 700; padding: .55em .6em; text-align: center;
+}
+.flowrow > .fbox.blue, .flowrow > .fbox.red, .flowrow > .fbox.gray {
+  color: var(--ink); border-color: var(--ink);
+}
+.farrow { font-size: 1.1em; color: var(--ink); }
+
+/* ============================================================================
+   9. 図・写真・キャプション
+      ・関連する要素同士を近づけてグループ化する
+      ・図とキャプションの間隔は1行分
+      ・グループ内の間隔 ≦ グループ間の間隔
+   ============================================================================ */
+.figrow { display: flex; gap: var(--gap-group); align-items: stretch; margin: .6em 0; }
+.figrow > * { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; }
+.figrow > * > .fill,
+.figrow > * > .rule-box,
+.figrow > * > .group,
+.figrow > * > p { flex: 1 1 auto; }
+.figrow .cap { flex: 0 0 auto; margin-top: .5em; }  /* グループ内は近く */
+section figure { margin: 0 0 var(--gap-group); }
+section figure figcaption { margin-top: 1em; }     /* 1行分 */
+/* 輪郭のはっきりしない図の下敷き（薄い灰色） */
+.figbg { background: var(--fill-2); padding: .8em; border-radius: var(--radius); }
+/* 写真・図のプレースホルダ（実画像が来るまでの仮置き。中身に何を入れるか書く） */
+.ph {
+  background: var(--fill);
+  min-height: 260px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink-weak); font-size: 19px;
+  border-radius: var(--radius);
+}
+
+/* 2カラム — 16:9 で行長を伸ばさないための基本形 */
+.tcols { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap-group); align-items: start; }
+.tcols.fig-left  { grid-template-columns: 1.15fr 1fr; }
+.tcols.fig-right { grid-template-columns: 1fr 1.15fr; }
+.tcols > * { min-width: 0; }
+.tcols p, .tcols li, .tcols .blist { max-width: none; }   /* 既に行長が半分になっている */
+.cols { gap: var(--gap-group); }
+
+/* 図の中の文字も同じゴシック体にする */
+section svg text, section svg tspan { font-family: var(--font-jp); }
+
+/* ============================================================================
+   10. 帯・全面スライドの装飾を落とす
+      ・影・グラデーション・枠線・立体感を省く
+      ・文字の背景に写真・複雑な背景は避ける
+      ・枠を付けるのは最低限に
+   ============================================================================ */
+section.cover   { background: var(--bg); }          /* グラデーション廃止 */
+section.message { background: var(--bg); }
+section.message h1 { color: var(--accent); font-size: 56px; }
+
+/* ----- 表紙（cover-hero）の文字サイズ ------------------------------------ */
+section.cover-hero .title-big   { font-size: 88px; }
+section.cover-hero .title-small { font-size: 33px; }
+section.cover-hero .title-name {
+  font-size: 46px; font-weight: 700; line-height: 1.3; margin-bottom: 14px;
+}
+section.cover-hero .title-affil { font-size: 24px; }
+
+/* ----- 表紙（左揃え・強い階層） ------------------------------------------ */
+section.cover-left {
+  background: var(--accent);
+  color: #fff;
+  display: flex !important; flex-direction: column !important;
+  justify-content: center !important; align-items: flex-start !important;
+  padding: 0 110px 120px;
+}
+section.cover-left > header,
+section.cover-left .page-title { display: none; }
+section.cover-left::after { display: none !important; }
+section.cover-left .pre {
+  font-size: 24px; font-weight: 400; color: rgba(255,255,255,.85);
+  margin-bottom: 14px; letter-spacing: .04em;
+}
+section.cover-left h1 {
+  font-size: 60px; line-height: 1.3; color: #fff;
+  min-height: 0; margin: 0 0 18px; letter-spacing: .02em;
+}
+section.cover-left .sub { font-size: 26px; color: rgba(255,255,255,.85); }
+section.cover-left .meta {
+  position: absolute; left: 110px; bottom: 60px;
+  font-size: 20px; color: rgba(255,255,255,.92); line-height: 1.7;
+}
+
+/* takeaway：塗りだけ・枠なし・丸みは統一値・左揃え。位置は絶対配置で固定する。 */
+.takeaway {
+  position: absolute;
+  left: var(--side-pad);
+  right: var(--side-pad);
+  bottom: var(--takeaway-bottom);
+  margin: 0;
+  min-height: 66px;               /* 28px×1.45行＋上下パディング＝1行時の高さで固定 */
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  background: var(--accent-soft);
+  border: none; border-radius: var(--radius);
+  color: var(--accent-dark);
+  font-size: 28px; font-weight: 700;
+  line-height: 1.45; letter-spacing: 0.02em;
+  padding: .45em .7em;
+  text-align: left;
+  box-shadow: none;
+  z-index: 5;
+}
+/* 塗りすら置きたくない時：上罫線だけで示す（位置・サイズは同じ） */
+.takeaway.rule-only {
+  background: none; border-top: 2px solid var(--accent);
+  border-radius: 0; padding: .45em 0 0; color: var(--accent-dark);
+}
+/* 本文が帯に入り込まないよう、帯があるスライドは下を予約する。 */
+section:has(.takeaway),
+section.fig:has(.takeaway) {
+  padding-bottom: var(--takeaway-reserve, 118px) !important;
+}
+
+/* 引用・コード：枠と塗りを両方使わない */
+section blockquote {
+  border-left: 3px solid var(--rule); background: none;
+  margin: 0 0 var(--gap-para); padding: .1em 0 .1em 1em; color: var(--ink-weak);
+}
+section pre  { background: var(--fill); border: none; border-radius: var(--radius); font-size: 19px; }
+section code { background: var(--fill); border-radius: 2px; }
+
+/* 参考文献（重要度が低い＝小さく） */
+section.refs ul, section.refs ol { font-size: 19px; line-height: 1.7; }
+section.refs li::before { content: none; }
+section.refs li { padding-left: 1.5em; text-indent: -1.5em; }
+
+/* ============================================================================
+   11. 縦の配分ヘルパは .body / vcenter / vspread をそのまま使う。
+       スライドに収まらない時は font-size を下げず、次のどれかで直す：
+         ① 図表の数やサイズを変える ② 文字数を減らす
+         ③ ページを分割する        ④ 重要度の低い情報を小さくする
+   ============================================================================ */
+
+/* ============================================================================
+   12. 演習（ハンズオン）スライド — <!-- _class: split work handson -->
+   ============================================================================ */
+:root {
+  --handson-screen: 1.7fr;        /* 左（画面）の幅 */
+  --handson-panel: 1fr;           /* 右（手順）の幅 ＝ 約37%（1/3より少し広い。文字が入る幅） */
+  --handson-label: "やること";     /* 右パネルの見出し。frontmatter で変えられる */
+}
+section.work .split-body,
+section.handson .split-body {
+  grid-template-columns: var(--handson-screen) var(--handson-panel);
+  gap: var(--gap-group);
+  align-items: stretch;
+  min-height: 440px;              /* ヘッダー直下〜takeaway 帯の上までを使い切る */
+}
+section.work.flip .split-body,
+section.handson.flip .split-body {
+  grid-template-columns: var(--handson-panel) var(--handson-screen);
+}
+section.work.flip .split-body .left,
+section.handson.flip .split-body .left { order: 2; }
+
+/* 左＝画面の置き場。画像があればそのまま、無ければ薄い下敷きに説明文 */
+section.work .split-body .left,
+section.handson .split-body .left {
+  display: flex; flex-direction: column; min-height: 0;
+}
+section.work .split-body .left .screen,
+section.handson .split-body .left .screen {
+  flex: 1 1 auto;
+  background: var(--fill-2);
+  border-radius: var(--radius);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink-weak); font-size: 19px; text-align: center;
+  padding: 1em;
+}
+section.work .split-body .left img,
+section.handson .split-body .left img {
+  max-width: 100%; max-height: 430px; width: auto; height: auto;
+  object-fit: contain; border-radius: var(--radius); box-shadow: none;
+}
+
+/* 右＝縦長の手順パネル（塗りだけ） */
+section.work .split-body .right,
+section.handson .split-body .right {
+  background: var(--fill);
+  border-radius: var(--radius);
+  padding: .7em .8em .8em;
+  display: flex; flex-direction: column; gap: .55em;
+  min-height: 0; overflow: hidden;
+}
+section.work .split-body .right::before,
+section.handson .split-body .right::before {
+  content: var(--handson-label);
+  font-size: 19px; font-weight: 700; color: var(--accent);
+  letter-spacing: .04em; line-height: 1.2;
+}
+section.work .split-body .right h3,
+section.handson .split-body .right h3 { font-size: 21px; margin: 0; }
+section.work .split-body .right p,
+section.handson .split-body .right p { margin: 0; max-width: none; }
+
+/* 手順：番号＋文字だけ。枠は付けない */
+.steps { display: flex; flex-direction: column; gap: .45em; margin: 0; }
+.step  { display: flex; align-items: flex-start; gap: .5em; }
+.step .sn {
+  flex: 0 0 auto; width: 1.5em; height: 1.5em; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  font-weight: 700; font-size: 18px; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  margin-top: .1em;
+}
+.step .sb { flex: 1 1 auto; min-width: 0; font-size: 19px; line-height: 1.45; color: var(--ink); letter-spacing: .03em; }
+.step .sb b { color: var(--accent-dark); font-weight: 700; }
+.step .sb .chk { display: block; font-size: 18px; color: var(--ink-weak); line-height: 1.4; margin-top: .05em; }
+
+/* 貼る文：白地＋左の細い罫。コピーしやすいよう1ブロック */
+.prompt {
+  background: #fff; border: none; border-left: 4px solid var(--accent);
+  border-radius: var(--radius);
+  padding: .5em .7em; font-size: 18px; line-height: 1.5; color: var(--ink);
+  letter-spacing: .03em; overflow-wrap: anywhere;
+}
+.prompt .lab { display: block; font-weight: 700; color: var(--accent); font-size: 18px; margin-bottom: .1em; }
+.prompt .ph  { color: var(--accent-dark); font-weight: 700; }   /* 〔　〕受講者が埋める箇所 */
+
+/* 判定表（◎○△×）：罫線3本の表のまま、行を詰め、記号列だけ太く大きく */
+table.judge { width: 100%; margin: .1em 0 0; }
+table.judge td { padding: .12em .4em; font-size: 19px; line-height: 1.4; }
+table.judge td.m {
+  width: 1.6em; text-align: center;
+  font-weight: 700; font-size: 1.1em; color: var(--accent);
+}
+
+/* 演習スライド以外（通常の split）に .steps / .prompt を置いたときも同じ見た目 */
+section.split .split-body .right .steps + .prompt,
+section.split .split-body .left .steps + .prompt { margin-top: .3em; }
+
+/* ============================================================================
+   12b. 演習（ハンズオン）スライド・画面大きめ — <!-- _class: split work handson-2 -->
+   ============================================================================ */
+:root {
+  --slide-h: 720px;
+  --handson2-ratio: 4 / 3;
+  --handson2-pad: 18px;
+  --handson2-foot: 46px;          /* 右列の下に空ける高さ（ページ番号 18px＋下余白18px が入る） */
+  --handson2-screen-bg: #E6E6E6;  /* 画面の下敷き（灰は色数に数えない） */
+}
+section.handson-2.r5-4 { --handson2-ratio: 5 / 4; }
+.nb { white-space: nowrap; }
+
+section.handson-2,
+section.handson-2:has(.takeaway) {
+  display: grid !important;
+  grid-template-columns:
+    calc((var(--slide-h) - var(--header-h)) * var(--handson2-ratio))
+    minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto var(--handson2-foot);
+  gap: 0;
+  padding: var(--header-h) 0 0 0 !important;
+  justify-content: stretch !important;
+  align-content: stretch !important;
+  align-items: stretch !important;
+}
+section.handson-2 > .split-body { display: contents; }
+
+section.handson-2 .split-body > .left {
+  grid-column: 1; grid-row: 1 / -1;
+  display: flex; flex-direction: column;
+  min-width: 0; min-height: 0;
+  background: var(--handson2-screen-bg);
+  overflow: hidden;
+}
+section.handson-2 .split-body > .left .screen {
+  flex: 1 1 auto;
+  display: flex; align-items: center; justify-content: center;
+  background: transparent; border-radius: 0; padding: 1em;
+  color: var(--ink-weak); font-size: 19px; text-align: center;
+}
+section.handson-2 .split-body > .left img {
+  width: 100%; height: 100%; max-width: none; max-height: none;
+  object-fit: contain; object-position: center; border-radius: 0; box-shadow: none;
+}
+
+section.handson-2 > h2,
+section.handson-2 > h1 {
+  grid-column: 2; grid-row: 1;
+  font-size: 24px; line-height: 1.4; letter-spacing: .02em;
+  text-wrap: balance;
+  min-height: 0; margin: 0;
+  padding: 14px var(--handson2-pad) 10px;
+}
+section.handson-2 .split-body > .right {
+  grid-column: 2; grid-row: 2;
+  align-self: start; max-height: 100%;
+  box-sizing: border-box;
+  margin: 0 var(--handson2-pad);
+  background: var(--fill); border-radius: var(--radius);
+  padding: .55em .65em;
+  display: flex; flex-direction: column; gap: .5em;
+  min-width: 0; min-height: 0; overflow: hidden;
+}
+section.handson-2 .split-body > .right::before { content: none; }
+section.handson-2 .split-body > .right p { margin: 0; max-width: none; }
+section.handson-2 > .takeaway {
+  position: static; left: auto; right: auto; bottom: auto;
+  grid-column: 2; grid-row: 3;
+  margin: .5em var(--handson2-pad) 0;
+  min-height: 0;
+  text-wrap: balance;
+}
+
+section.handson-2.flip {
+  grid-template-columns:
+    minmax(0, 1fr)
+    calc((var(--slide-h) - var(--header-h)) * var(--handson2-ratio));
+}
+section.handson-2.flip .split-body > .left { grid-column: 2; }
+section.handson-2.flip > h2, section.handson-2.flip > h1,
+section.handson-2.flip .split-body > .right,
+section.handson-2.flip > .takeaway { grid-column: 1; }
+
+/* ============================================================================
+   13. 部品ライブラリ：デックごとに重複していた部品を昇格（2026-09）。
+   ============================================================================ */
+:root {
+  --caution: #B45309;             /* 「不可・注意」の語の色。4色目のオレンジと同じ値 */
+  --font-mono: "Menlo", "Consolas", monospace;
+  --qr-size: 175px;               /* QR の一辺。大きくするときは .qr.lg（250px） */
+}
+
+/* ---- 13-1 素の Markdown 箇条書きを「太字の見出し＋説明」で描く（クラス不要）------ */
+section ul:where(:has(> li > strong:first-child + br)) > li:where(:has(> strong:first-child))::before { content: none; }
+section ul:where(:has(> li > strong:first-child + br)) > li:where(:has(> strong:first-child)) { padding-left: 0; margin: 0 0 var(--gap-group); }
+section ul:where(:has(> li > strong:first-child + br)) > li > strong:first-child { display: block; line-height: 1.6; }
+section ul > li > strong:first-child + br { display: none; }
+
+/* ---- 13-2 .boxed：箇条書きの各項目を塗りで囲む（目標・ねらいの1枚だけ。3項目まで）---- */
+.boxed ul > li {
+  background: var(--fill); border-radius: var(--radius);
+  padding: 11px 20px; margin: 0 0 11px;
+}
+.boxed ul > li:last-child { margin-bottom: 0; }
+.boxed ul > li::before { content: none; }
+.boxed ul > li > strong:first-child { display: block; line-height: 1.6; }
+
+/* ---- 13-3 .ex：具体例・補足の塗り（1枚に1つまで）------------------------------ */
+:where(div).ex {
+  background: var(--fill); border-radius: var(--radius);
+  padding: .55em .95em; margin: .5em 0 0;
+  font-size: 21px; color: var(--ink-weak); line-height: 1.65;
+}
+:where(div).ex b { color: var(--ink); }
+
+/* ---- 13-4 .grid3：.grid2 の3列版（1段・子は3つまで）--------------------------- */
+.grid3 {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px var(--gap-group);
+  margin: .6em 0;
+  align-items: stretch;
+  word-break: auto-phrase;
+}
+.grid3 > * { min-width: 0; }
+.grid3 p, .grid3 li { max-width: none; }
+
+/* ---- 13-5 .keyrow：名前＋一言の見出し列。上罫だけで囲まない（3つまで）----------- */
+.keyrow {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1em var(--gap-group); margin: .3em 0 1.2em;
+}
+.keyrow > * { border-top: 3px solid var(--accent); padding-top: .45em; min-width: 0; }
+.keyrow .d { color: var(--ink-weak); line-height: 1.5; }
+.keyrow p { max-width: none; }
+
+/* ---- 13-6 フローの「いまここ」：.fbox.now ＋ .nowtag（1枚に1か所）--------------- */
+section { --now-bg: var(--accent-soft); --now-ink: var(--accent); }
+.flow:where(:has(> .fbox.now)) { margin-top: 1.45em; }
+.flow > .fbox.now {
+  position: relative; background: var(--now-bg);
+  border-color: var(--now-ink); border-width: 2.5px;
+}
+.flow > .fbox.now .nowtag {
+  position: absolute; top: -1.32em; left: 50%; transform: translateX(-50%);
+  background: var(--now-ink); color: #fff;
+  font-size: 20px; font-weight: 700; line-height: 1;
+  padding: .34em 1.1em .38em; border-radius: var(--radius);
+  white-space: nowrap; letter-spacing: 0.06em;
+}
+
+/* ---- 13-7 会場への設問スライド：<!-- _class: slido -->（大きくするなら slido big）---- */
+section.slido { font-size: 25px; --measure: 42em; }
+section.slido h1, section.slido h2 { font-size: 38px; }
+section.slido ul > li::before { content: none; }
+section.slido ul > li { padding-left: 0; margin: 0 0 1.25em; }
+section.slido ul > li > strong:first-child {
+  display: block;
+  font-size: 31px; color: var(--accent-dark); line-height: 1.45;
+  margin: 0 0 .18em; letter-spacing: 0.01em;
+}
+section.slido .note { font-size: 22px; }
+section.slido .qtag {
+  display: inline-block; vertical-align: .14em;
+  background: var(--accent-dark); color: #fff;
+  font-size: .60em; font-weight: 700; line-height: 1;
+  padding: .40em .95em .44em; border-radius: var(--radius);
+  margin-left: .55em; letter-spacing: 0.06em;
+}
+section.slido.big { font-size: 28px; }
+section.slido.big h1, section.slido.big h2 { font-size: 42px; }
+section.slido.big ul > li > strong:first-child { font-size: 33px; }
+
+/* ---- 13-8 QR を右に置く：.tcols.qr-right ＋ .qr ------------------------------ */
+.tcols.qr-right { grid-template-columns: 2.6fr 1fr; align-items: center; }
+.qr { align-self: center; text-align: center; }
+.qr img { height: var(--qr-size); width: auto; display: block; margin: 0 auto; }
+.qr .cap { margin-top: .4em; text-align: center; overflow-wrap: anywhere; }
+.qr.lg { --qr-size: 250px; }
+
+/* ---- 13-9 出典：.attr（外部の図の下）と .chips / .src-row（出典リンク）------------ */
+.attr {
+  font-size: 19px; color: var(--ink-weak); line-height: 1.55; letter-spacing: 0.03em;
+  margin: .4em 0 0; max-width: none;
+}
+.attr a { color: inherit; text-decoration: underline; text-underline-offset: .15em; overflow-wrap: anywhere; }
+.chips { display: flex; flex-wrap: wrap; gap: .5em; margin: .2em 0 0; }
+.chips > .fill.tight {
+  font-size: 19px; line-height: 1.4; color: var(--accent-dark); text-decoration: none;
+}
+.src-row { display: flex; align-items: flex-end; gap: 1.2em; margin-top: 1.2em; }
+.src-row .note { flex: 1 1 auto; margin: 0; max-width: none; }
+.src-row .chips { flex: 0 0 auto; flex-wrap: nowrap; margin: 0; }
+
+/* ---- 13-10 .ng：表の中の「不可」「原則不可」の語 -------------------------------- */
+.ng { color: var(--caution); font-weight: 700; }
+
+/* ---- 13-11 .mono：等幅（コマンド・アドレス・コードだけ。塗りなし。td にも付く）------ */
+.mono { font-family: var(--font-mono); letter-spacing: 0; }
+
+/* ---- 13-12 表紙の副題 .title-sub と、長い題 .title-big.long --------------------- */
+section:where(.cover-hero) .title-sub {
+  font-size: 26px; font-weight: 700; color: var(--ink-weak); margin-top: 12px;
+}
+section.cover-hero .title-big.long { font-size: 64px; }
+
+/* ---- 13-14 不具合の修正：.prompt の中の .ph が、図の仮置き .ph（灰色の箱）になる ---- */
+.prompt .ph {
+  display: inline; min-height: 0; background: none;
+  font-size: inherit; border-radius: 0;
+}
+
+/* ============================================================================
+   14. 配置クラス（lay-*）— 同じ Markdown のまま、_class の1語で配置を変える（2026-09）
+   ============================================================================ */
+
+/* ---- 14-0 共通：項目の見出し（行頭の太字＋改行）を1行の小見出しにする ---------------- */
+section:is(.lay-boxed, .lay-cards2, .lay-cards3, .lay-keyrow, .lay-flow, .lay-steps) > :is(ul, ol),
+section:is(.lay-boxed, .lay-cards2, .lay-cards3, .lay-keyrow, .lay-flow, .lay-steps) > .body > :is(ul, ol) { max-width: none; }
+section:is(.lay-boxed, .lay-cards2, .lay-cards3, .lay-keyrow, .lay-flow, .lay-steps) > :is(ul, ol) > li::before,
+section:is(.lay-boxed, .lay-cards2, .lay-cards3, .lay-keyrow, .lay-flow, .lay-steps) > .body > :is(ul, ol) > li::before { content: none; }
+section:is(.lay-boxed, .lay-cards2, .lay-cards3, .lay-keyrow, .lay-flow, .lay-steps) > :is(ul, ol) > li > strong:first-child:has(+ br),
+section:is(.lay-boxed, .lay-cards2, .lay-cards3, .lay-keyrow, .lay-flow, .lay-steps) > .body > :is(ul, ol) > li > strong:first-child:has(+ br) { display: block; line-height: 1.6; }
+section:is(.lay-boxed, .lay-cards2, .lay-cards3, .lay-keyrow, .lay-flow, .lay-steps) > :is(ul, ol) > li > strong:first-child + br,
+section:is(.lay-boxed, .lay-cards2, .lay-cards3, .lay-keyrow, .lay-flow, .lay-steps) > .body > :is(ul, ol) > li > strong:first-child + br { display: none; }
+
+/* ---- 14-1 lay-boxed：各項目を塗りで囲む（.boxed と同じ。目標・ねらいの1枚・3項目まで）---- */
+section.lay-boxed > :is(ul, ol),
+section.lay-boxed > .body > :is(ul, ol) { list-style: none; margin-left: 0; padding-left: 0; }
+section.lay-boxed > :is(ul, ol) > li,
+section.lay-boxed > .body > :is(ul, ol) > li {
+  background: var(--fill); border-radius: var(--radius);
+  padding: 11px 20px; margin: 0 0 11px;
+}
+section.lay-boxed > :is(ul, ol) > li:last-child,
+section.lay-boxed > .body > :is(ul, ol) > li:last-child { margin-bottom: 0; }
+
+/* ---- 14-2 lay-cards2 / lay-cards3：塗りのカード（.grid2 / .grid3 ＋ .fill と同じ）------- */
+section:is(.lay-cards2, .lay-cards3) > :is(ul, ol),
+section:is(.lay-cards2, .lay-cards3) > .body > :is(ul, ol) {
+  list-style: none; padding-left: 0;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 18px var(--gap-group);
+  margin: .6em 0;
+  align-items: stretch;
+  word-break: auto-phrase;
+}
+section.lay-cards3 > :is(ul, ol),
+section.lay-cards3 > .body > :is(ul, ol) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+section:is(.lay-cards2, .lay-cards3) > :is(ul, ol) > li,
+section:is(.lay-cards2, .lay-cards3) > .body > :is(ul, ol) > li {
+  background: var(--fill); border-radius: var(--radius);
+  padding: .8em 1em; margin: 0; min-width: 0;
+}
+
+/* ---- 14-3 lay-keyrow：名前＋一言を横に並べる。上の罫1本だけで囲まない（.keyrow と同じ・3つまで）---- */
+section.lay-keyrow > :is(ul, ol),
+section.lay-keyrow > .body > :is(ul, ol) {
+  list-style: none; padding-left: 0;
+  display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr);
+  gap: 1em var(--gap-group); margin: .3em 0 1.2em;
+  word-break: auto-phrase;
+}
+section.lay-keyrow > :is(ul, ol) > li,
+section.lay-keyrow > .body > :is(ul, ol) > li {
+  border-top: 3px solid var(--accent); padding: .45em 0 0; margin: 0; min-width: 0;
+  color: var(--ink-weak); line-height: 1.5;
+}
+section.lay-keyrow > :is(ul, ol) > li > strong:first-child,
+section.lay-keyrow > .body > :is(ul, ol) > li > strong:first-child { color: var(--ink); }
+
+/* ---- 14-4 lay-flow：左から右への流れ（.flow ＋ .fbox ＋ .arw と同じ。4つまで）------------ */
+section.lay-flow > :is(ul, ol),
+section.lay-flow > .body > :is(ul, ol) {
+  list-style: none; padding-left: 0;
+  display: flex; align-items: stretch; gap: calc(1.1em + 13px);
+  margin: .8em 0 var(--gap-para);
+  word-break: auto-phrase;
+}
+section.lay-flow > :is(ul, ol) > li,
+section.lay-flow > .body > :is(ul, ol) > li {
+  position: relative;
+  flex: 1 1 0; min-width: 0; margin: 0;
+  background: #fff; border: 1.5px solid var(--ink); border-radius: 0;
+  padding: .7em .6em;
+  line-height: 1.45;
+}
+section.lay-flow > :is(ul, ol) > li + li::before,
+section.lay-flow > .body > :is(ul, ol) > li + li::before {
+  content: ""; position: absolute;
+  left: calc(-.55em - 13px - 1.5px); top: 50%; margin-top: -9px;
+  width: 0; height: 0; font-size: inherit; line-height: 0;
+  border-left: 13px solid var(--ink);
+  border-top: 9px solid transparent;
+  border-bottom: 9px solid transparent;
+}
+
+/* ---- 14-5 lay-steps：番号つきの縦の手順（.steps ＋ .sn と同じ。枠は付けない・5つまで）---- */
+section.lay-steps > :is(ul, ol),
+section.lay-steps > .body > :is(ul, ol) {
+  list-style: none; padding-left: 0; margin-left: 0;
+  counter-reset: lay-step;
+}
+section.lay-steps > :is(ul, ol) > li,
+section.lay-steps > .body > :is(ul, ol) > li {
+  position: relative; counter-increment: lay-step;
+  padding-left: 2.2em; margin: 0 0 .8em;
+}
+section.lay-steps > :is(ul, ol) > li::before,
+section.lay-steps > .body > :is(ul, ol) > li::before {
+  content: counter(lay-step);
+  position: absolute; left: 0; top: .22em;
+  width: 1.55em; height: 1.55em; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  font-weight: 700; font-size: 20px; line-height: 1.55em; text-align: center;
+  letter-spacing: 0;
+}
+
+/* ---- 14-6 lay-fig-right / lay-fig-left：図と文の2カラム（.tcols.fig-* と同じ比）---------- */
+section:is(.lay-fig-right, .lay-fig-left) {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  grid-template-rows: auto repeat(14, auto) 1fr;
+  column-gap: var(--gap-group); row-gap: 0;
+  align-content: start !important; justify-content: stretch !important;
+  place-content: start stretch !important;
+  align-items: start !important;
+}
+section.lay-fig-left { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); }
+section:is(.lay-fig-right, .lay-fig-left) > :where(:not(header, .page-title, .takeaway)),
+section:is(.lay-fig-right, .lay-fig-left) > .body > :where(:not(header, .page-title, .takeaway)) { grid-column: 1; min-width: 0; max-width: none; }
+section.lay-fig-left > :where(:not(header, .page-title, .takeaway)),
+section.lay-fig-left > .body > :where(:not(header, .page-title, .takeaway)) { grid-column: 2; }
+section:is(.lay-fig-right, .lay-fig-left) > :is(h1, h2, footer),
+section:is(.lay-fig-right, .lay-fig-left) > .body > :is(h1, h2, footer) { grid-column: 1 / -1; }
+section:is(.lay-fig-right, .lay-fig-left) > :is(header, .page-title, .takeaway),
+section:is(.lay-fig-right, .lay-fig-left) > .body > :is(header, .page-title, .takeaway) { grid-area: auto; }
+section:is(.lay-fig-right, .lay-fig-left) > :is(figure, svg, p:has(> :is(img, svg):only-child)),
+section:is(.lay-fig-right, .lay-fig-left) > .body > :is(figure, svg, p:has(> :is(img, svg):only-child)) {
+  grid-column: 2; grid-row: 2 / -1;
+  align-self: stretch; margin: 0;
+  min-height: 0; max-height: 100%;
+  display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start;
+}
+section.lay-fig-left > :is(figure, svg, p:has(> :is(img, svg):only-child)),
+section.lay-fig-left > .body > :is(figure, svg, p:has(> :is(img, svg):only-child)) { grid-column: 1; }
+section:is(.lay-fig-right, .lay-fig-left, .lay-fig-top) > :is(figure, p:has(> img:only-child)) > img,
+section:is(.lay-fig-right, .lay-fig-left, .lay-fig-top) > .body > :is(figure, p:has(> img:only-child)) > img {
+  display: block; max-width: 100%; max-height: 100%; min-height: 0;
+  width: auto; height: auto; object-fit: contain; object-position: left top;
+}
+section:is(.lay-fig-right, .lay-fig-left) > :is(svg, p:has(> svg:only-child)) > svg,
+section:is(.lay-fig-right, .lay-fig-left) > .body > :is(svg, p:has(> svg:only-child)) > svg,
+section:is(.lay-fig-right, .lay-fig-left) > svg,
+section:is(.lay-fig-right, .lay-fig-left) > .body > svg { width: 100%; height: auto; max-height: 100%; }
+
+/* ---- 14-7 lay-fig-top：図を上に大きく、文は下に短く -------------------------------------- */
+section.lay-fig-top > :is(h1, h2),
+section.lay-fig-top > .body > :is(h1, h2) { order: -2; }
+section.lay-fig-top > :is(figure, svg, p:has(> :is(img, svg):only-child)),
+section.lay-fig-top > .body > :is(figure, svg, p:has(> :is(img, svg):only-child)) {
+  order: -1; flex: 1 1 0; min-height: 0; margin: 0 0 var(--gap-para);
+  display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start;
+}
+section.lay-fig-top > p:has(> svg:only-child) > svg,
+section.lay-fig-top > .body > p:has(> svg:only-child) > svg,
+section.lay-fig-top > svg,
+section.lay-fig-top > .body > svg { height: 100%; width: auto; max-width: 100%; min-height: 0; }
+section.lay-fig-top > :is(ul, ol, p),
+section.lay-fig-top > .body > :is(ul, ol, p) { flex: 0 0 auto; max-width: none; }
+
+/* ---- 14-8 lay-lead：1文を大きく（.lead と同じ役。文字は 34px＝見出しと同じ大きさで種類を増やさない）---- */
+section.lay-lead > p:not(:is(.note, .attr, .cite)):not(:has(> img)),
+section.lay-lead > .body > p:not(:is(.note, .attr, .cite)):not(:has(> img)) {
+  font-size: 34px; font-weight: 700; line-height: 1.6;
+  max-width: 24em; margin: auto 0;
+  margin-bottom: auto !important;
+  word-break: auto-phrase;
+}
+section.lay-lead > :is(h1, h2),
+section.lay-lead > .body > :is(h1, h2) { margin-bottom: 0; }
+
+/* ---- 14-9 lay-points：要点だけを大きく、縦の中央に（文字がとても少ない1枚。2〜5行）----------- */
+section.lay-points { --points-size: 34px; }
+section.lay-points > :is(ul, ol),
+section.lay-points > .body > :is(ul, ol) {
+  font-size: var(--points-size); line-height: 1.7;
+  max-width: none;
+  margin-top: auto;
+  margin-bottom: auto !important;
+  word-break: auto-phrase;
+}
+section.lay-points > :is(ul, ol) > li,
+section.lay-points > .body > :is(ul, ol) > li { margin: 0 0 .5em; }
+section.lay-points > :is(ul, ol) > li:last-child,
+section.lay-points > .body > :is(ul, ol) > li:last-child { margin-bottom: 0; }
+section.lay-points > :is(h1, h2),
+section.lay-points > .body > :is(h1, h2) { margin-bottom: 0; }
+
+/* ---- 14-10 lay-fig-only：図1枚だけを中央に大きく。文は置かず、下の要点の帯だけ --------------- */
+section.lay-fig-only > :is(figure, p:has(> :is(img, svg):only-child)),
+section.lay-fig-only > .body > :is(figure, p:has(> :is(img, svg):only-child)) {
+  flex: 1 1 0; min-height: 0; max-width: none; width: 100%; margin: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+section.lay-fig-only > :is(figure, p:has(> img:only-child)) > img,
+section.lay-fig-only > .body > :is(figure, p:has(> img:only-child)) > img {
+  display: block; max-width: 100%; max-height: 100%; min-height: 0;
+  width: auto; height: auto; object-fit: contain; object-position: center;
+}
+section.lay-fig-only > p:has(> svg:only-child) > svg,
+section.lay-fig-only > .body > p:has(> svg:only-child) > svg { height: 100%; width: auto; max-width: 100%; min-height: 0; }
+section.lay-fig-only > svg,
+section.lay-fig-only > .body > svg { flex: 1 1 0; min-height: 0; width: auto; max-width: 100%; align-self: center; margin: 0; }
+section.lay-fig-only > :is(h1, h2),
+section.lay-fig-only > .body > :is(h1, h2) { margin-bottom: .3em; }
+
+/* ---- 14-11 包み（.body）と出典の行（.attr / .cite / .src-row）（2026-10 追加）--------------- */
+section:is(.lay-boxed, .lay-cards2, .lay-cards3, .lay-keyrow, .lay-flow, .lay-steps,
+  .lay-fig-right, .lay-fig-left, .lay-fig-top, .lay-lead, .lay-points, .lay-fig-only) > .body { display: contents; }

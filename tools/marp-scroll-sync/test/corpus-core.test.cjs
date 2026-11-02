@@ -36,7 +36,7 @@ const CONVERTED = FM('academic') + '\n' + [
   `# 著作権の補足\n\n<div class="ppt-canvas"><div style="left:1px">著作権の話</div></div>\n`,
 ].join('\n---\n\n');
 const STYLED = FM('academic') + '\n' + [1, 2].map((n) => `# 直書き ${n}\n\n` + Array.from({ length: 6 }, (_, i) => `<p style="margin:${i}px">直書きの段落 ${n}-${i}</p>`).join('\n') + '\n').join('\n---\n\n');
-const FORK = FM('tsutawaru-academic') + '\n' + [
+const FORK = FM('sub-academic') + '\n' + [
   INTRO_V3, // A デックの自己紹介と同じ内容（重複の束になる）
   `<!--\n_class: summary\n_lib: star-agenda | 構成, アジェンダ | 2026-09-20\n-->\n\n# 今日の流れ\n\n- はじめに\n- 本題\n- まとめ\n`,
   `# 自己紹介\n\n- これは題名だけ同じで、中身はまったく別のスライドです\n- 共同研究者の紹介を並べています\n- 連絡先はこちら\n`,
@@ -54,7 +54,7 @@ function makeRepo(withGit) {
   const git = (...a) => execFileSync(GIT, ['-C', root, '-c', 'user.name=t', '-c', 'user.email=t@example.com', '-c', 'commit.gpgsign=false', ...a], { stdio: ['ignore', 'pipe', 'pipe'] });
   const commit = (msg, date) => { git('add', '-A'); git('commit', '-q', '-m', msg, '--date', date + 'T12:00:00'); };
   mk(root, 'theme/academic.css', '/* @theme academic */\nsection { font-size: 23px; }\n.takeaway { font-size: 28px; }\n');
-  mk(root, 'theme/tsutawaru-academic.css', '/* @theme tsutawaru-academic */\n@import "academic";\n.fill { background: #eee; }\n');
+  mk(root, 'theme/sub-academic.css', '/* @theme sub-academic */\n@import "academic";\n.fill { background: #eee; }\n');
   mk(root, C.GROUPS_FILE, [
     '# 手本デックの一覧', '', '## A. 手本', '', '| デック | メモ |', '|---|---|', '| `slides/20260601_Test_a-deck` | 何度も直した |', '',
     '## B. 準手本', '', '- slides/20260701_Test_fork/ を見る', '', '## C. 対象外', '', '| `slides/20250101_Old_converted` | 変換のまま |', '',
@@ -302,7 +302,7 @@ function sample() {
     ent({ slide: 1, title: '自己紹介', text: '自己紹介 山田 太郎', score: 0.3 }),
     ent({ slide: 2, title: '自己紹介', text: '自己紹介 山田 太郎 准教授', score: 3.1, deck: 'slides/e/e.md', deckName: '20260620_Seminar', date: '2026-06-20' }),
     ent({ slide: 3, title: '今日の流れ', text: '今日の流れ 最初に自己紹介をします', score: 5.0 }),
-    ent({ slide: 4, title: 'Slidoの使い方', text: 'Ｓｌｉｄｏ を開いてください。サーバーに接続します', score: 1, theme: 'tsutawaru-academic', date: '2026-09-01' }),
+    ent({ slide: 4, title: 'Slidoの使い方', text: 'Ｓｌｉｄｏ を開いてください。サーバーに接続します', score: 1, theme: 'sub-academic', date: '2026-09-01' }),
     ent({ slide: 5, title: '完成スライド', text: '完成した まとめ', score: 7, mark: { id: 'done-summary', tags: ['まとめ', '締め'] }, pattern: 'summary' }),
     ent({ slide: 6, title: '', text: '講師の紹介', pattern: 'intro', score: 0.2 }),
     ent({ slide: 7, title: '自己紹介', text: '自己紹介 山田 太郎 准教授', score: 0.1, deck: 'slides/f/f.md', deckName: 'f' }),
@@ -352,7 +352,7 @@ test('searchCorpus：絞り込み・並び・重複のまとめ・ページ送�
   const c = sample();
   assert.deepEqual(C.searchCorpus(c, '', {}).items.map((i) => i.entry.slide), [5, 3, 2, 4, 1, 6], '空なら score 順（束は 1 件）');
   assert.deepEqual(C.searchCorpus(c, '', { onlyMarked: true }).items.map((i) => i.entry.slide), [5]);
-  assert.deepEqual(C.searchCorpus(c, '', { theme: 'tsutawaru-academic' }).items.map((i) => i.entry.slide), [4]);
+  assert.deepEqual(C.searchCorpus(c, '', { theme: 'sub-academic' }).items.map((i) => i.entry.slide), [4]);
   assert.deepEqual(C.searchCorpus(c, '', { sort: 'recent', limit: 2 }).items.map((i) => i.entry.slide), [4, 2]);
   assert.deepEqual(C.searchCorpus(c, '自己紹介', { dedupe: false }).items.map((i) => i.entry.slide), [2, 1, 7, 3, 6]);
   // 代表が絞り込みで外れたら、束の次点が残る
@@ -617,7 +617,7 @@ test('CLI：corpus / search / shelf / candidates（--root の合成リポジト�
   assert.equal(hits[0].key, A + '#1');
   assert.equal(hits[0].churn.touched, 2);
   assert.deepEqual(JSON.parse(run('search', '--marked', '--json')).map((e) => e.mark.id), ['star-agenda']);
-  assert.deepEqual(JSON.parse(run('search', '自己紹介', '--theme', 'tsutawaru-academic', '--json')).map((e) => e.key).sort(), [FORKMD + '#1', FORKMD + '#3']);
+  assert.deepEqual(JSON.parse(run('search', '自己紹介', '--theme', 'sub-academic', '--json')).map((e) => e.key).sort(), [FORKMD + '#1', FORKMD + '#3']);
   assert.match(run('search', 'どこにもない語'), /見つかりません/);
 
   // 棚
@@ -644,7 +644,7 @@ test('CLI：corpus / search / shelf / candidates（--root の合成リポジト�
   assert.equal(JSON.parse(run('search', '自己紹介', '--json'))[0].key, A + '#1');
   assert.deepEqual(JSON.parse(run('search', '3行', '--no-shelf', '--json') || '[]'), []);
   // 元のスライドが消えても、棚には行方不明として残る
-  fs.writeFileSync(path.join(root, FORKMD), FM('tsutawaru-academic') + '\n# 全部書き直した\n');
+  fs.writeFileSync(path.join(root, FORKMD), FM('sub-academic') + '\n# 全部書き直した\n');
   assert.match(run('shelf', 'list'), /共同研究者の紹介\s+— ⚠ 行方不明/);
   run('shelf', 'remove', '--shelf', '人の紹介', '1');
   run('shelf', 'remove', '--shelf', '人の紹介');

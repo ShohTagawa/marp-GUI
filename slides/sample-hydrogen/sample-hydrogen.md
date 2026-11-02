@@ -1,6 +1,6 @@
 ---
 marp: true
-theme: tsutawaru-academic
+theme: academic
 paginate: true
 size: 16:9
 lang: en

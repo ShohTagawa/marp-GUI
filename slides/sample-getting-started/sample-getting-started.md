@@ -1,6 +1,6 @@
 ---
 marp: true
-theme: tsutawaru-academic
+theme: academic
 paginate: true
 size: 16:9
 lang: en
@@ -33,7 +33,7 @@ style: |
 
 <!--
 Sample deck for marp-GUI, in English. It walks through the workflow in twelve slides and uses
-most of the layout classes of the theme tsutawaru-academic. Every figure was drawn for this deck.
+most of the layout classes of the theme academic. Every figure was drawn for this deck.
 -->
 
 ---
@@ -191,5 +191,5 @@ most of the layout classes of the theme tsutawaru-academic. Every figure was dra
 ## Credits
 
 - A sample deck shipped with marp-GUI (Apache License 2.0); the text was written for it and cites no studies. All figures were drawn for this deck.
-- Theme: `theme/tsutawaru-academic.css`; see `docs/design-rules.md`.
+- Theme: `theme/academic.css`; see `docs/design-rules.md`.
 - Typeface: BIZ UDPGothic (SIL Open Font License 1.1), from Google Fonts at render time.

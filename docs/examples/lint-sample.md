@@ -1,6 +1,6 @@
 ---
 marp: true
-theme: tsutawaru-academic
+theme: academic
 paginate: true
 size: 16:9
 header: '<div class="hdr-left">Sample</div>'

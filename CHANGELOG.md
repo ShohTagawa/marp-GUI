@@ -26,7 +26,7 @@ Extensions: synchronized preview `marp-scroll-sync` 0.4.0 (was 0.3.0); PDF/prese
 ### Changed
 
 - `@marp-team/marp-cli` and `pdf-lib` are runtime `dependencies` (were `devDependencies`); `puppeteer-core` is a development dependency for the tests.
-- `tsutawaru-academic`: new defaults for the header (title band 23 %, page-title band 50 % meshed after it, overlap −4 px); a deck that sets `--pt-center` keeps the old placement. `sample-hydrogen` sets `--hdr-left-w: fit-content` so that its English title is not clipped.
+- `academic`: new defaults for the header (title band 23 %, page-title band 50 % meshed after it, overlap −4 px); a deck that sets `--pt-center` keeps the old placement. `sample-hydrogen` sets `--hdr-left-w: fit-content` so that its English title is not clipped.
 - `sample-hydrogen` / `sample-hydrogen-ja`: each figure's opening `<svg …>` tag is on its own line, so the figure is an HTML block that can be selected with Alt and moved or resized (a figure written inline in a paragraph is refused as a Markdown element).
 - Present (`tools/marp-present`): the on-screen page controls sit at the right edge instead of over the takeaway band.
 - `tools/lib/marp-env.mjs` no longer runs `npm install` on its own when dependencies are missing; it prints what to run. `latestDeck` ignores files whose names start with a dot.
@@ -53,5 +53,5 @@ Extensions: synchronized preview `marp-scroll-sync` 0.4.0 (was 0.3.0); PDF/prese
 
 Extensions: `marp-scroll-sync` 0.3.0; PDF/present 1.3.0.
 
-- First release (2026-09-29): synchronized preview with direct editing, slide operations, box editing, layout variants, the insert popup and the library; vector PDF in chunks; presenting in Chrome; themes `academic` and `tsutawaru-academic`; sample decks `sample-layouts` and `sample-parts`; one-click installers for macOS and Windows.
+- First release (2026-09-29): synchronized preview with direct editing, slide operations, box editing, layout variants, the insert popup and the library; vector PDF in chunks; presenting in Chrome; theme `academic`; sample decks `sample-layouts` and `sample-parts`; one-click installers for macOS and Windows.
 - 2026-10-03: home screen (recent decks, shelves, most revised slides, deck list, search); bilingual README with screenshots; disclaimer; security fixes in the preview (nonce-only scripts).

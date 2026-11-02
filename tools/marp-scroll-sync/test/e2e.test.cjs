@@ -16,8 +16,8 @@ const H = require('./helpers/e2e-harness.cjs');
 const SPLIT = require('../lib/slide-split.cjs');
 
 const LEC = 'sample-lecture';   // 見本：academic・橙（--accent #C8611C）
-const LAY = 'sample-layouts';   // 見本：tsutawaru-academic・20 枚
-const DEST = 'sample-parts';   // theme: tsutawaru-academic（LEC は academic・橙）＝テーマ違いの貼り付け先
+const LAY = 'sample-layouts';   // 見本：academic・20 枚
+const DEST = 'sample-parts';    // 見本：academic（既定配色）＝別配色の貼り付け先
 const WORK = process.env.SS_E2E_DIR || path.join(os.tmpdir(), 'marp-scroll-sync-e2e');
 const Q = 400;   // settle の静穏時間。単クリック逆引きの 250ms 待ちより長くする
 

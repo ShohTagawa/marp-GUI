@@ -1,6 +1,6 @@
 ---
 marp: true
-theme: tsutawaru-academic
+theme: academic
 paginate: true
 size: 16:9
 lang: ja
@@ -21,7 +21,7 @@ style: |
 <!-- _class: cover-hero -->
 
 <div class="title-hero">
-<div class="title-small">tsutawaru-academic</div>
+<div class="title-small">academic</div>
 <div class="title-big long">配置クラスの見本</div>
 <div class="title-sub">同じ原稿を、_class の1語で並べ替えます</div>
 </div>

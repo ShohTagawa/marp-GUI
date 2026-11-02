@@ -15,7 +15,7 @@ const { applyEdits } = require(path.join(EXT, 'lib', 'slide-ops.cjs'));
 const { slideStartLines } = require(path.join(EXT, 'lib', 'slide-split.cjs'));
 
 const clsOf = (vs) => vs.map((v) => v.cls);
-const FM = '---\nmarp: true\ntheme: tsutawaru-academic\n---\n\n';
+const FM = '---\nmarp: true\ntheme: academic\n---\n\n';
 
 const THREE = '## 題\n\n- **一つめ**\n  説明です。\n- **二つめ**\n  説明です。\n- **三つめ**\n  説明です。\n';
 const FOUR = THREE + '- **四つめ**\n  説明です。\n';
@@ -26,7 +26,7 @@ const LEAD = '<div class="page-title">要点</div>\n\n## 伝えたいこと\n\n�
 
 test('表：8〜14 個・名前は lay-*・テーマ §14 に CSS がある', () => {
   assert.ok(lv.LAYOUTS.length >= 8 && lv.LAYOUTS.length <= 14, String(lv.LAYOUTS.length));
-  const css = fs.readFileSync(path.join(REPO, 'theme', 'tsutawaru-academic.css'), 'utf8');
+  const css = fs.readFileSync(path.join(REPO, 'theme', 'academic.css'), 'utf8');
   const sec14 = css.slice(css.indexOf('14. 配置クラス'));
   assert.ok(sec14.length > 100, '§14 がある');
   const seen = new Set();
@@ -216,7 +216,7 @@ test('planSetLayout：ほかのクラス・_lib の印・ほかのディレク�
 });
 
 test('planSetLayout：グローバル class は写してから足す。外すと消える', () => {
-  const md = '---\nmarp: true\ntheme: tsutawaru-academic\nclass: em-blue\n---\n\n' + THREE;
+  const md = '---\nmarp: true\ntheme: academic\nclass: em-blue\n---\n\n' + THREE;
   const a = apply(md, 0, 'lay-keyrow');
   assert.ok(a.includes('<!-- _class: em-blue lay-keyrow -->'), a);
   assert.strictEqual(apply(a, 0, null), md);
@@ -245,10 +245,10 @@ test('marp-core で描く：class が付く・発表者ノートが増えない�
   const { Marp } = require(path.join(EXT, 'node_modules', '@marp-team', 'marp-core'));
   const render = (md) => {
     const marp = new Marp({ html: true });
-    for (const n of ['academic.css', 'tsutawaru-academic.css']) marp.themeSet.add(fs.readFileSync(path.join(REPO, 'theme', n), 'utf8'));
+    for (const n of ['academic.css']) marp.themeSet.add(fs.readFileSync(path.join(REPO, 'theme', n), 'utf8'));
     return marp.render(md);
   };
-  const md = '---\nmarp: true\ntheme: tsutawaru-academic\nclass: em-blue\n---\n\n'
+  const md = '---\nmarp: true\ntheme: academic\nclass: em-blue\n---\n\n'
     + '<!--\n_class: vcenter\n_lib: goal-3 | 目標 | 2026-09-20\n-->\n\n' + THREE + '\n<!-- これは発表者ノート -->\n\n---\n\n' + STEPS + '\n---\n\n' + FIG;
   const before = render(md);
   let cur = md;

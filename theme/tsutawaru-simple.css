@@ -4,13 +4,13 @@
 /* ============================================================================
    tsutawaru-simple — ヘッダー帯のない、白地＋斜線の帯だけのテーマ
 
-   tsutawaru-academic.css を @import して、外枠（ヘッダー・帯・余白・色・字間）だけを
-   組み直した派生テーマ。部品（§13）と配置クラス lay-*（§14）は tsutawaru-academic の
-   ものをそのまま使う。文字・配色・囲みの考え方は tsutawaru-academic と同じで、
+   academic.css を @import して、外枠（ヘッダー・帯・余白・色・字間）だけを
+   組み直した派生テーマ。部品（§13）と配置クラス lay-*（§14）は academic の
+   ものをそのまま使う。文字・配色・囲みの考え方は academic と同じで、
    見た目の違いは「ヘッダー帯の代わりに細い斜線の帯を置き、余白を広くとる」ことだけ。
 
-   ビルド時は3枚とも渡す（npm run png / npm run pdf は theme/*.css を全部渡すので指定不要）：
-     --theme-set theme/academic.css theme/tsutawaru-academic.css theme/tsutawaru-simple.css
+   ビルド時は2枚とも渡す（npm run png / npm run pdf は theme/*.css を全部渡すので指定不要）：
+     --theme-set theme/academic.css theme/tsutawaru-simple.css
 
    frontmatter は次だけでよい（header: と、ヘッダー幅の調整つまみは要らない）：
      ---
@@ -36,7 +36,7 @@
    Google Fonts から読み込む（フォントのファイルは同梱しない。描画のときに fonts.googleapis.com
    と fonts.gstatic.com に接続する）。
    ============================================================================ */
-@import "tsutawaru-academic";
+@import "academic";
 @import url('https://fonts.googleapis.com/css2?family=LINE+Seed+JP:wght@400;700&display=swap');
 
 /* ============================================================================
@@ -136,7 +136,7 @@ section {
 /* 上の帯：横に広く使いたいスライド（左右の見比べ・広い表）に */
 section.band-top {
   --pad-l: var(--side-pad);
-  padding-top: calc(var(--header-h) + 28px);   /* 題の上端を tsutawaru-academic と同じ位置（84px）に */
+  padding-top: calc(var(--header-h) + 28px);   /* 題の上端を academic と同じ位置（84px）に */
   background-image: var(--hatch-t);
   background-size: 100% var(--band-w);
 }
@@ -207,7 +207,7 @@ section table th, section table td { letter-spacing: 0.04em; }
 
 /* ============================================================================
    5. 要点の帯（takeaway）— 塗りを外し、上の細い罫だけにする
-      位置・大きさ（下端から 28px・28px の太字）は tsutawaru-academic のまま。
+      位置・大きさ（下端から 28px・28px の太字）は academic のまま。
       左右は本文の幅に合わせる。
    ============================================================================ */
 .takeaway {
@@ -282,7 +282,7 @@ section.lay-lead > .body > p:not(:is(.note, .attr, .cite)):not(:has(> img)) { ma
 
 /* ---- 表紙 -------------------------------------------------------------------
    cover-left＝左揃えの表紙（前置き → 大きな太い題 → 下に所属・氏名・日付）。
-   cover-hero＝tsutawaru-academic の標準（中央の題＋丸い写真）。どちらも地は薄い灰色、帯なし。 */
+   cover-hero＝academic の標準（中央の題＋丸い写真）。どちらも地は薄い灰色、帯なし。 */
 section.cover,
 section.cover-hero,
 section.cover-left {

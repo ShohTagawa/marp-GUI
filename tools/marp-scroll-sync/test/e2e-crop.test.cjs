@@ -19,7 +19,7 @@ const WORK = path.join(os.tmpdir(), 'marp-scroll-sync-e2e-crop-' + process.pid);
 const BUDGET = 400;   // ms（DESIGN 8.0：操作から表示まで 0.4 秒）。CI の共有ランナーでは測るだけ
 const Q = 400;        // settle の静穏時間
 const FRONT = [
-  '---', 'marp: true', 'theme: tsutawaru-academic', 'paginate: true', 'size: 16:9',
+  '---', 'marp: true', 'theme: academic', 'paginate: true', 'size: 16:9',
   `header: '<div class="hdr-left">E2E</div><img class="hdr-logo" src="../assets/logo-placeholder.png" alt="Logo">'`,
   "footer: ''", '---', '',
 ].join('\n');

@@ -747,7 +747,7 @@ test('folding-vscode: vscode の API や解析が例外を投げても register�
 // ---- frontmatter の「調整つまみ」（:root { … }）は畳まない ----
 test('frontmatter style: 先頭の :root（調整つまみ）は見せたまま、後ろのデック固有 CSS だけを自動で畳む', () => {
   const md = [
-    '---', 'marp: true', 'theme: tsutawaru-academic', 'style: |',
+    '---', 'marp: true', 'theme: academic', 'style: |',
     '  :root {',
     '    /* ── ヘッダー幅の調整つまみ { 波括弧入りコメント } ── */',
     '    --hdr-left-w: fit-content;  /* 左の題字帯の幅 */',

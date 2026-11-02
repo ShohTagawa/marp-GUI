@@ -34,7 +34,7 @@ marp-GUI の見本デック。テーマそのものを説明する。図はす�
 
 小見出しの左に縦の罫は付けません。本文の文字は真っ黒ではなく、濃い灰色です。
 
-<div class="takeaway">原稿の書き方は tsutawaru-academic と同じです</div>
+<div class="takeaway">原稿の書き方は academic と同じです</div>
 
 ---
 
@@ -184,6 +184,6 @@ section { --font-jp: var(--font-seed); }
 
 ## 参考文献とクレジット
 
-- 親テーマ：theme/tsutawaru-academic.css（Apache-2.0）
+- 親テーマ：theme/academic.css（Apache-2.0）
 - 書体：BIZ UDPGothic と LINE Seed JP（SIL Open Font License 1.1）。描画のときに Google Fonts から読み込みます。
 - このテーマ：theme/tsutawaru-simple.css（Apache-2.0）

@@ -17,7 +17,7 @@ const OVERFLOW_JS = fs.readFileSync(path.join(H.EXT_ROOT, 'media', 'overflow.js'
 const BUDGET_MS = 2; // 1 枚あたりの予算（80 枚のデックで）
 
 const FM = [
-  '---', 'marp: true', 'theme: tsutawaru-academic', 'paginate: true', 'size: 16:9',
+  '---', 'marp: true', 'theme: academic', 'paginate: true', 'size: 16:9',
   "header: '<div class=\"hdr-left\">はみ出し検知</div>'", "footer: ''", '---', '',
 ].join('\n');
 const lines = (n, s) => Array.from({ length: n }, (_, i) => `- ${s || '箇条書きの行'} ${i + 1}`).join('\n');
