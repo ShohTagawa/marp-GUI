@@ -249,6 +249,11 @@ The architectural philosophy of `marp-GUI` — defining CSS themes and constrain
 
 For a detailed note of gratitude and architectural comparison (in Japanese), see **[docs/THANKS-nakajima.md](docs/THANKS-nakajima.md)**.
 
+### AI Models Used in Development
+
+- **Design**: GPT-5, GPT-5.1
+- **Implementation**: GPT-5, GPT-5.1, Claude Opus (4.5 / 5 / 5.5), Gemini (via Claude Code / Antigravity IDE)
+
 ## Supporting Chiba University
 
 These tools are developed on a limited budget. If you find them useful, please consider making a donation to the Chiba University Fund (千葉大学基金). Donations support education and research at Chiba University in general; they are not earmarked for the development of this software.
@@ -272,4 +277,4 @@ The following restates, for clarity, the points of Section 7 (Disclaimer of Warr
 - This software rewrites your source files directly. Please keep your own backups of important files.
 - Support is provided on a best-effort basis. The author is under no obligation to answer questions, fix defects or release updates, and the software may change or be withdrawn at any time without notice. If something goes wrong, see [Troubleshooting](#6-troubleshooting) first, then open a GitHub issue as described in [CONTRIBUTING.md](CONTRIBUTING.md).
 - Marp renders the HTML in a deck as is. Before opening a deck (.md file) from an unknown or untrusted source, check its contents. Deciding which files to open is your own responsibility.
-- Most of the code was written with an AI coding agent from the author's specifications. It is checked by 346 automated tests (`npm test`); the repository's GitHub Actions workflow runs them on Ubuntu, macOS and Windows with Node.js 20 and 22. A security review is recorded in [docs/security-review.md](docs/security-review.md), including the findings that are still open. Tests and reviews reduce defects and vulnerabilities but cannot rule them out.
+- Most of the code was written with AI coding agents (Design: GPT-5, GPT-5.1; Implementation: GPT-5, GPT-5.1, Claude Opus 4.5 / 5 / 5.5, Gemini) from the author's specifications. It is checked by 346 automated tests (`npm test`); the repository's GitHub Actions workflow runs them on Ubuntu, macOS and Windows with Node.js 20 and 22. A security review is recorded in [docs/security-review.md](docs/security-review.md), including the findings that are still open. Tests and reviews reduce defects and vulnerabilities but cannot rule them out.
